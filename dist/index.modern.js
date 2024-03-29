@@ -294,7 +294,7 @@ function queryParamsAsObject(key, removeKey, url) {
 }
 function isValidDate(value) {
   if (!value) return false;
-  if (functionExists(value, "indexOf") && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
+  if (typeof value["indexOf"] === "function" && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
   if (typeof value === "object") return false;
   if (isNumeric(value)) return false;
   return moment(value).isValid();
@@ -506,7 +506,7 @@ var setObjectValue = function setObjectValue(obj, propName, value) {
 };
 function functionExists(obj, funcName) {
   if (!obj || !funcName) return false;
-  return typeof obj["indexOf"] === "function";
+  return typeof obj[funcName] === "function";
 }
 function execInTry(fn, catchFn) {
   try {
@@ -6020,6 +6020,5 @@ var Sidebar = React$1.memo(function (_ref) {
   }), children));
 });
 
-export default AppClient;
-export { BinderOptions, ClientBarcodeReader, CollectionBinder, CollectionBinderProps, ColorPalette, Config, EndpointOptions, EntityBinder, ExcelExporter, LoadingState, MediaListener, PDFExporter, QueryData, QueryDataModel, QueryFilter, QuerySorter, Region_EN, Region_TR, RequestMethod, ServiceStatus, SpeechRecognizer, SystemLog, VideoPlayerListener, VideoPlayerProps, camelize, capitalizeFirstLetter, changeRegion, checkMouseInBound, checkMouseInBoundByRef, cleanLineFeeds, cleanSpaces, clone, convertToDate, deepMap, enumToArray, execInTry, filterData, filterInArray, findData, findInArray, findKeyInObject, formatString, functionExists, getAppTheme, getCurrentRegionSetting, getFormattedDateString, getImageComponent, getKeyByValue, getLocalstorage, getNextElement, getObjectValue, getQueryParam, getQueryString, getReferencePath, getRegionSetting, isNullOrEmpty, isNumeric, isValidDate, listenCustomEvent, loopInRange, padLeft, parseFloatIfCan, pascalize, queryParamsAsObject, raiseCustomEvent, randomId, registerRegionSetting, removeEmptyProps, removeLastPropName, removeLocalstorage, replaceLowerTRChars, replaceQueryParam, replaceUpperTRChars, resolveCharset, resolveContentType, resolveMimeType, selectDefaultValues, setLocalstorage, setObjectValue, shortenText, speechRecognitionSupported, toJson, toSlug, trimChars, typeCheck, urlMatch, useAppTheme, useEndpointSWR, useEndpointSWRCallback, useMediaQuery, validateEmail, yearSelectBox };
+export { AppClient, BinderOptions, ClientBarcodeReader, CollectionBinder, CollectionBinderProps, ColorPalette, Config, EndpointOptions, EntityBinder, ExcelExporter, LoadingState, MediaListener, PDFExporter, QueryData, QueryDataModel, QueryFilter, QuerySorter, Region_EN, Region_TR, RequestMethod, ServiceStatus, SpeechRecognizer, SystemLog, VideoPlayerListener, VideoPlayerProps, camelize, capitalizeFirstLetter, changeRegion, checkMouseInBound, checkMouseInBoundByRef, cleanLineFeeds, cleanSpaces, clone, convertToDate, deepMap, enumToArray, execInTry, filterData, filterInArray, findData, findInArray, findKeyInObject, formatString, functionExists, getAppTheme, getCurrentRegionSetting, getFormattedDateString, getImageComponent, getKeyByValue, getLocalstorage, getNextElement, getObjectValue, getQueryParam, getQueryString, getReferencePath, getRegionSetting, isNullOrEmpty, isNumeric, isValidDate, listenCustomEvent, loopInRange, padLeft, parseFloatIfCan, pascalize, queryParamsAsObject, raiseCustomEvent, randomId, registerRegionSetting, removeEmptyProps, removeLastPropName, removeLocalstorage, replaceLowerTRChars, replaceQueryParam, replaceUpperTRChars, resolveCharset, resolveContentType, resolveMimeType, selectDefaultValues, setLocalstorage, setObjectValue, shortenText, speechRecognitionSupported, toJson, toSlug, trimChars, typeCheck, urlMatch, useAppTheme, useEndpointSWR, useEndpointSWRCallback, useMediaQuery, validateEmail, yearSelectBox };
 //# sourceMappingURL=index.modern.js.map

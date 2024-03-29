@@ -1,6 +1,5 @@
-import moment, { MomentFormatSpecification } from 'moment'
+import moment from 'moment'
 import { getCurrentRegionSetting, getRegionSetting } from '../Localization/RegionSetting';
-import { functionExists } from './ReflectionExtensions';
 
 export function capitalizeFirstLetter(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -110,7 +109,7 @@ export function queryParamsAsObject(key: string, removeKey: boolean = false, url
 
 export function isValidDate(value?: string){
   if(!value) return false;
-  if(functionExists(value, "indexOf") && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
+  if(typeof value["indexOf"] === "function" && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
   if(typeof value === "object") return false;
   if(isNumeric(value)) return false;
   return moment(value).isValid() 

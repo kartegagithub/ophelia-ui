@@ -316,7 +316,7 @@ function queryParamsAsObject(key, removeKey, url) {
 }
 function isValidDate(value) {
   if (!value) return false;
-  if (functionExists(value, "indexOf") && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
+  if (typeof value["indexOf"] === "function" && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
   if (typeof value === "object") return false;
   if (isNumeric(value)) return false;
   return moment(value).isValid();
@@ -528,7 +528,7 @@ var setObjectValue = function setObjectValue(obj, propName, value) {
 };
 function functionExists(obj, funcName) {
   if (!obj || !funcName) return false;
-  return typeof obj["indexOf"] === "function";
+  return typeof obj[funcName] === "function";
 }
 function execInTry(fn, catchFn) {
   try {
@@ -6039,6 +6039,7 @@ var Sidebar = React$1__default.memo(function (_ref) {
   }), children));
 });
 
+exports.AppClient = AppClient;
 exports.BinderOptions = BinderOptions;
 exports.ClientBarcodeReader = ClientBarcodeReader;
 exports.CollectionBinder = CollectionBinder;
@@ -6070,7 +6071,6 @@ exports.cleanSpaces = cleanSpaces;
 exports.clone = clone;
 exports.convertToDate = convertToDate;
 exports.deepMap = deepMap;
-exports.default = AppClient;
 exports.enumToArray = enumToArray;
 exports.execInTry = execInTry;
 exports.filterData = filterData;

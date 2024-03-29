@@ -1,6 +1,6 @@
 {
   "name": "ophelia-next",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Ophelia UI NextJS Development Library",
   "author": "kartegagithub",
   "license": "MIT",
@@ -14,12 +14,7 @@
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",
     "start": "microbundle-crl watch --no-compress --format modern,cjs",
-    "prepare": "run-s build",
-    "test": "run-s test:unit test:lint test:build",
-    "test:build": "run-s build",
-    "test:lint": "eslint .",
-    "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
-    "test:watch": "react-scripts test --env=jsdom"
+    "prepare": "run-s build"
   },
   "peerDependencies": {
     "react": "^18.2.0"

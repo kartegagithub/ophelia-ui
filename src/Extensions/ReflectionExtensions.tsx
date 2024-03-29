@@ -1,4 +1,4 @@
-import React, { Children } from "react";
+import { Children } from "react";
 import { isNumeric } from "./StringExtensions";
 
 export function getKeyByValue(object: any, value: any) {
@@ -117,7 +117,7 @@ export const setObjectValue = (obj: any, propName?: string, value?: any) => {
 
 export function functionExists(obj?: any, funcName?: string){
   if(!obj || !funcName) return false;
-  return typeof obj["indexOf"] === "function"
+  return typeof obj[funcName] === "function"
 }
 
 export function execInTry(fn: Function, catchFn: ((error: any) => void)){
