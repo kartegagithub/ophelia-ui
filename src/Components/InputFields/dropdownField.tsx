@@ -1,4 +1,4 @@
-import Select from "../Inputs/Select";
+import SelectInput from "../Inputs/SelectInput";
 import BaseField from "./baseField";
 export default class DropdownField<P> extends BaseField<
   P & {
@@ -16,6 +16,6 @@ export default class DropdownField<P> extends BaseField<
   }
 > {
   renderInput() {
-    return <Select {...this.GetProps()} />;
+    return <SelectInput {...this.GetProps()} />;
   }
 }

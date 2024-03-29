@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Date from "../Inputs/Date";
+import DateInput from "../Inputs/DateInput";
 export default class DateField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -9,6 +9,6 @@ export default class DateField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Date {...this.GetProps()} />;
+        return <DateInput {...this.GetProps()} />;
     }
   }

@@ -3,7 +3,6 @@ import MenuClass from "./MenuClass";
 import MenuItem from "./MenuItem";
 import MenuItemClass from "./MenuItemClass";
 import { getAppTheme } from "../../AppTheme";
-import { useRouter } from "next/router";
 
 const Menu: React.FC<MenuProps> = React.memo(({ menu, stateKey, id, searchKey, children, setMenuCollapsed, menuCollapsed, theme = undefined }) => {
   if (!menu) return <ul></ul>;

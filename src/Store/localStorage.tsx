@@ -18,12 +18,13 @@ export const getLocalstorage = (propName: string) => {
     if(!global.localStorage)
       return null;
     localStorage.setItem(propName, JSON.stringify(data));
-    return data;
+    return undefined
   };
   
   export const removeLocalstorage = (propName: string) => {
-    if(!global.localStorage) return null;
+    if(!global.localStorage)
+      return null;
     localStorage.removeItem(propName);
-    return null;
+    return undefined
   };
   

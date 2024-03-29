@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Time from "../Inputs/Time";
+import TimeInput from "../Inputs/TimeInput";
 export default class TimeField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -9,6 +9,6 @@ export default class TimeField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Time {...this.GetProps()} />;
+        return <TimeInput {...this.GetProps()} />;
     }
   }

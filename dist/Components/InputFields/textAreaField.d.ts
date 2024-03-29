@@ -1,4 +1,4 @@
-import React from "react";
+/// <reference types="react" />
 import BaseField from "./baseField";
 export default class TextAreaField<P> extends BaseField<P & {
     name: string;
@@ -6,5 +6,5 @@ export default class TextAreaField<P> extends BaseField<P & {
     value?: string;
     listener?: any;
 }> {
-    renderInput(): React.JSX.Element;
+    renderInput(): import("react").JSX.Element;
 }

@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Number from "../Inputs/Number";
+import NumberInput from "../Inputs/NumberInput";
 export default class NumericField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class NumericField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Number {...this.GetProps()} />;
+        return <NumberInput {...this.GetProps()} />;
     }
   }

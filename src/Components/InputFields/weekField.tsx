@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Week from "../Inputs/Week";
+import WeekInput from "../Inputs/WeekInput";
 export default class WeekField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -9,6 +9,6 @@ export default class WeekField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Week {...this.GetProps()} />;
+        return <WeekInput {...this.GetProps()} />;
     }
   }

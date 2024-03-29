@@ -1,4 +1,4 @@
-import Label from "../Readonly/Label";
+import Label from "../Label";
 import BaseField from "./baseField";
 export default class LabelField<P> extends BaseField<P & {
     name: string,

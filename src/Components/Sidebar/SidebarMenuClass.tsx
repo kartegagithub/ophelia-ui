@@ -1,4 +1,4 @@
-import Icon from "../Icon/Icon"
+import Icon from "../Icon"
 import MenuClass from "../Menu/MenuClass"
 export default class SidebarMenuClass extends MenuClass {
     Name?: string = "Sidebar"

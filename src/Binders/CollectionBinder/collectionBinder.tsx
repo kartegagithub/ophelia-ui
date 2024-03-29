@@ -1,4 +1,3 @@
-"use client"
 import React from "react";
 import Config from "./config";
 import AppClient from "../../AppClient";
@@ -10,7 +9,7 @@ import serviceCollectionResult from "../../Service/serviceCollectionResult";
 import { LoadingState } from "../../Enums/loadingState";
 import ServiceMessage from "../../Service/serviceMessage";
 import Pluralize from 'pluralize';
-import Pagination from "../../Components/Pagination/Pagination";
+import Pagination from "../../Components/Pagination";
 import Router from "next/router";
 import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString } from "../../Extensions/StringExtensions";
 import QuerySorter from "./query/querySorter";
@@ -20,7 +19,7 @@ import { setObjectValue } from "../../Extensions/ReflectionExtensions";
 import { PDFExporter } from "../../Exporters/PDFExporter";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
-import Modal from "../../Components/Modal/Modal";
+import Modal from "../../Components/Modal";
 import EntityBinder from "../EntityBinder/entityBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 export class CollectionBinderProps{

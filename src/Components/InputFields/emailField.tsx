@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Email from "../Inputs/Email";
+import EmailInput from "../Inputs/EmailInput";
 export default class EmailField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class EmailField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Email {...this.GetProps()} />;
+        return <EmailInput {...this.GetProps()} />;
     }
   }

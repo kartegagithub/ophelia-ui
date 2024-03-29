@@ -1,4 +1,4 @@
-import Checkbox from "../Inputs/Checkbox";
+import CheckboxInput from "../Inputs/CheckboxInput";
 import BaseField from "./baseField";
 export default class BoolField<P> extends BaseField<P & {
     name: string,
@@ -8,6 +8,6 @@ export default class BoolField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Checkbox {...this.GetProps()} />;
+        return <CheckboxInput {...this.GetProps()} />;
     }
   }

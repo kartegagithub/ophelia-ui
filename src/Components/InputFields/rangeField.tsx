@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Range from "../Inputs/Range";
+import RangeInput from "../Inputs/RangeInput";
 export default class RangeField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class RangeField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Range {...this.GetProps()} />;
+        return <RangeInput {...this.GetProps()} />;
     }
   }

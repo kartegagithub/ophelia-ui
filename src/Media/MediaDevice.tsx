@@ -1,5 +1,5 @@
 export class MediaListener{
-    OnMediaStreamReceived?: ((stream: MediaStream) => void)
+    OnMediaStreamReceived?: ((stream?: MediaStream) => void)
     OnMediaStreamRemoved?: (() => void)
     OnMediaError?: ((type: string, message: any) => void)
 }
@@ -21,17 +21,20 @@ export default class MediaDevice{
     OnError(type: string, message: any){
         this.Listener.OnMediaError && this.Listener.OnMediaError(type, message)
     }
-    async GetDisplayMedia(options?: { audio?: boolean, video?: boolean} | undefined){
-        return await navigator.mediaDevices.getDisplayMedia(options).then((stream) => {
+    async GetDisplayMedia(options?: {audio?: boolean, video?:boolean}){
+        var mediaDevices: any = navigator.mediaDevices
+        return await mediaDevices.getDisplayMedia(options).then((stream: any) => {
             this.Stream = stream;
             this.Listener.OnMediaStreamReceived && this.Listener.OnMediaStreamReceived(this.Stream)
-            this.Stream.onremovetrack = () => {
-                this.Stream = undefined
-                this.Listener.OnMediaStreamRemoved && this.Listener.OnMediaStreamRemoved()
-            };
+            if(this.Stream){
+                this.Stream.onremovetrack = () => {
+                    this.Stream = undefined
+                    this.Listener.OnMediaStreamRemoved && this.Listener.OnMediaStreamRemoved()
+                };
+            }            
             return this.Stream
         })
-        .catch((error) => {
+        .catch((error: any) => {
             this.Stream = undefined;
             this.OnError(error.name, error);
             return undefined

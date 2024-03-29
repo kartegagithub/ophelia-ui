@@ -18,5 +18,5 @@ export default class MenuItemClass {
     Selected?: boolean;
     MenuCode?: string;
     Level?: number;
-    Init?: ((item: MenuItemClass, initialPath?: string | undefined) => void) | undefined;
+    Init?: (item: MenuItemClass, initialPath?: string) => void;
 }

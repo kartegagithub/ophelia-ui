@@ -1,4 +1,4 @@
-import Filterbox from "../Inputs/Filterbox";
+import FilterboxInput from "../Inputs/FilterboxInput";
 import BaseField from "./baseField";
 export default class DropdownFilterboxField<P> extends BaseField<
   P & {
@@ -37,7 +37,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
   renderInput() {
     var props = this.GetProps();
     var pureProps = (({ value, defaultValue, displayProp, valueProp,  remoteDataSource, ...others }) => others)(props)
-    return <Filterbox 
+    return <FilterboxInput 
      hideSelections={this.props.hideSelections}
      displayProp={this.props.displayProp ?? this.props.remoteDataSource?.DisplayProp}
      valueProp={this.props.valueProp ?? this.props.remoteDataSource?.ValueProp}

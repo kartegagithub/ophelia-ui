@@ -1,7 +1,6 @@
 import NumericField from "./numericField";
 import DateField from "./dateField";
 import BoolField from "./boolField";
-import FilterBoxField from "./filterBoxField";
 import EnumSelectBoxField from "./enumSelectBoxField";
 import TextField from "./textField";
 import DropdownField from "./dropdownField";

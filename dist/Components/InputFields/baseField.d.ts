@@ -1,5 +1,5 @@
 import React, { SyntheticEvent } from "react";
-import { InputFieldsTheme } from "./Theme";
+import { InputFieldsTheme } from "./InputFieldsTheme";
 export default class BaseField<P> extends React.Component<P & {
     name: string;
     text?: string;

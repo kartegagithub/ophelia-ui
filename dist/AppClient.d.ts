@@ -14,8 +14,8 @@ export default class AppClient {
     Theme?: AppTheme;
     DynamicSEO?: any;
     Hydrate(): void;
-    ChangeUserRegion: (code?: string | undefined) => void;
-    Translate(key?: string): string | undefined;
+    ChangeUserRegion: (code?: string) => void;
+    Translate(key?: string): string;
     CreateService(): APIService;
     RegisterAnalytics: (analytic: IAnalytics) => void;
     UpdateMetaTags: () => void;

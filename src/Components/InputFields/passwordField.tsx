@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Password from "../Inputs/Password";
+import PasswordInput from "../Inputs/PasswordInput";
 export default class PasswordField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -7,6 +7,6 @@ export default class PasswordField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Password {...this.GetProps()} />;
+        return <PasswordInput {...this.GetProps()} />;
     }
   }

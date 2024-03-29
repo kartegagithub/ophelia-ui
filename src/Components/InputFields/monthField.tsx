@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Month from "../Inputs/Month";
+import MonthInput from "../Inputs/MonthInput";
 export default class MonthField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class MonthField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Month {...this.GetProps()} />;
+        return <MonthInput {...this.GetProps()} />;
     }
   }

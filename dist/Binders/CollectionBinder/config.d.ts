@@ -13,7 +13,7 @@ export default class Config {
     RowSelection?: string;
     RowClickOption?: "navigate" | "showEntityBinder";
     HideSelectAll?: boolean;
-    beforeSendRequest?: ((data: any) => any) | undefined;
-    onRowSelectionChange?: ((selectedRowKeys: Array<number>, selectedRows: Array<any>) => void) | undefined;
+    beforeSendRequest?: (data: any) => any;
+    onRowSelectionChange?: (selectedRowKeys: Array<number>, selectedRows: Array<any>) => void;
     constructor();
 }

@@ -1,5 +1,5 @@
 import { getAppTheme } from "../../AppTheme";
-import { IconProps } from "../Icon/Icon";
+import { IconProps } from "../Icon";
 import Image from "./Image";
 
 export function getImageComponent(elem: string | React.JSX.Element | Function | IconProps | any | undefined, props?: any, funcParams?: any): React.JSX.Element{

@@ -1,7 +1,7 @@
 import React from "react";
 import TableClass from "./TableClass";
 import AppClient from "../../AppClient";
-import { IconProps } from "../Icon/Icon";
+import { IconProps } from "../Icon";
 declare const Table: React.FC<TableProps>;
 export default Table;
 declare var tableProps: {

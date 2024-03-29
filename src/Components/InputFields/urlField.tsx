@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import URL from "../Inputs/URL";
+import URLInput from "../Inputs/URLInput";
 export default class URLField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class URLField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <URL {...this.GetProps()} />;
+        return <URLInput {...this.GetProps()} />;
     }
   }

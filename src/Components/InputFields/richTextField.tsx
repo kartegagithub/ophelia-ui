@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import RichText from "../Inputs/RichText";
+import RichTextInput from "../Inputs/RichTextInput";
 export default class RichTextField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class RichTextField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <RichText {...this.GetProps()} />;
+        return <RichTextInput {...this.GetProps()} />;
     }
   }

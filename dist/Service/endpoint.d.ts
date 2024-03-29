@@ -20,7 +20,7 @@ export declare class EndpointOptions {
     CacheDuration?: number;
     Headers?: Record<string, any>;
     ValidateCache?: Function;
-    toString?: ((apiURL: string) => string) | undefined;
+    toString?: (apiURL: string) => string;
 }
 export declare enum ServiceStatus {
     Success = "success",

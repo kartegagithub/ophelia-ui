@@ -1,5 +1,3 @@
-import { ReactNode } from "react"
-
 export default class TabClass{
     Visible?: boolean = true
     Text: string = ""

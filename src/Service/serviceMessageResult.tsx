@@ -1,4 +1,4 @@
-import Alert from "../Components/Alert/Alert";
+import Alert from "../Components/Alert";
 import ServiceMessage from "./serviceMessage";
 
 const ServiceMessageResult = (props: ServiceMessage) => {

@@ -1,5 +1,5 @@
 import { enumToArray } from "../../Extensions/ReflectionExtensions";
-import Select from "../Inputs/Select";
+import SelectInput from "../Inputs/SelectInput";
 import BaseField from "./baseField";
 export default class EnumSelectBoxField<P> extends BaseField<
   P & {
@@ -24,6 +24,6 @@ export default class EnumSelectBoxField<P> extends BaseField<
       displayProp = "text";
       valueProp = "value"
     }
-    return <Select displayProp={displayProp} valueProp={valueProp} options={options} {...otherProps} />;
+    return <SelectInput displayProp={displayProp} valueProp={valueProp} options={options} {...otherProps} />;
   }
 }

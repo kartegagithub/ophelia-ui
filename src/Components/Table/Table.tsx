@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { KeyboardEventHandler, MouseEventHandler, useEffect, useMemo, useState } from "react";
 import TableClass from "./TableClass";
 import TableColumnClass from "./TableColumnClass";
 import InputField from "../InputFields/inputField";
-import { enumToArray, getObjectValue, setObjectValue } from "../../Extensions/ReflectionExtensions";
+import { enumToArray, getObjectValue, randomId, setObjectValue } from "../../Extensions/ReflectionExtensions";
 import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
 import { getFormattedDateString, parseFloatIfCan } from "../../Extensions/StringExtensions";
-import Dropdown from "../Dropdown/Dropdown";
+import Dropdown from "../Dropdown";
 import { DataComparison } from "../../Binders/CollectionBinder/query/queryFilter";
-import Select from "../Inputs/Select";
+import Select from "../Inputs/SelectInput";
 import AppClient from "../../AppClient";
-import { IconProps } from "../Icon/Icon";
+import { IconProps } from "../Icon";
 import { PencilIcon } from "@heroicons/react/24/solid";
-import Checkbox from "../Inputs/Checkbox";
+import Checkbox from "../Inputs/CheckboxInput";
 const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient, children, listener }) => {
   var [selectedRow, setSelectedRow] = useState(0)
   var [selectedCell, setSelectedCell] = useState([0,0])

@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import File from "../Inputs/File";
+import FileInput from "../Inputs/FileInput";
 export default class FileField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class FileField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <File {...this.GetProps()} />;
+        return <FileInput {...this.GetProps()} />;
     }
   }

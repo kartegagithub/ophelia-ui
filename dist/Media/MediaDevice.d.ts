@@ -1,5 +1,5 @@
 export declare class MediaListener {
-    OnMediaStreamReceived?: ((stream: MediaStream) => void);
+    OnMediaStreamReceived?: ((stream?: MediaStream) => void);
     OnMediaStreamRemoved?: (() => void);
     OnMediaError?: ((type: string, message: any) => void);
 }
@@ -13,6 +13,6 @@ export default class MediaDevice {
     GetDisplayMedia(options?: {
         audio?: boolean;
         video?: boolean;
-    } | undefined): Promise<any>;
-    GetUserMedia(constraints?: MediaStreamConstraints): Promise<MediaStream | undefined>;
+    }): Promise<any>;
+    GetUserMedia(constraints?: MediaStreamConstraints): Promise<any>;
 }

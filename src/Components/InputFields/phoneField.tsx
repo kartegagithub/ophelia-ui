@@ -1,5 +1,5 @@
 import BaseField from "./baseField";
-import Phone from "../Inputs/Phone";
+import PhoneInput from "../Inputs/PhoneInput";
 export default class PhoneField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -8,6 +8,6 @@ export default class PhoneField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <Phone {...this.GetProps()} />;
+        return <PhoneInput {...this.GetProps()} />;
     }
   }

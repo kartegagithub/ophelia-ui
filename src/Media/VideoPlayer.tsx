@@ -30,13 +30,13 @@ export default class VideoPlayer{
         this.IsLiveStream = false;
         if(props){
             this.IsLiveStream = props.isLiveStream === true;
-            if(props.disablePictureInPicture != undefined) this.VideoElem.disablePictureInPicture = props.disablePictureInPicture
-            if(props.playsInline != undefined) this.VideoElem.playsInline = props.playsInline
-            if(props.poster != undefined) this.VideoElem.poster = props.poster 
-            if(props.disableremoteplayback != undefined) this.VideoElem.disableRemotePlayback = props.disableremoteplayback 
-            if(props.loop != undefined) this.VideoElem.loop = props.loop 
-            if(props.muted != undefined) this.VideoElem.muted = props.muted 
-            if(props.preload != undefined) this.VideoElem.preload = props.preload
+            if(props.disablePictureInPicture != undefined) (this.VideoElem as any).disablePictureInPicture = props.disablePictureInPicture
+            if(props.playsInline != undefined) (this.VideoElem as any).playsInline = props.playsInline
+            if(props.poster != undefined) (this.VideoElem as any).poster = props.poster 
+            if(props.disableremoteplayback != undefined) (this.VideoElem as any).disableRemotePlayback = props.disableremoteplayback 
+            if(props.loop != undefined) (this.VideoElem as any).loop = props.loop 
+            if(props.muted != undefined) (this.VideoElem as any).muted = props.muted 
+            if(props.preload != undefined) (this.VideoElem as any).preload = props.preload
             if(props.src) this.SetSource(props.src, props.srcType)
         }
         this.RegisterEvents()

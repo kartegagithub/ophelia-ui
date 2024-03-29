@@ -1,7 +1,7 @@
 import React from "react";
 import BinderOptions, { ExportOption } from "../BinderOptions";
 import AppClient from "../../AppClient";
-import Tab from "../../Components/Tabs/Tab";
+import Tab from "../..//Components/Tabs/Tab";
 import Tabs from "../../Components/Tabs/Tabs";
 import InputField from "../../Components/InputFields/inputField";
 import Router from "next/router";
@@ -11,7 +11,7 @@ import { camelize, clone, pascalize, removeLastPropName } from "../../Extensions
 import { LoadingState } from "../../Enums/loadingState";
 import { getAppTheme } from "../../AppTheme";
 import { getObjectValue, setObjectValue } from "../../Extensions/ReflectionExtensions";
-import Panel from "../../Components/Panel/Panel";
+import Panel from "../../Components/Panel";
 import { PDFExporter } from "../../Exporters/PDFExporter";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";

@@ -1,1 +1,1 @@
-export declare const useMediaQuery: (breakpoint?: string | undefined) => boolean;
+export declare const useMediaQuery: (breakpoint?: string) => boolean;

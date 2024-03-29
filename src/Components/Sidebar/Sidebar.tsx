@@ -10,7 +10,7 @@ import Image from "../Image/Image";
 import { getAppTheme } from "../../AppTheme";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Icon from "../Icon/Icon";
+import Icon from "../Icon";
 import { getImageComponent } from "../Image/Extensions";
 import MenuClass from "../Menu/MenuClass";
 

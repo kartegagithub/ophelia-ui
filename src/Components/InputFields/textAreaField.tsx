@@ -1,6 +1,5 @@
-import React from "react";
 import BaseField from "./baseField";
-import TextArea from "../Inputs/TextArea";
+import TextAreaInput from "../Inputs/TextAreaInput";
 export default class TextAreaField<P> extends BaseField<P & {
     name: string,
     text?: string,
@@ -9,6 +8,6 @@ export default class TextAreaField<P> extends BaseField<P & {
   }>{
     
     renderInput(){
-        return <TextArea {...this.GetProps()} />;
+        return <TextAreaInput {...this.GetProps()} />;
     }
   }

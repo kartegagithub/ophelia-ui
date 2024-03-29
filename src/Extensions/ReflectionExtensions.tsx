@@ -61,7 +61,7 @@ export const deepMap = (children: any, types: string[]): Array<any> => {
     ) {
       result = result.concat(deepMap(child.props.children, types))
     }
-    return null
+    return undefined
   });
   return result;
 }

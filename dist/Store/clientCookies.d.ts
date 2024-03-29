@@ -1,7 +1,7 @@
 export default class ClientCookies {
     get: (sKey: string) => string | undefined;
-    set: (sKey: string, sValue: string, vEnd?: string | number | Date | undefined, sPath?: string | undefined, sDomain?: string | undefined, bSecure?: boolean | undefined) => boolean;
-    remove: (sKey: string, sPath?: string | undefined, sDomain?: string | undefined) => boolean;
+    set: (sKey: string, sValue: string, vEnd?: number | string | Date, sPath?: string, sDomain?: string, bSecure?: boolean) => boolean;
+    remove: (sKey: string, sPath?: string, sDomain?: string) => boolean;
     has: (sKey: string) => boolean;
     keys: () => string[];
 }

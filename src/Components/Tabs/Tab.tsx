@@ -1,5 +1,4 @@
-import { getAppTheme } from "../../AppTheme";
-import React, { useState } from "react";
+import React from "react";
 const Tab: React.FC<TabsProps> = ({ theme, visible, id, text, active, children }) => {  
   if(visible === false) return <></>
   

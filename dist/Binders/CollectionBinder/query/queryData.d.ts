@@ -7,6 +7,6 @@ export default class QueryData {
     constructor();
     processQuery(columns: Array<TableColumnClass>, filters: any, sorter: QuerySorter): {
         queryData: QueryDataModel;
-    } | null;
+    };
     applyFilter(filterToApply: QueryFilter): void;
 }

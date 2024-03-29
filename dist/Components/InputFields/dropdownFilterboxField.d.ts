@@ -20,6 +20,6 @@ export default class DropdownFilterboxField<P> extends BaseField<P & {
 }> {
     constructor(props: any);
     Searching: boolean;
-    onSearch: (input?: string | undefined) => Promise<any> | undefined;
+    onSearch: (input?: string) => Promise<any>;
     renderInput(): import("react").JSX.Element;
 }

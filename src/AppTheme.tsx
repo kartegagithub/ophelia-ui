@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash"
+import _ from "lodash-es"
 import { AppThemeType } from "./AppThemeType";
 import { removeEmptyProps } from "./Extensions/ReflectionExtensions";
 
@@ -29,7 +29,7 @@ var AppThemeConfig: AppThemeType = {
   },
   Tabs:{
     RootClass: "flex flex-col gap-4 bg-white text-sm font-medium text-gray-500",
-    TabHeaderClass: "flex items-center p-2 text-sm  text-gray-500",
+    TabHeaderClass: "flex items-center p-2 text-sm text-gray-500",
     TabContentClass: "text-medium text-gray-500 rounded-lg w-full",
     TabHeaderButtonClass: "p-2 border-b-2 rounded-t-lg text-blueZodiac ",
     SelectedTabHeaderButtonClass: "p-2 border-b-2 border-blueZodiac rounded-t-lg text-blueZodiac ",
@@ -41,9 +41,9 @@ var AppThemeConfig: AppThemeType = {
     primary: "",
   },
   Panel: {
-    RootClass: "max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700",
-    HeaderClass: "sm:flex sm:flex-1 sm:items-center sm:justify-between",
-    HeaderTextClass: "sm:flex sm:flex-1 sm:items-center sm:justify-between"
+    RootClass: "bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700",
+    HeaderClass: "flex flex-1 items-center justify-between border-b border-gray-300 px-3 py-4 md:py-5" ,
+    HeaderTextClass: "flex flex-1 items-center justify-between"
   },
   Pagination: {
     RootClass: "bg-white mb-12 p-5 flex flex-col xl:flex-row items-center justify-between gap-y-5",
@@ -199,8 +199,8 @@ var AppThemeConfig: AppThemeType = {
     WarningImage: {name: "warning", size: 18}
   },
   Notification: {
-    InfoContainer: "absolute top-16 right-6 p-3 max-w-[500px] text-blue-800 border border-blue-300 rounded-lg bg-blue-50 z-10",
-    ErrorContainer: "absolute top-16 right-6 p-3 max-w-[500px] text-red-800 border border-red-300 rounded-lg bg-red-50 z-10",
+    InfoContainer: "absolute top-16 right-6 py-2 px-4 min-w-72 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 z-10",
+    ErrorContainer: "absolute top-16 right-6 py-2 px-4 min-w-72 text-red-800 border border-red-300 rounded-lg bg-red-50 z-10",
     TitleContainer: "flex items-center gap-2",
     ContentClass: "my-2 text-sm",
     InfoImage: {name: "info", size: 18, color:"blue"},
