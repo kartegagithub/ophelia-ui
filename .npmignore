@@ -1,0 +1,14 @@
+.vscode/
+.git/
+node_modules/
+src/
+test/
+
+.travis.yml
+.eslintignore
+.eslintrc
+.gitignore
+.prettierrc
+tsconfig.json
+tsconfig.test.json
+.npmignore
