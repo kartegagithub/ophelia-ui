@@ -16,8 +16,9 @@ export default class TableColumnClass{
     IsSorted?: boolean = false
     SortDirection?: string = ""
     IsFiltered?: boolean = false
-    MaxTextLength?: number = 0
+    MaxTextLength?: number = 100
     Checkboxes?: boolean = false
+    I18n?: boolean = false
     Filtering?: {
         Type?: "text" | "file" | "month" | "week" | "url" | "phone" | "textarea"| "richtext" | "password" | "enum" | "email" | "numeric" | "filterbox" | "selectbox" | "date" | "time" | "datetime" | "checkbox" | "radio" | "range" | "image",
         Name?: string,

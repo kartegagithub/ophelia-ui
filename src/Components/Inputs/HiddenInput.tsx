@@ -1,11 +1,13 @@
 import React, { InputHTMLAttributes } from "react";
 
-export default class HiddenInput<P> extends React.Component<P & InputHTMLAttributes<HTMLInputElement>, {}>{
-    render(): React.ReactNode {
-      return (
-        <input type="hidden"
-          {...this.props}
-        />
-      );
-    }
-  }
+interface HiddenInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  // İhtiyacınıza göre ek prop'lar ekleyebilirsiniz
+}
+
+const HiddenInput: React.FC<HiddenInputProps> = (props) => {
+  return (
+    <input type="hidden" {...props} />
+  );
+};
+
+export default HiddenInput;

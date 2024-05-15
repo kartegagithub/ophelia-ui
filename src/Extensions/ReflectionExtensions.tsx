@@ -1,5 +1,6 @@
 import { Children } from "react";
-import { isNumeric } from "./StringExtensions";
+import { isNumeric, parseFloatIfCan } from "./StringExtensions";
+import _ from "lodash-es"
 
 export function getKeyByValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -84,7 +85,8 @@ export const getReferencePath = (propName?: string) => {
 
 export const getObjectValue = (obj: any, propName?: string, defaultValue: any = "") => {
   if (!propName || !obj) return defaultValue
-
+  if(typeof obj !== "object") return obj;
+  
   var value: any = defaultValue;
   if(propName.indexOf(".") > -1){
     var names = propName.split(".");
@@ -99,6 +101,13 @@ export const getObjectValue = (obj: any, propName?: string, defaultValue: any = 
   return value ?? defaultValue;
 }
 
+export const validateKeyName = (obj: any, key?: string) => {
+  if(!key) return key;
+  var tmpKey = key.toLocaleLowerCase();
+  var existingKey = Object.keys(obj).find((key) => key.toLocaleLowerCase() == tmpKey)
+  if(existingKey) return existingKey
+  return key;
+}
 export const setObjectValue = (obj: any, propName?: string, value?: any) => {
   if (!propName || !obj) return
 
@@ -145,4 +154,28 @@ export const enumToArray = (type: any, translateFn?: (key: string) => string | u
       value: type[key], 
       text: text}
   });
+}
+export const convertToBool = (val?: any) => {
+  if(val == undefined || val == null || val == "") return false;
+  if(typeof val == "boolean") return val
+  if(typeof val == "number") return val > 0
+  if(typeof val == "bigint") return val > 0
+  if(typeof val == "string"){
+    if(val.toLocaleLowerCase() == "true") return true;
+    if(val.toLocaleLowerCase() == "false") return false;
+    return parseFloatIfCan(val) > 0
+  }
+  return false;
+}
+
+export const merge = (obj1: any, ...objs: Array<any>) => {
+  var result: any = {};
+  if(obj1) result = _.merge(result, obj1);
+  if(objs && objs.length > 0){
+    for (let index = 0; index < objs.length; index++) {
+      const element = objs[index];
+      result = _.merge(result, element);
+    }
+  }
+  return result;
 }

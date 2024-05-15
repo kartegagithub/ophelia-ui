@@ -21,9 +21,9 @@ const Shortcutlist: React.FC<ShortcutListProps> = React.memo(({
     <div className={Theme?.Class}>
         {title && <p className={Theme?.TitleClass}>{title}</p>}
         <div className={Theme?.ItemsClass}>
-          {items.map((item) => {
+          {items.map((item, i) => {
             return (
-              <div className={Theme?.ItemClass} id={item.id?.toString()} onClick={() => onItemClick && onItemClick(item)}>
+              <div key={i} className={Theme?.ItemClass} id={item.id?.toString()} onClick={() => onItemClick && onItemClick(item)}>
                 {showBadge && item.badgeText && <span className={Theme?.BadgeClass}>{item.badgeText}</span>}
                 {item.image && <div className={Theme?.ItemIconClass}>
                   {getImageComponent(item.image, {color: Theme?.ItemIconColor})}
@@ -44,6 +44,7 @@ const Shortcutlist: React.FC<ShortcutListProps> = React.memo(({
   );
 });
 
+Shortcutlist.displayName = "Shortcutlist"
 export default Shortcutlist;
 
 var shortcutListProps:{

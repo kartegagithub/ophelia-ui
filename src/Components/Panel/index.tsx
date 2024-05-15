@@ -26,7 +26,7 @@ const Panel: React.FC<{
     </>
   );
 });
-
+Panel.displayName = "Panel"
 export default Panel;
 
 var panelTheme: {

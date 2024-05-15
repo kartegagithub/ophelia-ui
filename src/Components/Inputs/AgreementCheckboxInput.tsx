@@ -1,6 +1,7 @@
 import { getAppTheme } from "../../AppTheme";
 import React, { InputHTMLAttributes } from "react";
 import Modal from "../Modal";
+import RawHTML from "../RawHTML";
 
 export default class AgreementCheckboxInput<P> extends React.Component<P & Omit<InputHTMLAttributes<HTMLInputElement>, "checked"> & {
   agreementText: string,
@@ -43,7 +44,7 @@ export default class AgreementCheckboxInput<P> extends React.Component<P & Omit<
     return (
       <>
         {this.state.showModal && <Modal onBottomScroll={() => this.setState({ viewedAgreement: true})} buttons={buttons} title={this.props.modalTitle} className={this.props.modalClassName} dismissOnBackdropClick={false} defaultOpen={true}>
-          <div dangerouslySetInnerHTML={{__html: this.props.agreementText}} />
+          <RawHTML html={this.props.agreementText} />
         </Modal>}
         <input
           type="checkbox"

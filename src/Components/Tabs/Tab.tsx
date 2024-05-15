@@ -14,6 +14,7 @@ const Tab: React.FC<TabsProps> = ({ theme, visible, id, text, active, children }
     </div>
   );
 }
+Tab.displayName = "Tab";
 export default Tab;
 
 var tabsProps: {
@@ -22,7 +23,8 @@ var tabsProps: {
   text?: string;
   active?: boolean;
   children?: React.ReactNode;
-  theme?: TabsTheme
+  theme?: TabsTheme;
+  type?: "monochrome";
 }
 export type TabsProps = typeof tabsProps
 
@@ -34,5 +36,7 @@ var tabsTheme:  {
   SelectedTabHeaderButtonClass?: string,
   TabHeaderButtonContainerClass?: string,
   TabPaneClass?: string,
+  Types?: { monochrome?: string, colorful?: string, rounded?: string},
+  SelectedTypes?: { monochrome?: string, colorful?: string, rounded?: string},
 }
 export type TabsTheme = typeof tabsTheme

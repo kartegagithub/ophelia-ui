@@ -10,13 +10,15 @@ import ServiceMessage from "../../Service/serviceMessage";
 import { camelize, clone, pascalize, removeLastPropName } from "../../Extensions/StringExtensions";
 import { LoadingState } from "../../Enums/loadingState";
 import { getAppTheme } from "../../AppTheme";
-import { getObjectValue, setObjectValue } from "../../Extensions/ReflectionExtensions";
 import Panel from "../../Components/Panel";
 import { PDFExporter } from "../../Exporters/PDFExporter";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
 import CollectionBinder from "../CollectionBinder/collectionBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
+import FileData from "../../Models/FileData";
+import { EntityOperations } from "../EntityOperations";
+import { findInArray, getObjectValue, removeAtIndex } from "../../Extensions/";
 export class EntityBinderProps{
   Options?: BinderOptions
   id?: string | number | string[];
@@ -29,7 +31,15 @@ export class EntityBinderProps{
 }
 export default class EntityBinder<P> extends React.Component<
   P & EntityBinderProps,
-  {initialized: boolean, loadingState: LoadingState, id?: string | number | string[], data: any, messages: Array<ServiceMessage>, languageID: number}
+  {
+    initialized: boolean, 
+    loadingState: LoadingState, 
+    id?: string | number | string[], 
+    data: any, 
+    messages: Array<ServiceMessage>, 
+    languageID: number,
+    rerenderCounter: number
+}
 > {
   Key: number = 0;
   Controller: string = "";
@@ -41,11 +51,14 @@ export default class EntityBinder<P> extends React.Component<
   UseI18n: boolean = false
   Languages: Array<{id: number, name: string, isoCode: string}> = []
   DefaultLanguageID: number = 0
-  i18nProperty: string = ""
   Theme = getAppTheme()
   RootElementRef = React.createRef<HTMLDivElement>();
+  UploadFiles: Array<FileData> = new Array<FileData>();
+  EntityOperations: EntityOperations
   constructor(props: P & EntityBinderProps){
     super(props)
+    this.EntityOperations = new EntityOperations();
+    if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService()
   }
   
   Init() {
@@ -53,6 +66,10 @@ export default class EntityBinder<P> extends React.Component<
     if (this.props.Options)this.Options = { ...this.Options, ...this.props.Options };
     if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
     this.Configure();
+    this.EntityOperations.UpdateURL = `${this.Controller}/${this.getActionPath()}`
+    this.EntityOperations.GetEntityURL = `${this.Controller}/Get${this.Entity}`
+    this.EntityOperations.Entity = this.Entity;
+    this.EntityOperations.UseI18n = this.UseI18n
     this.setInitData(true)
   }
 
@@ -68,60 +85,13 @@ export default class EntityBinder<P> extends React.Component<
   }
 
   registerField(field: any){
-    var existing = this.InputFields.find((item: any) => item.props.name == field.props.name)
-    if(!existing){
-      this.InputFields.push(field)
+    var existing = findInArray(this.InputFields, field, "props.name")
+    if(existing.index > -1){
+      removeAtIndex(this.InputFields, existing.index)
     }
+    this.InputFields.push(field)
   }
   
-  getI18NProperty(){
-    if(!this.i18nProperty && this.UseI18n)
-    {
-      var i18nProp = Object.keys(this.state.data).find((item) => item.toLocaleUpperCase().indexOf("I18N") > -1)
-      if(!i18nProp && this.UseI18n) i18nProp = camelize(this.Entity) + "_i18n"
-      if(i18nProp){
-        this.i18nProperty = i18nProp;  
-        if(!this.state.data[this.i18nProperty]) this.state.data[this.i18nProperty] = [];
-      }
-    }
-    return this.i18nProperty;
-  }
-  getI18NData(){
-    if(this.i18nProperty && this.UseI18n && this.state && this.state.data && this.state.data[this.i18nProperty]){
-      var data = (this.state.data[this.i18nProperty] as Array<any>).find((item) => item.languageID == this.state.languageID)
-      return data;
-    }
-  }
-
-  addI18NData(){
-    if(this.i18nProperty && this.UseI18n && this.state && this.state.data && this.state.data[this.i18nProperty]){
-      var list = this.state.data[this.i18nProperty] as Array<any>;
-      var data = list.find((item) => item.languageID == this.state.languageID)
-      if(data) return data;
-
-      var data:any;
-      if(list.length > 0)
-        data = JSON.parse(JSON.stringify(list[0]))
-      else
-        data = JSON.parse(JSON.stringify(this.state.data))
-
-      data.id = 0;
-      data.languageID = this.state.languageID;
-      delete data[this.i18nProperty]
-      delete data["isImporting"]
-      delete data["isSelected"]
-      delete data["isValid"]
-      delete data["userCreatedID"]
-      delete data["userModifiedID"]
-      delete data["dateCreated"]
-      delete data["dateModified"]
-      delete data["captcha"]
-      list.push(data)
-      return data;
-    }
-    return undefined;
-  }
-
   getEditUrl = (id = 0) => {
     if (this.Options.EditURL) return this.Options.EditURL;
 
@@ -144,7 +114,9 @@ export default class EntityBinder<P> extends React.Component<
   useTabs(...children: React.ReactNode[]){
     return <Tabs key={this.Entity + "-tabs"} id={this.Entity + "-tabs"}>{children}</Tabs>
   }
-  useTab(id: string, text?: string, active?: boolean, ...children: React.ReactNode[]){
+  useTab(id: string, text?: string, visible?: boolean, active?: boolean, ...children: React.ReactNode[]){
+    if(!visible) return <></>
+    
     text = this.props.AppClient?.Translate(pascalize(text))
     return <Tab key={id} id={id} text={text} active={active}>{children}</Tab>
   }
@@ -155,18 +127,39 @@ export default class EntityBinder<P> extends React.Component<
   useInput(props: any){
     if(!props.text && props.name)
       props.text = this.props.AppClient?.Translate(pascalize(removeLastPropName(props.name, "ID")))
+    if(props.type == "file"){
+      props.accept = this.getAllowedFileExtensions(props.name)
+    }
+    if(props.type == "richtext"){
+      props.imageHandler = (fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined) => this.ImageUploadHandler(fileName, size, buffer, base64)
+    }
+    if(props.i18n) props.languageKey = `${this.state.languageID}`
+    else props.languageKey = "0";
     return <InputField translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + "-field-" + props.name} {...props} listener={this}/>
+  }
+  async ImageUploadHandler(fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined){
+    return undefined
   }
   useI18NLanguageSelection(){
     this.UseI18n = true; 
-    var props = {id: "selectedLanguageID", text: this.props.AppClient?.Translate(pascalize("SelectedLanguageID")), name: "selectedLanguageID", value: this.state.languageID, type: "selectbox", options: this.Languages, displayProp: "name", valueProp: "id"}
+    var props = {id: "selectedLanguageID", labelVisible: false, text: this.props.AppClient?.Translate("SelectedLanguageID"), name: "selectedLanguageID", value: this.state.languageID, type: "selectbox", switchbox: true, options: this.Languages, displayProp: "name", valueProp: "id"}
     return <InputField key={this.Entity + "-field-" + props.name} {...props} listener={this}/>
+  }
+  getAllowedFileExtensions(name: string){
+    if(name.toLocaleLowerCase().indexOf("image") > -1){
+      return ".jpg,.jpeg,.png,.webp"
+    }
+    else if(name.toLocaleLowerCase().indexOf("video") > -1){
+      return "video/*"
+    }
+    else
+      return "image/*,video/*,.doc,.docx,.xls,.xlsx,.pdf"
   }
   CreateService() {
     return this.props.AppClient?.CreateService();
   }
 
-  onButtonClicked = async (key: string, params?: any) => {
+  async onButtonClicked (key: string, params?: any) {
     if(key === "Save"){
       this.SaveEntity();
     }
@@ -225,80 +218,62 @@ export default class EntityBinder<P> extends React.Component<
   }
   validateFields(){
     var validForm = true;
-    this.InputFields.forEach((field: any) => {
-      if(field.Validate && !field.Validate()){
-        validForm = false;
-        // console.log("Empty", field.props)
+    for (let index = 0; index < this.InputFields.length; index++) {
+      const field: any = this.InputFields[index];
+      if(field.Validate){
+        var valid = field.Validate(getObjectValue(this.state.data, field.props.name))
+        if(!valid) validForm = false;
       }
-    })
+    }
     return validForm;
   }
 
-  async GetEntity(id: any, data: any){
-    if(!id && !data) return;
-    if(data){
-      this.setState({loadingState: LoadingState.Loaded})
-      return {data: data, messages: []};
-    }
-    else if(this.Controller && this.Entity && id){
-      this.setState({loadingState: LoadingState.Loading})
-      try {
-        let postData = {
-          ...{
-            Data: { id: id },
-            id: id          
-          }
-        };
-
-        var result = await this.CreateService()?.CreateEndpoint(
-          `${this.Controller}/Get${this.Entity}`,
-          { Payload: postData }
-        ).call()
-        this.setState({loadingState: LoadingState.Loaded})
-        return result;
-      } catch (error) { 
-        console.error(error);
-        this.setState({loadingState: LoadingState.Failed})
+  checkFieldVisibilities(){
+    var rerender: boolean = false;
+    this.InputFields.forEach((field: any) => {
+      if(field.getVisibility == undefined) return;
+      if(field.getVisibility != field.checkVisibility(false)){
+        rerender = true;
       }
-    }
-    return data;
+    })
+    if(rerender) this.setState({rerenderCounter: this.state.rerenderCounter + 1})
+  }
+  async GetEntity(id: any, data: any){
+    this.setState({loadingState: LoadingState.Loading})
+    var result = await this.EntityOperations.GetEntity(id, data)
+    this.UploadFiles = [];
+    this.setState({loadingState: result.hasFailed? LoadingState.Failed: LoadingState.Loaded})
+    return result;
   }
   async SaveEntity(){
-      if(!this.validateFields()){
-        return;
-      }
+      if(!this.validateFields()) return;
+      var data: any = clone(this.state.data);
       var redirect: boolean = true
-      if (this.Options.IsNewEntity) {
-        this.state.data.statusID = 1;
-      }
-      if (this.state.data.id && this.state.data.id > 0) {
-        redirect = false;
-      }
+      if (data.id && data.id > 0) redirect = false;
 
-      let postData: any = { Data: this.state.data, languageID: this.state.languageID };
       try {
-        postData = this.beforeSendRequest(postData);
-        const result = await this.CreateService()?.CreateEndpoint(
-          `${this.Controller}/${this.getActionPath()}`,
-          { Payload: postData }
-        ).call();
-        if(result === undefined)
-          return;
-
-        if (!result.hasFailed) {
-          this.setState({data: result.data});
-          this.OnAfterSave();
-          if (redirect && this.props.shownInParent !== true) {
-            Router.push(this.getBackUrl())
-          }
-          if(this.props.parent != null) this.props.parent.onChildAction("refreshData")
-          else if(!redirect){
-            Router.push(this.getEditUrl(result.data.id))
-          }
-          raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
-        } else {
-          if (result.messages && result.messages.length > 0) {
-            this.setState({messages: result.messages})
+        data = this.beforeSendRequest(data);
+        var result = await this.EntityOperations.SaveEntity(this.state.languageID, data, this.UploadFiles);
+        if(!result) {
+          raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotReachToAPI")  })
+        }
+        else{
+          if (!result.hasFailed) {
+            this.UploadFiles = [];
+            this.setState({data: result.data});
+            this.OnAfterSave();
+            if (redirect && this.props.shownInParent !== true) {
+              Router.push(this.getBackUrl())
+            }
+            if(this.props.parent != null) this.props.parent.onChildAction("refreshData")
+            else if(!redirect){
+              Router.push(this.getEditUrl(result.data.id))
+            }
+            raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
+          } else {
+            if (result.messages && result.messages.length > 0) {
+              this.setState({messages: result.messages})
+            }
           }
         }
       } catch (error) {}
@@ -306,19 +281,10 @@ export default class EntityBinder<P> extends React.Component<
 
   async DeleteEntity(){
     try {
-      const service = this.CreateService();
-      if(service === undefined)
-        return;
-
-      const postData: any = {
-        Data: {...clone(this.state.data), ...{statusID: 2}},
-      };
-      const result = await this.CreateService()?.CreateEndpoint(
-        `${this.Controller}/${this.getActionPath()}`,
-        { Payload: postData }
-      ).call();
+      var result = await this.EntityOperations.DeleteEntity(this.state.data)
       if(result){
         if (!result.hasFailed) {
+          this.UploadFiles = [];
           if (this.props.shownInParent !== true) {
             Router.push(this.getBackUrl())
           }
@@ -337,60 +303,58 @@ export default class EntityBinder<P> extends React.Component<
   }
 
   getFieldData = (field: any) => {
-    if(!this.state.data) return "";
-
-    if(field.props.name === "id") return this.state.data.id
-    if(field.props.name === "selectedLanguageID") return this.state.languageID
-    
-    var value = getObjectValue(this.state.data, field.props.name, "");
-    if(this.UseI18n){
-      if(!this.i18nProperty) this.getI18NProperty()
-      var i18nData = this.getI18NData()
-      if(!i18nData) i18nData = this.addI18NData();
-      value = getObjectValue(i18nData, field.props.name, "")
+    var data = this.EntityOperations.getFieldData(this.state.data, field, this.state.languageID)
+    if(this.UploadFiles && this.UploadFiles.length > 0 && field.props.name.endsWith("Path")){
+      var fileList: Array<FileData> = []
+      for (let index = 0; index < this.UploadFiles.length; index++) {
+        const element = this.UploadFiles[index];
+        if(element.KeyName == field.props.name && (element.LanguageID == 0 || element.LanguageID == this.state.languageID)){
+          fileList.push(element);
+        }
+      }
+      if(data && fileList.length == 0){
+        fileList.push(data);
+      }
+      return fileList
     }
-    return value
+    return data
   }
 
-  setFieldData(name: string, value: any){
-    //console.log("setFieldData")
-    if(!name && name === "id") return;
+  setFieldData(name: string, value: any, field: any){
     if(name == "selectedLanguageID"){
       this.setState({languageID: parseInt(value)})
       return;
     }
-    if(this.UseI18n){
-      if(!this.i18nProperty) this.getI18NProperty()
-      var i18nData = this.getI18NData()
-      if(!i18nData) i18nData = this.addI18NData()
-      if(i18nData) setObjectValue(i18nData, name, value)
-      if(this.DefaultLanguageID == this.state.languageID) setObjectValue(this.state.data, name, value)
-    }
-    else setObjectValue(this.state.data, name, value)
+    this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n)
+    this.checkFieldVisibilities();
   }
 
   setInitData(firstLoad: boolean = false, resetForNew: boolean = false){
     var id: string | undefined | number | string[] = this.props.id;
     if(resetForNew) id = 0;
-    var data = undefined;
+    var data: any = undefined;
     if(firstLoad) data = this.props.Data 
     if(!id && this.props.shownInParent !== true) {
       var splittedURL = window.location.href.split("/");
       id = splittedURL[splittedURL.length - 1];
     }
-    var isNew = false
     if (!data && (!id || id === "0")) {
-      isNew = true
       data = {id: 0}
       id = 0;
       this.Options.IsNewEntity = true;
     }
-    else this.Options.IsNewEntity = false;
+    else {
+      if(!data && id && parseInt(id as string) > 0)
+        this.Options.IsNewEntity = false;
+      else if(data)
+        this.Options.IsNewEntity = data?.id == 0
+    }
     this.setState({loadingState: data? LoadingState.Loaded: LoadingState.Waiting, id: id, data: data, messages: [], languageID: this.DefaultLanguageID})
   }
 
   componentDidMount(){
     this.Options = new BinderOptions();
+    this.Options.AllowExport = false;
     this.UseI18n = this.props.useI18N === true;
     this.Key = Math.random() * (10000 - 1) + 1;
     this.Init();

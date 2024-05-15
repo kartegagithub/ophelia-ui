@@ -24,15 +24,6 @@ const Carousel: React.FC<CarouselProps> = React.memo(({
     const Theme = getAppTheme({Carousel: theme}).Carousel;
     const timerRef = useRef<NodeJS.Timeout | null>(null); // Null ekledim, ilk başta bir değer atanmadığında hata almayı önler.
 
-    useEffect(() => {
-       handleAutoPlay();
-    }, [autoplay, autoplayInterval, activeIndex, slider]); // Bağımlılıkları buraya ekledim
-
-    useEffect(() => {
-       handleLoop();
-    }, [autoplayInterval, autoplay, activeIndex, slider]); // Bağımlılıkları buraya ekledim
-
-
     const handleAutoPlay = () => {
       // if (autoplay) {
       //   if (timerRef.current) clearInterval(timerRef.current); // Önceki zamanlayıcıyı temizle
@@ -56,6 +47,14 @@ const Carousel: React.FC<CarouselProps> = React.memo(({
       return undefined
     };
   
+    useEffect(() => {
+      handleAutoPlay();
+    }, [handleAutoPlay, autoplay, autoplayInterval, activeIndex, slider]); // Bağımlılıkları buraya ekledim
+
+    useEffect(() => {
+        handleLoop();
+    }, [handleLoop, loop, autoplay, autoplayInterval, activeIndex, slider]); // Bağımlılıkları buraya ekledim
+
     if (!iconLeft) {
       iconLeft = <svg className="w-4 h-4 dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 1 1 5l4 4" />
@@ -109,6 +108,8 @@ const Carousel: React.FC<CarouselProps> = React.memo(({
       </div>
     );
   });
+
+Carousel.displayName = "Carousel";
 export default Carousel;
 
 var carouselProps : {

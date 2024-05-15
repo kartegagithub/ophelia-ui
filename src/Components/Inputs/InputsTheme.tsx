@@ -2,6 +2,12 @@ var inputsTheme: {
     text?: string,
     textarea?: string,
     selectbox?: string,
+    selectboxClass?: string,
+    selectboxWithSwitch?: {
+      Class?: string,
+      ItemClass?: string,
+      SelectedItemClass?: string
+    },
     filterbox?: string,
     checkbox?: string,
     radio?: string,
@@ -14,6 +20,9 @@ var inputsTheme: {
     numeric?: string,
     label?: string,
     file?: string,
+    inputLabel?: string,
+    floatingFixedLabel?: string, 
+    seperatedLabel?: string,
     month?: string,
     email?: string,
     phone?: string,

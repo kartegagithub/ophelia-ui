@@ -4,7 +4,8 @@ export default class ImageField<P> extends BaseField<P & {
     name: string,
     text?: string,
     value?: string,
-    listener?: any
+    listener?: any,
+    alt?: string
   }>{
     
     renderInput(){

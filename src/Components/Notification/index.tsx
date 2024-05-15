@@ -3,6 +3,7 @@ import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
 import { IconProps } from "../Icon";
 import { listenCustomEvent } from "../../Extensions/DocumentExtension";
+import RawHTML from "../RawHTML";
 
 const Notification: React.FC<NotificationProps> = ({ 
   type = undefined,
@@ -55,10 +56,12 @@ const Notification: React.FC<NotificationProps> = ({
             {image && <div className={Theme?.ImageClass}>
               {getImageComponent(image)}
             </div>}
-            <h3>{title ?? (notifyData as any)?.title}</h3>
+            <h3>
+              <RawHTML html={title ?? (notifyData as any)?.title} />
+            </h3>
           </div>
           <div className={Theme?.ContentClass}>
-            {content ?? (notifyData as any)?.description}  
+            <RawHTML html={content ?? (notifyData as any)?.description} />
           </div>
         </div>
       )}

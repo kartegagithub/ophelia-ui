@@ -1,6 +1,8 @@
-export { default as AppClient } from "./AppClient"
-export { AppTheme, getAppTheme, useAppTheme } from "./AppTheme"
-export { AppThemeType } from "./AppThemeType"
+import AppClient from "./AppClient"
+
+export default AppClient
+export * from "./AppTheme"
+export * from "./AppThemeType"
 export * from "./Binders"
 export * from "./Diagnostic"
 export * from "./Enums"
@@ -13,3 +15,4 @@ export * from "./Metrics"
 export * from "./Service"
 export * from "./Store"
 export * from "./Components"
+export * from "./Models"

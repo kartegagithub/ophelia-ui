@@ -2,6 +2,7 @@ import { getAppTheme } from "../../AppTheme";
 import React, { useEffect, useState } from "react";
 import Backdrop from "../Backdrop";
 const Drawer: React.FC<DrawerProps> = ({
+  className = undefined,
   swipe = true,
   swipeElement = undefined,
   theme = undefined,
@@ -57,10 +58,10 @@ const Drawer: React.FC<DrawerProps> = ({
 
   const getComponentClass = () => {
     var componentClass = "fixed ";
-    var className = "";
     if(!visible) componentClass += " hidden";
-    if(className) componentClass += Theme?.Class;
-    if(backdrop) componentClass += "z-40"
+    if(className && Theme?.Class) componentClass += " " + Theme?.Class;
+    else componentClass += " " + className;
+    if(backdrop) componentClass += " z-40"
   
     if(fullWidth){
       componentClass += " left-0"
@@ -94,15 +95,17 @@ const Drawer: React.FC<DrawerProps> = ({
   }
   useEffect(() => {
     relocateSwipeElement()
-  }, [swipedData, swipe, position, fullWidth])
+  }, [relocateSwipeElement, swipedData, swipe, position, fullWidth])
 
   return (
     <>
       <div id={id} className={getComponentClass()}>
         {swipe && <div ref={swipeElementRef} className="absolute" onClick={() => { setSwipedData(!swipedData)}}>{swipeElement}</div>}
-        <div ref={childrenRef} className={!swipe || swipedData? "visible": "invisible"}>{children}</div>
+        <div ref={childrenRef} 
+        className={!swipe || swipedData? "visible": "invisible"}
+        >{children}</div>
       </div>
-      <Backdrop visible={backdrop && (!swipe || swipedData)}/>
+      <Backdrop visible={backdrop && (!swipe || swipedData)} />
     </>
   );
 };
@@ -110,6 +113,7 @@ export default Drawer;
 
 var drawerProps : {
   id?: string;
+  className?: string
   position?:
     | "top-left"
     | "top-center"

@@ -8,8 +8,8 @@ export default class DataList<P> extends React.Component<P & InputHTMLAttributes
       return (
         <datalist id={this.props.id}>
           {this.props.children}
-          {this.props.options && typeof this.props.options == "string" && this.props.options.split(",").map((item) => <option value={item}></option>)}
-          {this.props.options && Array.isArray(this.props.options) && this.props.options.map((item) => <option value={item}></option>)}
+          {this.props.options && typeof this.props.options == "string" && this.props.options.split(",").map((item, i) => <option key={i} value={item}></option>)}
+          {this.props.options && Array.isArray(this.props.options) && this.props.options.map((item, i) => <option key={i} value={item}></option>)}
         </datalist>
       );
     }

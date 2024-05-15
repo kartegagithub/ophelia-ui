@@ -19,7 +19,7 @@ const BarGraph: React.FC<GraphProps> = ({
           <Tooltip />
           <Legend fontSize={data?.fontSize}/>
           <CartesianGrid strokeDasharray="3 3" fontSize={data?.fontSize} stroke={data?.cartesianGrid?.stroke ?? "#f5f5f5"} />
-          {data?.lines.map((line, i) => <Bar fontSize={data?.fontSize} dataKey={line.key} fill={line.fill ?? getNextElement(data.colors, i)} stroke={line.stroke ?? getNextElement(data.colors, i)} strokeWidth={line.strokeWidth ?? 1} activeBar={<Rectangle fill={line.fill ?? getNextElement(data.colors, i)} stroke={line.stroke ?? getNextElement(data.colors, i)} />}/>)}
+          {data?.lines.map((line, i) => <Bar key={i} fontSize={data?.fontSize} dataKey={line.key} fill={line.fill ?? getNextElement(data.colors, i)} stroke={line.stroke ?? getNextElement(data.colors, i)} strokeWidth={line.strokeWidth ?? 1} activeBar={<Rectangle fill={line.fill ?? getNextElement(data.colors, i)} stroke={line.stroke ?? getNextElement(data.colors, i)} />}/>)}
        </BarChart>
     </ResponsiveContainer>
   );

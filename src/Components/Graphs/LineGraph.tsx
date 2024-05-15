@@ -20,7 +20,7 @@ const LineGraph: React.FC<GraphProps> = ({
           <Tooltip />
           <Legend fontSize={data?.fontSize}/>
           <CartesianGrid fontSize={data?.fontSize} stroke={data?.cartesianGrid?.stroke ?? "#f5f5f5"} />
-          {data?.lines.map((line, i) => <Line fontSize={data?.fontSize} type={line.type ?? "monotone"} dataKey={line.key} stroke={line.stroke ?? getNextElement(data.colors, i)} strokeWidth={line.strokeWidth ?? 1} />)}
+          {data?.lines.map((line, i) => <Line key={i} fontSize={data?.fontSize} type={line.type ?? "monotone"} dataKey={line.key} stroke={line.stroke ?? getNextElement(data.colors, i)} strokeWidth={line.strokeWidth ?? 1} />)}
        </LineChart>
     </ResponsiveContainer>
   );

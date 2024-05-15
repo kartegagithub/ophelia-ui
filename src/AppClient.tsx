@@ -8,6 +8,8 @@ import { changeRegion } from "./Localization/RegionSetting";
 
 export default class AppClient {
   Region: string = "EN"
+  AppTitle: string = ""
+  AppDescription: string = ""
   AppData: any
   Logger: SystemLog = new SystemLog();
   Analytics: AnalyticsList = new AnalyticsList();

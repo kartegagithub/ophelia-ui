@@ -37,8 +37,44 @@ var appThemeType: {
   InputFields?: InputFieldsTheme,
   Tabs?: TabsTheme,
   Buttons?:{
+    text?: string
     default?: string
     primary?: string
+    Priority?: {
+      primary?: string,
+      secondary?: string,
+      tertiary: string
+    },
+    Size?: {
+      medium?: string,
+      small?: string,
+    },
+    Background?: {
+      red?: string,
+      white?: string,
+      stroke?: string,
+      sky?: string
+      none?: string
+    }
+    LeftIcon?: React.JSX.Element | string | undefined | IconProps,
+    RightIcon?: React.JSX.Element | string | undefined | IconProps,
+  },
+  Navigation?:{
+    text?: string
+    Size?: {
+      medium?: string,
+      small?: string,
+    },
+    Direction?: {
+      default?: string,
+      filled?: string,
+      dark?: string,
+      question?: string,
+      disableDefault?: string,
+      disableFilled?: string,
+    },
+    LeftIcon?: React.JSX.Element | string | undefined | IconProps,
+    RightIcon?: React.JSX.Element | string | undefined | IconProps,
   },
   Drawer?: DrawerTheme,
   Panel?: PanelTheme,
@@ -66,7 +102,6 @@ var appThemeType: {
   Quill?: {
     Formats?: Array<string>,
     Toolbar?: Array<any>,
-    ImageHandler?: ((fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined) => Promise<string | undefined>)
   },
   Icons?:{
     DefaultSize?: string,

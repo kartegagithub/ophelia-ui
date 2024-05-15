@@ -1,5 +1,6 @@
 import moment from 'moment'
-import { getCurrentRegionSetting, getRegionSetting } from '../Localization/RegionSetting';
+import { getCurrentRegionSetting } from '../Localization/RegionSetting';
+import sanitizer from 'sanitize-html';
 
 export function capitalizeFirstLetter(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -112,7 +113,32 @@ export function isValidDate(value?: string){
   if(typeof value["indexOf"] === "function" && value.indexOf(" ") == -1 && value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1) return false;
   if(typeof value === "object") return false;
   if(isNumeric(value)) return false;
-  return moment(value).isValid() 
+  return isJsonDate(value);
+  //return moment(value).isValid() 
+}
+export function containsText(str?: string, regex: RegExp = /[a-zA-Z]/g){
+  if(!str) return false;
+  return regex.test(str);
+}
+export function isJsonDate(str?: string){
+  if(!str) return false
+
+  var reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
+  var reISO2 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))?$/;
+  var reISO3 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})?$/;
+  var reISO4 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})?$/;
+  var reMsAjax = /^\/Date\((d|-|.*)\)[\/|\\]$/;
+  if(reISO.exec(str)) return true
+  if(reISO2.exec(str)) return true
+  if(reISO3.exec(str)) return true
+  if(reISO4.exec(str)) return true
+  if(reMsAjax.exec(str)) return true
+  return false
+}
+export function characterCountInString(str?: string, char?: string) {
+  if(!str || !char) return 0;
+  const regex = new RegExp(char, "g");
+  return (str.match(regex) || []).length;;
 }
 export function convertToDate(value?: string){
   if(!value) return moment(new Date());
@@ -134,9 +160,14 @@ export function getFormattedDateString(value?: string, toFormat?: string, type: 
     if(type === "week" && setting?.DateFormat?.WeekFormat) toFormat = setting?.DateFormat?.WeekFormat
   }
   if(!toFormat) toFormat = "MM/DD/YYYY"
-  return moment(date).format(toFormat)
+  var returnValue = moment(date).format(toFormat)
+  return returnValue
 }
 
+export function stringToDateInputValue(value?: string | undefined, format: string = "YYYY-MM-DD"){
+  if(!value) return "";
+  return getFormattedDateString(value, format)
+}
 export function isNumeric(str: string) {
   if(!str || str == "") return false;
   const re = /^\d*(\.\d+)?$/
@@ -147,7 +178,10 @@ export function parseFloatIfCan(str: string) {
   if(isNumeric(str)) return parseFloat(str)
   return -1;
 }
-
+export function getFileName(path?: string){
+  if(!path) return ""
+  return path.split(/(\\|\/)/g).pop()
+}
 export function formatString(str: string, ...params: Array<string | number>): string {
   if(!params || params.length == 0) return str;
   for (var i = 0; i < params.length; i++) {
@@ -158,11 +192,11 @@ export function formatString(str: string, ...params: Array<string | number>): st
 };
 
 export function padLeft(val?: string, count?: number, seperator?: string): string {
-  val = val ?? "";
+  val = (val ?? "").toString();
   count = count ?? 1;
   seperator = seperator ?? " ";
   seperator = seperator + "";
-  var val2 = val;
+  var val2 = val + "";
   for (var i = val.length; i < count; i++) {
     val2 = seperator + "" + val2;
   }
@@ -178,6 +212,11 @@ export function clone(val?: any): any {
   if(!val) return {}
   return JSON.parse(JSON.stringify(val));
 };
+
+export function trimSpaces(str?: string, regex: RegExp = /^\s+|\s+$/g ){
+  if(!str) return str
+  return str.replace(regex, "");
+}
 
 export function trimChars(val?: string, c?: string): string {
   if(!val) return "";
@@ -239,6 +278,22 @@ export function urlMatch(url1?: string, url2?: string) {
 }
 
 export function isNullOrEmpty(val?: any){
-  if(isNaN(val) || val == undefined || val == null || val == "") return true;
+  if(val == undefined || val == null || val == "") return true;
   return false;
+}
+
+export function removeHtml(str?: string){
+  if(!str) return "";
+  let decoder = document.createElement('div')
+  decoder.innerHTML = str
+  return decoder.textContent
+}
+
+export function getSanitizeDefaults(): sanitizer.IDefaults{
+  return sanitizer.defaults
+}
+
+export function sanitizeHtml(html?: string, options?: sanitizer.IOptions): string | undefined{
+  if(!html) return "";
+  return sanitizer(html, options) ?? html
 }

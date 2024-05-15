@@ -33,6 +33,7 @@ export class EndpointOptions{
     CacheDuration?: number = 0
     Headers?: Record<string, any> = []
     ValidateCache?: Function = undefined
+    ValidateSSL?: boolean = false
     toString? = (apiURL: string) => {
         return `${apiURL}_${this.Method}_${JSON.stringify(this.Parameters)}`
     }

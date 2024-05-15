@@ -3,8 +3,39 @@ import React, { InputHTMLAttributes, useEffect, useMemo } from "react";
 import "react-quill/dist/quill.snow.css"
 import hljs from 'highlight.js';
 import dynamic from 'next/dynamic';
+import { readUploadedFile } from "../../Extensions/InputExtensions";
 
-const RichTextInput: React.FC<{ id?: string, className?: string, name?: string, value?: string, visible?: boolean, onChange: Function }> = ({ value = undefined, onChange = undefined, id = "editor", name = "editor", className = "" }) => {  
+const modules = {
+  toolbar: {
+    container: new Array<any>(),
+    handlers: {}
+  },
+  syntax: {
+    highlight: (text: string) => {
+      return hljs.highlightAuto(text).value
+    }
+  },
+  clipboard: {
+    matchVisual: true,
+  }
+};
+
+const RichTextInput: React.FC<{ 
+  id?: string, 
+  className?: string, 
+  name?: string, 
+  defaultValue?: string, 
+  visible?: boolean, 
+  onChange: Function,
+  imageHandler?: ((fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined) => Promise<string | undefined>)
+}> = ({ 
+  defaultValue = undefined, 
+  onChange = undefined, 
+  id = "editor", 
+  name = "editor", 
+  className = "",
+  ...props
+}) => {  
   const ReactQuill = useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
   const theme = getAppTheme();
   const InputRef = React.createRef<HTMLInputElement>();
@@ -14,6 +45,10 @@ const RichTextInput: React.FC<{ id?: string, className?: string, name?: string, 
       languages: theme.Highlight?.Languages
     });
     if(window) (window as any).hljs = hljs
+
+    var toolbar: any = modules.toolbar;
+    if(theme.Quill?.Toolbar) toolbar.container = theme.Quill?.Toolbar
+    toolbar.handlers.image = imageHandler
   }, [])
 
   function imageHandler (this: { quill: any; }) {
@@ -31,13 +66,10 @@ const RichTextInput: React.FC<{ id?: string, className?: string, name?: string, 
 
       const file = input.files[0];
       const range = quill.getSelection(true);
-      const reader = new FileReader();
-      reader.onload = async () => {
-        if(!theme.Quill?.ImageHandler) return;
+      readUploadedFile(input.files[0], (name, size, base64, buffer) => {
+        if(!props.imageHandler) return;
 
-        const base64: string = reader.result as string;
-        var buffer = await file.arrayBuffer();
-        var promise = theme.Quill?.ImageHandler(file.name, file.size, buffer, base64);
+        var promise = props.imageHandler(file.name, file.size, buffer, base64);
         if(!promise){
           quill.insertEmbed(range.index, "image", base64);
         }
@@ -46,31 +78,15 @@ const RichTextInput: React.FC<{ id?: string, className?: string, name?: string, 
             if(url) quill.insertEmbed(range.index, "image", url);
           });
         }
-      };  
-      reader.readAsDataURL(file);    
+      })   
     };
   }
-  const modules = {
-    toolbar: {
-      container: theme.Quill?.Toolbar,
-      handlers: {
-        image: imageHandler,
-      },
-    },
-    syntax: {
-      highlight: (text: string) => {
-        return hljs.highlightAuto(text).value
-      }
-    },
-    clipboard: {
-      matchVisual: true,
-    }
-  };
+  
   return (
     <>
       <input onChange={(e) => onChange && onChange(e)} ref={InputRef} type="hidden" id={id} name={name}/>
       <ReactQuill 
-        value={value}
+        value={defaultValue}
         className={className}
         formats={theme.Quill?.Formats}
         modules={modules}

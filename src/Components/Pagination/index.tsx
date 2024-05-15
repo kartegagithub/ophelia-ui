@@ -7,6 +7,8 @@ import { getAppTheme } from "../../AppTheme";
 import { formatString } from "../../Extensions/StringExtensions";
 import { getImageComponent } from "../Image/Extensions";
 const Pagination: React.FC<PaginationProps> = ({
+  nextText = undefined,
+  prevText = undefined,
   totalDatacount,
   datacount,
   pageUrl,
@@ -58,8 +60,7 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <div className={Theme?.RootClass}>
       {pagesTitle && <span className={Theme?.PagesTitleClass}>
-        Showing <strong className="text-blueZodiac">
-          {formatString(`${datacount >= pageSize ? (page - 2) * pageSize + datacount : (page - 1) * pageSize + datacount} - ${(page - 1) * pageSize + datacount}`)}</strong> of {formatString(`${ totalDatacount}`)} results
+        <strong className="text-blueZodiac">{formatString(pagesTitle, `${(page - 1) * pageSize + datacount}`, `${ totalDatacount}`)}</strong>
       </span>}
       <div className="flex items-center gap-6">
         {startIndex >  1 && 
@@ -69,7 +70,7 @@ const Pagination: React.FC<PaginationProps> = ({
             className={Theme?.PageListItemClass}
           >
             {getImageComponent( {name: "arrow-left", color: "#75819E", fill: "none", size: 16})}
-            <span>Prev</span>
+            <span>{prevText}</span>
           </Link>
         }
       <ul className={Theme?.PageListClass}>
@@ -92,7 +93,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onClick={(e) => onPageChange(e, linkedPageCount)}
             className={Theme?.PageListItemClass}
           >
-            <span>Next</span>
+            <span>{nextText}</span>
             {getImageComponent( {name: "arrow-right", color: "#75819E", fill: "none", size: 16})}
           </Link>
         }
@@ -125,6 +126,8 @@ var paginationProps : {
   pageSizes?: Array<number>;
   visible?: boolean;
   pagesTitle?: string;
+  nextText?: string;
+  prevText?: string;
   pageSizeSelectionText?: string;
   pageUrl: string;
   onChange?: Function;
@@ -141,6 +144,6 @@ var paginationTheme: {
   PageListItemSelectedClass?: string,
   PageSizeSelectionRootClass?: string,
   PageSizeSelectionClass?: string,
-  PagesTitleClass?: string,
+  PagesTitleClass?: string
 }
 export type PaginationTheme = typeof paginationTheme

@@ -4,6 +4,7 @@ import MenuClass from "./MenuClass";
 import Link from "next/link";
 import { getImageComponent } from "../Image/Extensions";
 import { MenuTheme } from "./Menu";
+import AppClient from "../../AppClient";
 
 const MenuItem: React.FC<MenuItemProps> = React.memo(
   ({
@@ -16,7 +17,8 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     menuCollapsed,
     listener,
     children,
-    theme = undefined
+    theme = undefined,
+    AppClient = undefined
   }) => {
     selected = selected && item.Selected;
     const [collapsed, setCollapsed] = useState(selected);
@@ -84,6 +86,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
           selected={selected}
           setMenuCollapsed={setMenuCollapsed}
           menuCollapsed={menuCollapsed}
+          AppClient={AppClient}
         />
       );
     });
@@ -113,7 +116,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
             >
               <div className="flex items-center gap-3">
                 <div>{LeftIconComponent}</div>
-                {item.Text}
+                {AppClient? AppClient.Translate(item.Text): item.Text}
               </div>
               {RightIconComponent}
             </Link>
@@ -125,7 +128,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     );
   }
 );
-
+MenuItem.displayName = "MenuItem";
 export default MenuItem;
 
 var menuItemProps: {
@@ -138,6 +141,7 @@ var menuItemProps: {
   menuCollapsed?: boolean;
   children?: React.ReactNode;
   selected?: boolean;
+  AppClient?: AppClient
   listener?: {
     onSelect: Function;
     onRightIconClick: Function;

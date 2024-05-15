@@ -18,6 +18,7 @@ const Grid: React.FC<{
   );
 });
 
+Grid.displayName = "Grid";
 export default Grid;
 
 var gridTheme: {

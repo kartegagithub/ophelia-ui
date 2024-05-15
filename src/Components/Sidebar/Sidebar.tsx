@@ -13,13 +13,15 @@ import { usePathname } from "next/navigation";
 import Icon from "../Icon";
 import { getImageComponent } from "../Image/Extensions";
 import MenuClass from "../Menu/MenuClass";
+import AppClient from "../../AppClient";
 
 const Sidebar: React.FC<{
   menu: SidebarMenuClass;
   id?: string;
   stateKey?: any;
   children?: React.ReactNode;
-}> = React.memo(({ menu, stateKey, id, children }) => {
+  AppClient?: AppClient
+}> = React.memo(({ menu, AppClient, stateKey, id, children }) => {
   const [currentState, setCurrentState] = useState({
     menu: new SidebarMenuClass(),
     searchKey: "",
@@ -115,13 +117,14 @@ const Sidebar: React.FC<{
           stateKey={currentState.stateKey}
           setMenuCollapsed={setMenuCollapsed}
           menuCollapsed={menuCollapsed}
+          AppClient={AppClient}
         />
         {children}
       </div>
     </>
   );
 });
-
+Sidebar.displayName = "Sidebar";
 export default Sidebar;
 
 var sidebarTheme: {

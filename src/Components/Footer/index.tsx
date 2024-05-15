@@ -54,12 +54,12 @@ const Footer: React.FC<{
                 <div className={`${menuContainerClass}`}>
                     {menuItems?.map((item, index) => {
                         return(
-                            <div>
+                            <div key={index}>
                                 <label>{item?.name}</label>
                                 <div className="grid grid-cols-1">
-                                    {item?.item?.map((el,_) => {
+                                    {item?.item?.map((el,i) => {
                                         return(
-                                            <a href="">{el?.name}</a>
+                                            <a key={i} href="">{el?.name}</a>
                                         )
                                     })}
                                 </div>
@@ -91,4 +91,5 @@ const Footer: React.FC<{
         </footer>
     );
   });
+Footer.displayName = "Footer"
 export default Footer;

@@ -15,6 +15,7 @@ export default class BinderOptions {
   DrawViewLinkInsteadOfEdit?: boolean = false;
   UpdateContent?: string = undefined;
   Visible?: boolean = true;
+  PageTitleVisibility?: boolean = true
   ExportTypes?: Array<ExportOption> = [
     {extension: "xls", name: "Excel", icon:{name: "excel", fill: "#5B6782"}},
     {extension: "pdf", name: "PDF", icon: {name: "pdf", color: "#000", fill: "#5B6782"}}

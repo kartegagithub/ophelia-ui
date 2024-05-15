@@ -1,14 +1,20 @@
-import { getAppTheme } from "../../AppTheme";
 import React, { InputHTMLAttributes } from "react";
+import { getAppTheme } from "../../AppTheme";
+import { AdditionalHtmlAttributes } from "../../Enums";
 
-export default class RangeInput<P> extends React.Component<P & InputHTMLAttributes<HTMLInputElement>, {}>{
-    render(): React.ReactNode {
-      return (
-        <input
-          type="range"
-          className={this.props.className ?? getAppTheme().Inputs?.range}
-          {...this.props}
-        />
-      );
-    }
-  }
+interface RangeInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+  labelType?: any;
+}
+
+const RangeInput: React.FC<RangeInputProps> = ({ labelType, className, ...props }) => {
+  const appTheme = getAppTheme();
+  return (
+    <input
+      type="range"
+      className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.range} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+      {...props}
+    />
+  );
+};
+
+export default RangeInput;

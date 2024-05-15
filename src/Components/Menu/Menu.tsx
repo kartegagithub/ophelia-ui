@@ -3,12 +3,13 @@ import MenuClass from "./MenuClass";
 import MenuItem from "./MenuItem";
 import MenuItemClass from "./MenuItemClass";
 import { getAppTheme } from "../../AppTheme";
+import AppClient from "../../AppClient";
 
-const Menu: React.FC<MenuProps> = React.memo(({ menu, stateKey, id, searchKey, children, setMenuCollapsed, menuCollapsed, theme = undefined }) => {
-  if (!menu) return <ul></ul>;
+const Menu: React.FC<MenuProps> = React.memo(({ menu, AppClient, stateKey, id, searchKey, children, setMenuCollapsed, menuCollapsed, theme = undefined }) => {
   const Theme = getAppTheme({Menu: theme}).Menu;
   const [selectedItems, setSelectedItems] = useState(new Array<MenuItemClass>());
-
+  if (!menu) return <ul></ul>;
+  
   const childEventListener = {
     onSelect: (subItems: Array<MenuItemClass>) => {
       menu.UnselectItems(menu);
@@ -42,6 +43,7 @@ const Menu: React.FC<MenuProps> = React.memo(({ menu, stateKey, id, searchKey, c
             setMenuCollapsed={setMenuCollapsed}
             menuCollapsed={menuCollapsed}
             theme={Theme}
+            AppClient={AppClient}
           />
         );
       })}
@@ -49,6 +51,7 @@ const Menu: React.FC<MenuProps> = React.memo(({ menu, stateKey, id, searchKey, c
     </div>
   );
 });
+Menu.displayName = "Menu";
 export default Menu;
 
 var menuProps : {
@@ -60,6 +63,7 @@ var menuProps : {
   id?: string;
   children?: React.ReactNode;
   theme?: MenuTheme
+  AppClient?: AppClient
 }
 export type MenuProps = typeof menuProps
 

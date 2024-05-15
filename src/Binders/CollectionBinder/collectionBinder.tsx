@@ -11,17 +11,19 @@ import ServiceMessage from "../../Service/serviceMessage";
 import Pluralize from 'pluralize';
 import Pagination from "../../Components/Pagination";
 import Router from "next/router";
-import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString } from "../../Extensions/StringExtensions";
+import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString, camelize } from "../../Extensions/StringExtensions";
 import QuerySorter from "./query/querySorter";
 import QueryData from "./query/queryData";
 import { getAppTheme } from "../../AppTheme";
-import { setObjectValue } from "../../Extensions/ReflectionExtensions";
+import { getObjectValue, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
 import { PDFExporter } from "../../Exporters/PDFExporter";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
 import Modal from "../../Components/Modal";
 import EntityBinder from "../EntityBinder/entityBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
+import { EntityOperations } from "../EntityOperations";
+import Drawer from "../../Components/Drawer";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -37,9 +39,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   Config: Config = new Config();
   Options: BinderOptions = new BinderOptions();
   DefaultLanguageID: number = 0
-  i18nProperty: string = ""
+  UserLanguageID: number = 0
   Theme = getAppTheme()
   RootElementRef = React.createRef<HTMLDivElement>();
+  EntityOperations: EntityOperations
+  constructor(props: P & CollectionBinderProps){
+    super(props)
+    this.EntityOperations = new EntityOperations();
+    if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService()
+  }
+
   Init(){
     if(this.state && this.state.initialized) return;
 
@@ -53,8 +62,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     this.Options.AllowDelete = false;
     if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
     this.Configure();
+    this.EntityOperations.UpdateURL = `${this.Config.Schema}/update${this.Config.Entity}`
+    this.EntityOperations.GetEntityURL = `${this.Config.Schema}/get${this.Config.Entity}`
+    if(this.Config.Entity) this.EntityOperations.Entity = this.Config.Entity;
+    this.EntityOperations.UseI18n = true
     this.ProcessColumns();
-    this.setInitData()
+    this.setInitData(true)
   }
   Configure() {
     
@@ -70,6 +83,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       });
     }
   }
+  ValidateColumns(data: Array<any>){
+    if(this.Config.Table && data && data.length > 0){
+      this.Config.Table.Columns.forEach((column) => {
+        column.PropertyName = validateKeyName(data[0], column.PropertyName);
+      });
+    }
+  }
   SetColumns(columns: Array<TableColumnClass>){
     if(this.Config.Table)
       this.Config.Table.Columns = columns;
@@ -78,7 +98,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     this.Config.Entity = entity;
     this.Config.Schema = schema;
     if(!pluralEntity) pluralEntity = Pluralize(entity);
-    this.SetDataSourcePath(schema + "/Get" + pluralEntity)
+    this.SetDataSourcePath(schema + "/Get" + this.ValidatePluralize(entity, pluralEntity))
+  }
+  ValidatePluralize(name: string, plural: string){
+    return plural;
   }
   SetDataSourcePath(path: string) {
     this.Config.DataSourcePath = path;
@@ -89,7 +112,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   setInitData(firstLoad: boolean = false){
-    var data = undefined;
+    var data: any = undefined;
     if(firstLoad) data = this.props.data 
     var page = parseInt(getQueryParam("page", 1));
     var pageSize = parseInt(getQueryParam("pageSize", 25));
@@ -117,19 +140,29 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       column.Filtering.Value = undefined
     })   
 
-    this.setState({path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.DefaultLanguageID})
+    if(!this.props.shownInParent){
+      this.setState({path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+    }
+    else{
+      setTimeout(() => {
+        this.setState({path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      }, 1000);
+    }
   }
 
   componentDidUpdate(prevProps: any, prevState: any){
     // console.log("Reiniting binder", prevState, this.state)
+    if(!this.state) return;
     if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
       this.setInitData()
     }
     else if(this.state.loadingState === LoadingState.Waiting){
       // console.log("loading binder data")
       this.getData().then((data) => {
-        if(data && data.data)
+        if(data && data.data){
+          this.ValidateColumns(data.data)
           this.setState({path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
+        }
         else if(data)
           this.setState({path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
       })
@@ -182,9 +215,19 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           { Payload: postData }
         ).call() as serviceCollectionResult;
         this.setState({loadingState: LoadingState.Loaded})
+        if(!data){
+          raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
+          var msg = new ServiceMessage();
+          msg.description = this.props.AppClient?.Translate("CouldNotRetrieveData") ?? ""
+          return {data: [], totalDataCount: 0, messages: [ msg]}
+        }
         return data;
       } catch (error) {
+        raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
         this.setState({loadingState: LoadingState.Failed })
+        var msg = new ServiceMessage();
+        msg.description = this.props.AppClient?.Translate("CouldNotRetrieveData") ?? ""
+        return {data: [], totalDataCount: 0, messages: [ msg]}
       }
     }
     return undefined
@@ -254,24 +297,24 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else
       return this.getEditUrl(record.id)
   };
-  onButtonClicked = async (key: string) => {
+  async onButtonClicked(key: string){
     if(key == "AddNew"){
-      this.setState({clickedRowIndex: -1})
+      if(this.Config.RowClickOption == "showEntityBinder")
+        this.setState({clickedRowIndex: -1})
+      else
+        Router.push(this.getLink({id: 0}))
     }
+  }
+  onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false){
+    if(!name) return;
+    this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
   }
   onCellValueChanged(row: any, column: TableColumnClass){
     this.SaveEntity(row)
   }
   async SaveEntity(data: any){
-    let postData: any = { Data: data, languageID: this.state.languageID };
     try {
-      const result = await this.CreateService()?.CreateEndpoint(
-        `${this.Config.Schema}/update${this.Config.Entity}`,
-        { Payload: postData }
-      ).call();
-      if(result === undefined)
-        return;
-
+      var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
       if (!result.hasFailed) {
         raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
       } else {
@@ -298,6 +341,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else if(type == "refreshData"){
       this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
     }
+  }
+  refreshData(){
+    this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
   }
   onPageChange(i: number){
     Router.push("", replaceQueryParam("page", i.toString()), { shallow: true })
@@ -329,6 +375,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     });
     Router.push("", url, { shallow: true }) 
   }
+  getItemPropertyValue = (row: any, name: string, i18n: boolean = false) => {
+    return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);
+  }
   renderCellValue = (row: any, column: TableColumnClass, value?: string) => {
     if(value){
       return <Link href={this.getLink(row)}>{value}</Link>
@@ -341,6 +390,25 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   renderFooter(){
     return <></>
   }
+  renderChildBinder(){
+    var data: any = {id: 0};
+    if(this.state.clickedRowIndex >= 0) {
+      data = this.state.data[this.state.clickedRowIndex];
+    }
+    if(this.props.initialFilters && data.id == 0) data = {...data, ...this.props.initialFilters}
+    //console.log(this.state.clickedRowIndex)
+    if(this.Config.ChildBinderContainer == "modal"){
+      return <Modal className={this.Theme.Binders?.SubBinderModal?.Class} key={this.state.clickedRowIndex} dismissOnBackdropClick={false} defaultOpen={true}>
+        {this.renderEntityBinder(data)}
+      </Modal>
+    }
+    else if(this.Config.ChildBinderContainer == "drawer"){
+      return <Drawer key={this.state.clickedRowIndex} className="bg-white w-2/4 h-full overflow-y-scroll shadow-lg" backdrop={true} swipe={false} fullWidth={false} position="top-right" visible={true}>
+        {this.renderEntityBinder(data)}
+      </Drawer>
+    }
+    return <></>
+  }
   render(): React.ReactNode {
     if(!this.Config.Table || !this.state || !this.state.data)
       return <></>
@@ -349,15 +417,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     this.OnBeforeRender();
     return <>
       {this.renderHeader()}
-      {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && <Modal className={this.Theme.Binders?.SubBinderModal?.Class} key={this.state.clickedRowIndex} dismissOnBackdropClick={true} defaultOpen={true}>
-        {this.state.clickedRowIndex >= 0 && this.renderEntityBinder(this.state.data[this.state.clickedRowIndex])}
-        {this.state.clickedRowIndex == -1 && this.renderEntityBinder({id:0})}
-      </Modal>}
+      {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
       <div className="collection-binder">
         <div ref={this.RootElementRef}>
-          <Table appClient={this.props.AppClient} table={this.Config.Table} data={this.state.data} listener={this}/>
+          <Table hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={this.state.data} listener={this}/>
         </div>
-        <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("Results per page")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={this.state.data.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />
+        <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={this.state.data.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />
       </div>
       {this.renderFooter()}
     </>

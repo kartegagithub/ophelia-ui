@@ -21,14 +21,23 @@ export default class APIService {
 
   async invokeEndpoint(endpoint: Endpoint) : Promise<any>{
     this.OnBeforeRequest(endpoint)
+
+    var httpsAgent: any = undefined
+    if(endpoint.URL.startsWith("https")){
+      const https = require('https');
+      httpsAgent = new https.Agent({
+        rejectUnauthorized: endpoint.Options.ValidateSSL,
+      });
+    }
     endpoint.Status = ServiceStatus.Fetching
     
-    var options: RequestInit = {
+    var options: RequestInit | any = {
       body: endpoint.Options.Payload? JSON.stringify(endpoint.Options.Payload): null,
       cache: "no-cache",
       headers: endpoint.Options.Headers,
       credentials: "same-origin",
-      method: endpoint.Options.Method
+      method: endpoint.Options.Method,
+      agent: httpsAgent
     }
     options = {...options, ...this.GetRequestOptions(endpoint)}
 

@@ -1,5 +1,6 @@
 import { Region_EN } from "./Region_EN"
 import { Region_TR } from "./Region_TR"
+import { Region_AZ } from "./Region_AZ"
 
 var RegionSettingTypeDef: {
     Code: string,
@@ -36,13 +37,18 @@ export function getRegionSetting(code: string): RegionSetting | undefined{
     if(registeredRegions[code]) return registeredRegions[code];
     return undefined;
 }
+export function getAllRegions(): Readonly<any>{
+    return registeredRegions
+}
 export function getCurrentRegionSetting(): RegionSetting | undefined{
     return getRegionSetting(currentRegion.toLocaleLowerCase());
 }
 export function changeRegion(code: string){
+    if(!registeredRegions[code.toLocaleLowerCase()]) return
     currentRegion = code.toLocaleLowerCase()
 }
 
 registerRegionSetting("EN", Region_EN)
 registerRegionSetting("TR", Region_TR)
+registerRegionSetting("AZ", Region_AZ)
 changeRegion("EN")

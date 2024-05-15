@@ -38,9 +38,10 @@ const SpeedDial: React.FC<SpeedDialProps> = ({
   return (
     <div id={id} className={Theme?.Class} onMouseOut={(e) => checkMouseInBoundByRef(e, boxRef1, (result) => setOpened(result))} ref={boxRef1}>
       <div id={menuID} className={Theme?.MenuClass + " " + (opened? "": "hidden")}>
-        { buttons && buttons.map((button) => 
+        { buttons && buttons.map((button, i) => 
           {return <>
             <button
+              key={i}
               type="button"
               data-tooltip-target={button.ID}
               data-tooltip-placement={button.TooltipPosition}
@@ -49,7 +50,7 @@ const SpeedDial: React.FC<SpeedDialProps> = ({
               {button.Icon && getImageComponent(button.Icon)}
               {button.Tooltip === true && button.TooltipText && <span className="sr-only">{button.TooltipText}</span>}
             </button>
-            {button.Tooltip === true && button.TooltipText && <div
+            {button.Tooltip === true && button.TooltipText && <div key={i}
               id={button.ID}
               role="tooltip"
               className="absolute z-10 invisible inline-block w-auto px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">

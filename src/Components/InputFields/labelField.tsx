@@ -10,6 +10,6 @@ export default class LabelField<P> extends BaseField<P & {
     
     renderInput(){
         const {value, defaultValue, ...pureProps} = this.GetProps()
-        return <Label {...pureProps}>{value}</Label>;
+        return <Label {...pureProps}>{value ?? defaultValue}</Label>;
     }
   }

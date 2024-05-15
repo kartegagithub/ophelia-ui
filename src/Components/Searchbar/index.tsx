@@ -152,7 +152,7 @@ const Searchbar: React.FC<SearchbarProps> = React.memo(({
             <div className={Theme?.ItemsContainerClass}>
               <div className={Theme?.ItemsScrollableAreaClass} ref={moveRef}>
                 {options.map((item, i) => {
-                  return <div onFocus={() => setFocusedDropdownItem(i)} className={focusedDropdownItem == i? Theme?.FocusedItemClass: Theme?.ItemClass} id={item.id?.toString()} onClick={() => onSearchOptionClick(item)}>
+                  return <div key={i} onFocus={() => setFocusedDropdownItem(i)} className={focusedDropdownItem == i? Theme?.FocusedItemClass: Theme?.ItemClass} id={item.id?.toString()} onClick={() => onSearchOptionClick(item)}>
                     <div className="flex items-center gap-5">
                       {item.image && <div className={Theme?.ItemIconClass}>
                         {getImageComponent(item.image, {color: Theme?.ItemIconColor})}
@@ -200,6 +200,7 @@ const Searchbar: React.FC<SearchbarProps> = React.memo(({
   );
 });
 
+Searchbar.displayName = "Searchbar";
 export default Searchbar;
 
 var searchbarProps: {

@@ -2,22 +2,36 @@ import React, { KeyboardEventHandler, MouseEventHandler, useEffect, useMemo, use
 import TableClass from "./TableClass";
 import TableColumnClass from "./TableColumnClass";
 import InputField from "../InputFields/inputField";
-import { enumToArray, getObjectValue, randomId, setObjectValue } from "../../Extensions/ReflectionExtensions";
+import { convertToBool, enumToArray, getObjectValue, randomId, setObjectValue } from "../../Extensions/ReflectionExtensions";
 import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
-import { getFormattedDateString, parseFloatIfCan } from "../../Extensions/StringExtensions";
+import { getFormattedDateString, isNullOrEmpty, padLeft, parseFloatIfCan, removeHtml, sanitizeHtml } from "../../Extensions/StringExtensions";
 import Dropdown from "../Dropdown";
 import { DataComparison } from "../../Binders/CollectionBinder/query/queryFilter";
 import Select from "../Inputs/SelectInput";
 import AppClient from "../../AppClient";
 import { IconProps } from "../Icon";
-import { PencilIcon } from "@heroicons/react/24/solid";
+import { ArrowDownIcon, ArrowRightIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Checkbox from "../Inputs/CheckboxInput";
-const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient, children, listener }) => {
-  var [selectedRow, setSelectedRow] = useState(0)
-  var [selectedCell, setSelectedCell] = useState([0,0])
-  var [hoveredCell, setHoveredCell] = useState([0,0])
-  var [selectedColumn, setSelectedColumn] = useState(0)
+import RawHTML from "../RawHTML";
+import Image from "../Image/Image";
+import { findInArray } from "../../Extensions";
+const Table: React.FC<TableProps> = React.memo(({ 
+  table, 
+  theme, 
+  data, 
+  appClient, 
+  children, 
+  adjustHeight = true, 
+  listener,
+  hierarchicalDisplay = false,
+  hierarchyPropertyName = undefined,
+  hierarchyParentValue = undefined
+}) => {
+  var [selectedRow, setSelectedRow] = useState(-1)
+  var [selectedCell, setSelectedCell] = useState([-1,-1])
+  var [hoveredCell, setHoveredCell] = useState([-1,-1])
+  var [selectedColumn, setSelectedColumn] = useState(-1)
   var [filteredColumns, setFilteredColumns] = useState([""])
   var [selectedColumnToFilter, setSelectedColumnToFilter] = useState(new TableColumnClass())
   var [sortedColumn, setSortedColumn] = useState(table?.Columns.find((column) => column.IsSorted === true)?.PropertyName)
@@ -38,14 +52,28 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
     {text: appClient?.Translate("EndsWith"), comparison: DataComparison.EndsWith, types: ["text"], sign: "*."},
     {text: appClient?.Translate("Contains"), comparison: DataComparison.Contains, types: ["text"], sign: "*.*"}
   ]
+  const recalculateHeight = () => {
+    if(adjustHeight && containerRef.current){
+      if(selectedColumnToFilter && selectedColumnToFilter.PropertyName) containerRef.current.style.minHeight = "400px";
+      else containerRef.current.style.minHeight = "";
+    }
+  }
+  useEffect(() => {
+    recalculateHeight();
+  }, [selectedColumnToFilter]);
+  useEffect(() => {
+    onTableScroll();
+  }, []);
+  
   if (!table) return <div></div>;
 
   const renderColumns = () => {
     return (<tr className={Theme?.ColumnsRowClass}>
+      {hierarchycalDisplayEnabled() && <th></th>}
       {table.Columns.filter((column) => column.Visible !== false).map((column, index) => {
-        return <th className={selectedColumn == index? Theme?.SelectedColumnClass: Theme?.ColumnClass}>
+        return <th key={index} className={`${column.Freeze ? "sticky": "relative"} col-${index} ${selectedColumn == index? Theme?.SelectedColumnClass: Theme?.ColumnClass}`}>
           <div className={Theme?.ColumnRootComponentClass}>
-            <div className={Theme?.ColumnTitleClass}>{column.HeaderText}</div>
+            <div className={Theme?.ColumnTitleClass}><RawHTML html={column.HeaderText} /></div>
             <div className={Theme?.ColumnButtonsClass}>
               {column.AllowSorting !== false && <>
                 <span onClick={(e) => onSortingClick(e, column)} style={{ cursor: "pointer"}}>
@@ -70,7 +98,6 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
 
   const setColumnFilterValue = (column: TableColumnClass, value: any) => {
     if(value && value != ""){
-      debugger;
       column.IsFiltered = true;
       if(column.Filtering) column.Filtering.Value = value;
     }
@@ -101,7 +128,7 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
       return { text: comp.text ?? comp.sign, value: comp.comparison.toString()}
     });
     if(column.Filtering && !column.Filtering?.Comparison && comparisons.length > 0) column.Filtering.Comparison = parseInt(comparisons[0].value)
-    return <Dropdown visible={true} id={modalID} label="Filter to" theme={{Class: `${columnIndex > 0? "right-3": "left-3"} absolute p-3 bg-white border border-gainsboro rounded-lg shadow-sm z-10`}} onSelectionChange={(options, button) => {
+    return <Dropdown multipleSelection={true} visibilityCallback={(visible) => !visible && setSelectedColumnToFilter({}) } key={`${modalID}-dropdown-${column.PropertyName}`} visible={true} id={modalID} label="Filter to" theme={{Class: `${columnIndex > 0? "right-3": "left-3"} absolute p-3 bg-white border border-gainsboro rounded-lg shadow-sm z-10 min-w-[225px]`}} onSelectionChange={(options, button) => {
       if(button){
         if(button.id == 0){
           ClearFilterValue(column)
@@ -153,48 +180,120 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
     return true;
   }
 
-  const onRowClick = (e: React.MouseEvent<HTMLTableRowElement>, index: number) => {
-    if(listener?.onRowClick) listener?.onRowClick(e, index)
-    setSelectedRow(index)
-    return true;
+  // const onRowClick = (e: React.MouseEvent<HTMLTableRowElement>, index: number) => {
+  //   if(listener?.onRowClick) listener?.onRowClick(e, index)
+  //   setSelectedRow(index)
+  //   return true;
+  // }
+  const hierarchycalDisplayEnabled = () => {
+    return hierarchicalDisplay == true && !isNullOrEmpty(hierarchyPropertyName)
   }
-  const renderRows = () => {
-    return data?.map((row, index) => {
-      return <tr key={index} onClick={(e) => onRowClick(e, index)} className={selectedRow === index? Theme?.SelectedRowClass: Theme?.RowClass}>
-        {table.Columns.filter((column) => column.Visible !== false).map((column, columnIndex) => {
-          return renderCell(row, column, index, columnIndex)
-        })}
-      </tr>
+  const isHierarchyChecked = () => {
+    
+  }
+  const renderRows = (rowsToRender?: Array<any>, additionalClassName?: string): React.ReactNode => {
+    if(!data) return <></>;
+    
+    var childrenRows: Array<any> | undefined = undefined
+    if(!rowsToRender){
+      rowsToRender = data.filter((item, i) => {
+        if(!item.viewOrderIndex) item.viewOrderIndex = i; 
+        return getObjectValue(item, hierarchyPropertyName) == hierarchyParentValue
+      })
+    }
+    else if(!rowsToRender) rowsToRender = data;
+    return rowsToRender?.map((row, index) => {
+      if(hierarchycalDisplayEnabled()){
+        if(!row.viewOrderStr) row.viewOrderStr = padLeft(row.id, 4, "0")
+        childrenRows = data.filter((item) => getObjectValue(item, hierarchyPropertyName) == row.id)
+        childrenRows.forEach((item) => {item.viewOrderStr = row.viewOrderStr + padLeft(item.id, 4, "0")})
+      }
+      else{
+        childrenRows = undefined
+      }
+      var selectedRowData: any = selectedRow > -1 ? data[selectedRow]: undefined
+      var isSelected = selectedRow === row.viewOrderIndex || (selectedRowData && selectedRowData.viewOrderStr && row.viewOrderStr && selectedRowData.viewOrderStr.startsWith(row.viewOrderStr));
+      return (<>
+        <tr key={row.viewOrderIndex} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${additionalClassName}`}>
+          {hierarchycalDisplayEnabled() && 
+            <td onClick={(e) => {
+              if(selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1)
+              else{
+                var parentID = getObjectValue(row, hierarchyPropertyName)
+                if(parentID){
+                  var result = findInArray(data, parentID, "id", undefined)
+                  setSelectedRow(result.index)
+                }
+                else setSelectedRow(-1)
+              }
+            }} 
+            className={`px-4 py-2`}>
+            {childrenRows && childrenRows.length > 0 && !isSelected && <ArrowRightIcon width={18} height={18}></ArrowRightIcon>}
+            {childrenRows && childrenRows.length > 0 && isSelected && <ArrowDownIcon width={18} height={18}></ArrowDownIcon>}
+          </td>}
+          {table.Columns.filter((column) => column.Visible !== false).map((column, columnIndex) => {
+            return renderCell(row, column, row.viewOrderIndex, columnIndex)
+          })}
+        </tr>
+        {childrenRows && childrenRows.length > 0 && renderRows(childrenRows, isSelected? "": "hidden")}
+      </>)
     })
   }
 
-  const onCellClick = (e: React.MouseEvent<HTMLTableCellElement>, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => {
-    if(listener?.onCellClick) listener?.onCellClick(e, row, column, rowIndex, columnIndex)
+  const onCellClick = (e: React.MouseEvent<HTMLTableCellElement>, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => {
+    if(listener?.onCellClick && column) listener?.onCellClick(e, row, column, rowIndex, columnIndex)
     setSelectedCell([rowIndex, columnIndex])
     setSelectedColumn(columnIndex)
+    setSelectedRow(rowIndex)
     return true;
   }
   const cellEditableControlKeyUp = (e: any, row: any, column: TableColumnClass) => {
-    if(e.key == "Escape"){
-      setSelectedCell([-1,-1])
+    if(e){
+      if(e.key == "Escape"){
+        setSelectedCell([-1,-1])
+      }
+      else if(e.key == "Enter"){
+        setSelectedCell([-1,-1])
+        if(listener && listener.onCellValueChanged)
+          listener.onCellValueChanged(row, column)
+      }
     }
-    else if(e.key == "Enter"){
-      setSelectedCell([-1,-1])
-      if(listener && listener.onCellValueChanged)
-        listener.onCellValueChanged(row, column)
-    }
+    else if(listener && listener.onCellValueChanged)
+      listener.onCellValueChanged(row, column)
+  }
+  const cellValueChanging = (row: any, name?: string, value?: any, i18n: boolean = false) => {
+    if(listener && listener.onCellValueChanging)
+      listener.onCellValueChanging(row, name, value, i18n)
+    else
+      setObjectValue(row, name, value)
   }
   const renderCellValue = (row: any, column: TableColumnClass, value: any, rowIndex: number, columnIndex: number) => {
     if(listener && listener.renderCellValue)
       value = listener.renderCellValue(row, column, value)
     if(column.AllowEditing == true && selectedCell && selectedCell[0] == rowIndex && selectedCell[1] == columnIndex){
-      return <InputField theme={{RootClass: ""}} onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column)} labelVisible={false} valuevisible={column.Filtering?.Value} valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"} displayProp={column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"} listener={{
-        setFieldData: (name: string, value: any) => setObjectValue(row, column.Filtering?.Name, value),
-        getFieldData: (field: any) => getObjectValue(row, column.Filtering?.Name)
-      }} text={column.HeaderText} type={column.Filtering?.Type ?? column.Type} enumSelectionType={column.Filtering?.EnumSelectionType} remoteDataSource={column.Filtering?.RemoteDataSource} name={column.Filtering?.Name ?? column.PropertyName} />
+      return <InputField 
+      theme={{RootClass: ""}} 
+      onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column)} 
+      labelVisible={false} 
+      valuevisible={column.Filtering?.Value} 
+      valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"} 
+      displayProp={column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"} 
+      listener={{
+        setFieldData: (name: string, value: any) => {
+          cellValueChanging(row, column.Filtering?.Name, value, column.I18n)
+          if(column.Type == "selectbox" || column.Type == "enum") cellEditableControlKeyUp(undefined, row, column)
+        },
+        getFieldData: (field: any) => {
+          if(listener?.getItemPropertyValue) return listener.getItemPropertyValue(row, column.PropertyName, column.I18n)
+          return getObjectValue(row, column.Filtering?.Name)
+        }
+      }} 
+      text={column.HeaderText} 
+      type={column.Filtering?.Type ?? column.Type} enumSelectionType={column.Filtering?.EnumSelectionType} remoteDataSource={column.Filtering?.RemoteDataSource} name={column.Filtering?.Name ?? column.PropertyName}
+      translateFn={(key: string) =>  appClient?.Translate(key) ?? key} />
     }
     else if(column.AllowEditing == true && hoveredCell && hoveredCell[0] == rowIndex && hoveredCell[1] == columnIndex){
-      return <>{value} <PencilIcon width={12} className="absolute right-3 top-3" height={12}/></>
+      return <><RawHTML html={value} /> <PencilIcon width={12} className="absolute right-3 top-3" height={12}/></>
     }
     return value;
   }
@@ -205,7 +304,12 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
     setHoveredCell([-1, -1])
   }
   const renderCell = (row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => {
-    var value: any = getObjectValue(row, column.PropertyName);
+    var value: any = "";
+    if(listener?.getItemPropertyValue) value = listener?.getItemPropertyValue(row, column.PropertyName, column.I18n, column.Type)
+    else value = getObjectValue(row, column.PropertyName);
+
+    value = removeHtml(value)
+    value = sanitizeHtml(value)
     if(column.Type == "date" || column.Type == "datetime" || column.Type == "week" || column.Type == "time" || column.Type == "month"){
       value = getFormattedDateString(value, column.Format, column.Type)
     }
@@ -216,14 +320,20 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
         if(tmpValue) value = tmpValue
       }
     }
+    else if(column.Type == "image"){
+      if(value){
+        if(value.indexOf("size") > -1) value = value.replace("{size}", "Size1")
+        value = <Image src={value} className="w-full max-w-25" />
+      }
+    }
     else if(column.Type == "checkbox"){
-      value = <Checkbox readOnly={true} checked={value === true || parseFloatIfCan(value) > -1} />
+      value = <Checkbox readOnly={true} defaultChecked={convertToBool(value)} switchbox={true} onText="" offText="" />
     }
     var className = column.Type ? (Theme?.CellTypeClasses as any)[column.Type] : ""
     className = className + " " + (selectedCell[0] == rowIndex && selectedCell[1] == columnIndex? Theme?.SelectedCellClass: Theme?.CellClass)
     if (column.TextFormatter) value = column.TextFormatter(value);
     if(column.MaxTextLength && column.MaxTextLength > 0 && value && value.length > column.MaxTextLength) value = value.toString().substring(0, column.MaxTextLength)
-    return <td onMouseOver={() => onMouseOverCell(row, column, rowIndex, columnIndex)} onMouseOut={() => onMouseOutCell(row, column, rowIndex, columnIndex)} className={`${className} relative`} onClick={(e) => onCellClick(e, row, column, rowIndex, columnIndex)}>{renderCellValue(row, column, value, rowIndex, columnIndex)}</td>
+    return <td onMouseOver={() => onMouseOverCell(row, column, rowIndex, columnIndex)} onMouseOut={() => onMouseOutCell(row, column, rowIndex, columnIndex)} className={`col-${columnIndex} ${className} ${column.Freeze ? "sticky": "relative"}`} onClick={(e) => onCellClick(e, row, column, rowIndex, columnIndex)}>{renderCellValue(row, column, value, rowIndex, columnIndex)}</td>
   }
   
   const onTableScroll = ()=>{
@@ -251,9 +361,6 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
       }
     }
   }
-  useEffect(() => {
-    onTableScroll();
-  }, []);
   return (
     <>
       <div className={Theme?.TopScrollClass} ref={topScrollRef} onScroll={() => onTopScroll()}><div className={Theme?.TopScrollbarClass}></div></div>
@@ -270,21 +377,28 @@ const Table: React.FC<TableProps> = React.memo(({ table, theme, data, appClient,
     </>
   );
 });
-
+Table.displayName = "Table";
 export default Table;
+
 var tableProps:{
   table?: TableClass;
   data?: Array<any>
   children?: React.ReactNode;
   appClient?: AppClient;
   theme?: TableTheme,
+  adjustHeight?: boolean
+  hierarchicalDisplay?: boolean
+  hierarchyPropertyName?: string
+  hierarchyParentValue?: string | number
   listener?: {
     onCellClick?: Function;
-    onRowClick?: Function;
+    // onRowClick?: Function;
     renderCellValue?: Function;
     onSortingChanged?: Function
     onFilteringChanged?: Function
     onCellValueChanged?: Function
+    onCellValueChanging?: Function
+    getItemPropertyValue?: Function
   }
 }
 export type TableProps = typeof tableProps
@@ -312,6 +426,7 @@ var tableTheme: {
   SelectedCellClass?: string,
   CellClass?: string,
   HeadClass?: string,
+  
   CellTypeClasses?:{
     text?: string,
     textarea?: string,

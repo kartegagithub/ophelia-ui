@@ -19,41 +19,61 @@ import DateTimeField from "./dateTimeField";
 import RangeField from "./rangeField";
 import ImageField from "./imageField";
 import DropdownFilterboxField from "./dropdownFilterboxField";
+import ColorField from "./colorField";
+import CheckboxInput from "../Inputs/CheckboxInput";
+import RadioField from "./radioField";
 
-const InputField = (props: any) => {
-    if(props.visible){
-      if(props.visible === false) return <></>
-      if(typeof props.visible == "function"){
-        var visible = props.visible()
-        if(!visible) return <></>
-      }
-    }
-    const {allowEdit, ...pureProps} = props  
-    if(props.allowEdit === false || props.type === "label") return  <LabelField {...pureProps} />
-    return (
-      <>
-        {props.type === "numeric" && <NumericField {...pureProps} />}
-        {props.type === "date" && <DateField {...pureProps} />}
-        {props.type === "time" && <TimeField {...pureProps} />}
-        {props.type === "datetime" && <DateTimeField {...pureProps} />}
-        {(props.type === "checkbox" || props.type === "boolean") && <BoolField {...pureProps} />}
-        {props.type === "radio" && <BoolField {...pureProps} />}
-        {(props.type === "object" || props.type === "filterbox") && <DropdownFilterboxField {...pureProps} />}
-        {props.type === "enum" && <EnumSelectBoxField translateFn={props.translateFn} {...pureProps} />}
-        {props.type === "selectbox" && <DropdownField {...pureProps} />}
-        {props.type === "password" && <PasswordField {...pureProps} />}
-        {props.type === "text" && <TextField {...pureProps} />}
-        {props.type === "richtext" && <RichTextField {...pureProps} />}
-        {props.type === "textarea" && <TextAreaField {...pureProps} />}
-        {props.type === "email" && <EmailField {...pureProps} />}
-        {(props.type === "phone" || props.type === "tel") && <PhoneField {...pureProps} />}
-        {props.type === "week" && <WeekField {...pureProps} />}
-        {props.type === "month" && <MonthField {...pureProps} />}
-        {props.type === "url" && <URLField {...pureProps} />}
-        {props.type === "file" && <FileField {...pureProps} />}
-        {props.type === "range" && <RangeField {...pureProps} />}
-        {props.type === "image" && <ImageField {...pureProps} />}
-    </>)
+const InputField: React.FC<any> = (props) => {
+  const {
+    allowEdit,
+    translateFn,
+    remoteDataSource,
+    enumSelectionType,
+    ...pureProps
+  } = props;
+  if (props.allowEdit === false || props.type === "label")
+    return <LabelField {...pureProps} />;
+  return (
+    <>
+      {props.type === "numeric" && <NumericField {...pureProps} />}
+      {props.type === "date" && <DateField {...pureProps} />}
+      {props.type === "time" && <TimeField {...pureProps} />}
+      {props.type === "datetime" && <DateTimeField {...pureProps} />}
+      {(props.type === "checkbox" || props.type === "boolean") && (
+        <BoolField {...pureProps} />
+      )}
+      {(props.type === "object" || props.type === "filterbox") && (
+        <DropdownFilterboxField
+          remoteDataSource={remoteDataSource}
+          {...pureProps}
+        />
+      )}
+      {props.type === "enum" && (
+        <EnumSelectBoxField
+          enumSelectionType={enumSelectionType}
+          translateFn={props.translateFn}
+          {...pureProps}
+        />
+      )}
+      {props.type === "radio" && <RadioField {...pureProps} />}
+      {props.type === "selectbox" && <DropdownField {...pureProps} />}
+      {props.type === "password" && <PasswordField {...pureProps} />}
+      {props.type === "text" && <TextField {...pureProps} />}
+      {props.type === "richtext" && <RichTextField {...pureProps} />}
+      {props.type === "textarea" && <TextAreaField {...pureProps} />}
+      {props.type === "email" && <EmailField {...pureProps} />}
+      {props.type === "color" && <ColorField {...pureProps} />}
+      {(props.type === "phone" || props.type === "tel") && (
+        <PhoneField {...pureProps} />
+      )}
+      {props.type === "week" && <WeekField {...pureProps} />}
+      {props.type === "month" && <MonthField {...pureProps} />}
+      {props.type === "url" && <URLField {...pureProps} />}
+      {props.type === "file" && <FileField {...pureProps} />}
+      {props.type === "range" && <RangeField {...pureProps} />}
+      {props.type === "image" && <ImageField {...pureProps} />}
+    </>
+  );
 };
 
 export default InputField;
