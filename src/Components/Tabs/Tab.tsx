@@ -36,7 +36,8 @@ var tabsTheme:  {
   SelectedTabHeaderButtonClass?: string,
   TabHeaderButtonContainerClass?: string,
   TabPaneClass?: string,
-  Types?: { monochrome?: string, colorful?: string, rounded?: string},
-  SelectedTypes?: { monochrome?: string, colorful?: string, rounded?: string},
+  Types?: { monochrome?: string, colorful?: string, rounded?: string, verticalColorful?: string},
+  SelectedTypes?: { monochrome?: string, colorful?: string, rounded?: string, verticalColorful?: string},
+
 }
 export type TabsTheme = typeof tabsTheme

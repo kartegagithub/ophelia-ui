@@ -1,27 +1,46 @@
-import React, { InputHTMLAttributes } from "react";
+import React, { InputHTMLAttributes, useRef } from "react";
 import { getAppTheme } from "../../AppTheme";
+import { AdditionalHtmlAttributes } from "../../Enums";
 
-export default class ColorInput<P> extends React.Component<P & InputHTMLAttributes<HTMLInputElement>, {}>{
-  InputRef = React.createRef<HTMLInputElement>();
-  onColorSelection(e: React.ChangeEvent<HTMLInputElement>){
-    if(!this.InputRef.current) return;
-    this.InputRef.current.value = e.currentTarget.value;
-    if(this.props.onChange) this.props.onChange(e)
-  }
-  render(): React.ReactNode {
-    return (
-      <>
-          <div className="flex relative">
-            <input
-              type="text"
-              className={` ${this.props.className ?? getAppTheme().Inputs?.text}`}
-              {...this.props}
-              ref={this.InputRef}
-            >
-            </input>
-            <input onChange={(e) => this.onColorSelection(e)} type="color" className="w-10 absolute right-2" defaultValue={this.props.defaultValue} value={this.props.value}></input>
-          </div>
-      </>
-    );
-  }
+interface ColorInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  // İhtiyacınıza göre ek prop'lar ekleyebilirsiniz
+  labelType?: any;
 }
+
+const ColorInput: React.FC<ColorInputProps & AdditionalHtmlAttributes> = ({
+  className,
+  defaultValue,
+  value,
+  labelType,
+  onChange,
+  ...props
+}) => {
+  const appTheme = getAppTheme();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const onColorSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!inputRef.current) return;
+    inputRef.current.value = e.currentTarget.value;
+    if (onChange) onChange(e);
+  };
+
+  return (
+    <>
+      <input
+        type="text"
+        className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.text} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        ref={inputRef}
+        {...props}
+      />
+      <input
+        onChange={(e) => onColorSelection(e)}
+        type="color"
+        className="w-15 absolute right-4 top-4"
+        defaultValue={defaultValue}
+        value={value}
+      />
+    </>
+  );
+};
+
+export default ColorInput;

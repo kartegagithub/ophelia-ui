@@ -2,7 +2,7 @@ import React, { InputHTMLAttributes } from "react";
 import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 
-interface WeekInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+export interface WeekInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
 }
 

@@ -2,7 +2,7 @@ import React, { TextareaHTMLAttributes } from "react";
 import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 
-interface TextAreaInputProps extends AdditionalHtmlAttributes, TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextAreaInputProps extends AdditionalHtmlAttributes, TextareaHTMLAttributes<HTMLTextAreaElement> {
   labelType?: any;
 }
 

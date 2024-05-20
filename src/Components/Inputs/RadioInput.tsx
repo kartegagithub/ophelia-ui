@@ -1,7 +1,7 @@
 import { getAppTheme } from "../../AppTheme";
 import React, { InputHTMLAttributes, useState } from "react";
 
-interface RadioInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface RadioInputProps extends InputHTMLAttributes<HTMLInputElement> {
   defaultChecked?: boolean;
   checked?: boolean;
   labelClass?: string;

@@ -6,6 +6,7 @@ import {
   registerDocumentKeyDown,
   unregisterDocumentKeyDown,
 } from "../../Extensions/DocumentExtension";
+import Icon from "../Icon";
 const Modal: React.FC<{
   id?: string;
   className?: string;
@@ -15,6 +16,7 @@ const Modal: React.FC<{
   dismissText?: string;
   center?: boolean;
   dismissButtonClassName?: string;
+  showCloseButton?: boolean;
   dismissOnBackdropClick?: boolean;
   maxWidth?: string;
   bodyClassName?: string;
@@ -39,6 +41,7 @@ const Modal: React.FC<{
   onBottomScroll = undefined,
   onCurrentValue = undefined,
   maxWidth = "800px",
+  showCloseButton = false,
   bodyClassName = undefined,
   buttons = [],
   center = false,
@@ -114,6 +117,22 @@ const Modal: React.FC<{
       >
         <div className={theme.Modal?.SubClass} style={{ maxWidth }}>
           <div className={theme.Modal?.ContainerClass} ref={ModalRef}>
+            {showCloseButton && (
+              <div
+                className="absolute right-5 top-4 z-30"
+                onClick={(e: any) => {
+                  closeModal(e);
+                  onCurrentValue(false);
+                }}
+              >
+                <Icon
+                  name="azClose"
+                  color="#768892"
+                  size={24}
+                  className="cursor-pointer"
+                />
+              </div>
+            )}
             {title && (
               <div className={theme.Modal?.HeaderClass}>
                 <h3 className={theme.Modal?.TitleClass}>{title}</h3>

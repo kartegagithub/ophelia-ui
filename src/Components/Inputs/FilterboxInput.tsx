@@ -1,6 +1,6 @@
 import { AppTheme, getAppTheme } from "../../AppTheme";
 import React, { ChangeEvent, MouseEventHandler, SelectHTMLAttributes } from "react";
-import Dropdown from "../Dropdown";
+import Dropdown, { DropdownTheme } from "../Dropdown";
 import { clone, parseFloatIfCan, toJson } from "../../Extensions/StringExtensions";
 import { findInArray, removeAtIndex, selectDefaultValues } from "../../Extensions/ArrayExtensions";
 import { XMarkIcon } from "@heroicons/react/24/solid";
@@ -10,6 +10,7 @@ import TextInput from "./TextInput";
 export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAttributes<HTMLSelectElement> & {
   placeholder?: string;
   options?: Array<any>
+  className?: string
   defaultValue?: Array<any>
   searchFn?: ((key?: string, page?: number) => Promise<Array<any> | undefined>)
   low?: number
@@ -34,7 +35,8 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
   allowNew?: boolean;
   newTextInputClassName?: string;
   newTextInputPlaceholder?: string;
-  onNewAction?: (text: string) => Promise<void>
+  onNewAction?: (text: string) => Promise<void>,
+  dropdownTheme?: DropdownTheme
 }, {filteredOptions: Array<any>, selectedOptions: Array<any>, showDropdown: boolean, refreshSearchList: boolean}>{
   HiddenInputRef = React.createRef<HTMLInputElement>()
   SelectionLabelRef = React.createRef<HTMLDivElement>()
@@ -143,11 +145,16 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
     }
   }
   render(): React.ReactNode {
+    
+    var _dropdownTheme: DropdownTheme = {
+      ...{ Class: this.props.shownInDropdown == true ? this.Theme.Dropdown?.ClassWhenInner: this.Theme.Dropdown?.Class },
+      ...this.props.dropdownTheme  
+    }
     return (
       <>
         <div ref={this.RootRef}>
           <input ref={this.HiddenInputRef} type="hidden" name={this.props.valueName ?? this.props.name} id={this.props.valueName ?? this.props.name} />
-            {this.props.hideSelections != true && <div ref={this.SelectionLabelRef} className={`relative ${this.Theme.Inputs?.filterbox}`} onClick={() => this.toggleDropDown()}>
+            {this.props.hideSelections != true && <div ref={this.SelectionLabelRef} className={`relative ${this.props.className ?? this.Theme.Inputs?.filterbox}`} onClick={() => this.toggleDropDown()}>
             {this.state.selectedOptions && this.state.selectedOptions.length > 0 && this.state.selectedOptions.map((item, i) => this.getItemDisplayText(item, i))}
             {(!this.state.selectedOptions || this.state.selectedOptions.length == 0) && this.getEmptyDisplayText()}
             {this.props.multipleSelection == true && this.props.allowClear != false && <XMarkIcon onClick={() => this.clear()} width={13} height={13} className="cursor-pointer absolute right-1 top-1"></XMarkIcon>}
@@ -155,7 +162,7 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
           <div className="relative">
             <Dropdown
               key={`${this.props.id}${this.props.name}-dropdown`}
-              theme={{ Class: this.props.shownInDropdown == true ? this.Theme.Dropdown?.ClassWhenInner: this.Theme.Dropdown?.Class }}
+              theme={_dropdownTheme}
               enableSearch={true} 
               buttons={this.getButtons()}
               onSearch={(key, page) => this.onSearch(key, page)}

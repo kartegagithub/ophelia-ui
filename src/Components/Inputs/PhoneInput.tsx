@@ -3,7 +3,7 @@ import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
 import DataList from "./DataList";
 import { getAppTheme } from "../../AppTheme";
 
-interface PhoneInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+export interface PhoneInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
   list: string;
   labelType?: any;
 }

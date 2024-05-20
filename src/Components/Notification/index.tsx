@@ -27,9 +27,10 @@ const Notification: React.FC<NotificationProps> = ({
       setIsVisible(false);
     }, 2000);
   };
-
-  type = type ?? (notifyData as any)?.type
-  listenCustomEvent("notification", handleNotification)
+  useEffect(() => {
+    type = type ?? (notifyData as any)?.type
+    listenCustomEvent("notification", handleNotification)
+  }, [type, handleNotification])  
   
   if(!image){
     if(type == "success") image = Theme?.SuccessImage

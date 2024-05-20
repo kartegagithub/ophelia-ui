@@ -166,7 +166,8 @@ export function getFormattedDateString(value?: string, toFormat?: string, type: 
 
 export function stringToDateInputValue(value?: string | undefined, format: string = "YYYY-MM-DD"){
   if(!value) return "";
-  return getFormattedDateString(value, format)
+  var returnValue = getFormattedDateString(value, format)
+  return returnValue;
 }
 export function isNumeric(str: string) {
   if(!str || str == "") return false;

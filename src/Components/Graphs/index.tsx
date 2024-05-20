@@ -1,3 +1,3 @@
-export * from "./BarGraph"
-export * from "./LineGraph"
+export { default as BarGraph } from "./BarGraph"
+export { default as LineGraph } from "./LineGraph"
 export * from "./Props"

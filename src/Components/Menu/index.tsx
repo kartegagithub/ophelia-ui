@@ -1,4 +1,4 @@
-export * from "./Menu"
-export * from "./MenuClass"
-export * from "./MenuItem"
-export * from "./MenuItemClass"
+export { default as Menu, type MenuProps, type MenuTheme} from "./Menu"
+export { default as MenuClass } from "./MenuClass"
+export { default as MenuItem, type MenuItemProps} from "./MenuItem"
+export { default as MenuItemClass } from "./MenuItemClass"

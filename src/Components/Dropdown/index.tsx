@@ -38,6 +38,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   valueProp = "value",
   selectedItemDisplayProp = undefined,
   selectedItemValueProp = undefined,
+  contentTopClass = undefined,
   label = "",
   backdrop = false,
   theme = undefined,
@@ -189,7 +190,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       registerDocumentMouseDown(mouseDown, RootRef.current);
       return () => unregisterDocumentMouseDown(mouseDown, RootRef.current);
     }
-    return undefined
+    return undefined;
   }, [mouseDown, RootRef, handleOutboundClick]);
 
   useEffect(() => {
@@ -232,7 +233,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       <div
         id={id}
         key={id}
-        className={`${Theme?.Class} ${positionClass || "left-0"} ${open ? "opacity-100 max-h-[800px]" : "opacity-0 max-h-0"}`}
+        className={`${Theme?.Class} ${positionClass || "left-0"} ${open ? "opacity-100 max-h-[800px]" : "opacity-0 max-h-0"} ${contentTopClass}`}
         ref={RootRef}
       >
         {enableSearch && (
@@ -245,7 +246,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 }}
                 type="text"
                 ref={SearchRef}
-                className="bg-transparent border border-pastelBlue rounded-lg p-4 text-black text-sm appearance-none focus:border-darkSky block w-full min-w-100 peer focus:outline-none focus:ring-0"
+                className="bg-transparent border border-pastelBlue rounded-lg p-4 text-black text-sm appearance-none focus:border-darkSky block w-full peer focus:outline-none focus:ring-0"
                 placeholder={searchPlaceholder}
               />
               <div className="absolute inset-y-0 rtl:inset-r-0 end-4 flex items-center">
@@ -349,6 +350,7 @@ var dropdownProps: {
   searchPlaceholder?: string;
   multipleSelection?: boolean;
   positionClass?: string;
+  contentTopClass?: string;
   button?: {
     id?: string;
     className?: string;
@@ -359,6 +361,7 @@ var dropdownProps: {
     size?: string;
     btnChildren?: React.JSX.Element;
   };
+  newBtn?: React.JSX.Element;
   onSearch?: (key?: string, page?: number) => Promise<Array<any> | undefined>;
   onSelectionChange?: (value?: any | Array<any>, clickedButton?: any) => void;
   backdrop?: boolean;

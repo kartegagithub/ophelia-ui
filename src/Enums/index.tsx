@@ -1,4 +1,2 @@
-import {LoadingState} from "./loadingState"
-
-export { LoadingState }
+export * from "./loadingState"
 export * from "./additionalHtmlAttributes"

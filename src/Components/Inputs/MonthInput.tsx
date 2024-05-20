@@ -2,7 +2,7 @@ import { AdditionalHtmlAttributes } from "../../Enums";
 import { getAppTheme } from "../../AppTheme";
 import React from "react";
 
-interface MonthInputProps extends AdditionalHtmlAttributes, React.InputHTMLAttributes<HTMLInputElement> {
+export interface MonthInputProps extends AdditionalHtmlAttributes, React.InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
   className?: string;
 }

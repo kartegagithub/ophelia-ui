@@ -1,3 +1,3 @@
-export * from "./Grid"
-export * from "./GridColumn"
-export * from "./GridRow"
+export { default as Grid, type GridTheme} from "./Grid"
+export { default as GridColumn } from "./GridColumn"
+export { default as GridRow } from "./GridRow"

@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes } from "react";
 
-interface HiddenInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface HiddenInputProps extends InputHTMLAttributes<HTMLInputElement> {
   // İhtiyacınıza göre ek prop'lar ekleyebilirsiniz
 }
 

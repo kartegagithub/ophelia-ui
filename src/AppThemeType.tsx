@@ -2,7 +2,6 @@ import React from "react";
 import { AlertTheme } from "./Components/Alert"
 import { IconProps } from "./Components/Icon";
 import { TabsTheme } from "./Components/Tabs/Tab";
-import { CarouselTheme } from "./Components/Carousel";
 import { PaginationTheme } from "./Components/Pagination";
 import { SearchbarTheme } from "./Components/Searchbar";
 import { TableTheme } from "./Components/Table/Table";
@@ -23,6 +22,8 @@ import { GridTheme } from "./Components/Grid/Grid";
 import { MenuTheme } from "./Components/Menu/Menu";
 import { PanelTheme } from "./Components/Panel";
 import { DrawerTheme } from "./Components/Drawer";
+import { SelectBoxTheme } from "./Components/Inputs/SelectBoxTheme";
+import { CarouselTheme } from "./Components/Carousel/CarouselTheme";
 
 var appThemeType: {
   Common?:{
@@ -42,6 +43,7 @@ var appThemeType: {
     primary?: string
     Priority?: {
       primary?: string,
+      primaryWithHover?: string,
       secondary?: string,
       tertiary: string
     },
@@ -51,6 +53,7 @@ var appThemeType: {
     },
     Background?: {
       red?: string,
+      redTransparent?: string,
       white?: string,
       stroke?: string,
       sky?: string
@@ -81,6 +84,7 @@ var appThemeType: {
   Pagination?: PaginationTheme,
   Carousel?: CarouselTheme,
   Inputs?: InputsTheme,
+  SelectBox?: SelectBoxTheme,
   Searchbar?: SearchbarTheme,
   ShortcutList?: ShortcutListTheme,
   Menu?: MenuTheme,
@@ -101,7 +105,7 @@ var appThemeType: {
   },
   Quill?: {
     Formats?: Array<string>,
-    Toolbar?: Array<any>,
+    Toolbar?: Array<any>
   },
   Icons?:{
     DefaultSize?: string,

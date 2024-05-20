@@ -1,2 +1,2 @@
-export * from "./AnalyticsList"
-export * from "./IAnalytics"
+export { default as AnalyticsList } from "./AnalyticsList"
+export type { default as IAnalytics } from "./IAnalytics"

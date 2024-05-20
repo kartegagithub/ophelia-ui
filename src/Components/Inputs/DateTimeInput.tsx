@@ -2,7 +2,7 @@ import React, { InputHTMLAttributes } from "react";
 import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 
-interface DateTimeInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface DateTimeInputProps extends InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
 }
 

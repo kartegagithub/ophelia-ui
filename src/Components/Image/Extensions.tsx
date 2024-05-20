@@ -21,10 +21,13 @@ export function getImageComponent(elem: string | React.JSX.Element | Function | 
                 return imageComponent;
             }
         }
-        else if(elem.indexOf("<") == -1){
-            <RawHTML clearHtml={false} sanitize={false} html={elem} />;
+        else if(elem.indexOf("/") > -1){
+            if(props.unoptimized == undefined) props.unoptimized = true;
+            return <Image src={elem} alt="icon" {...props}/>;
         }
-        return <Image src={elem} alt="icon" {...props}/>;
+        else{
+            return <RawHTML clearHtml={false} sanitize={false} html={elem} />;
+        }
     }
     if (typeof elem === "function") return getImageComponent(elem(funcParams))
     else if(elem) return elem

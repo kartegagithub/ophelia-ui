@@ -18,7 +18,7 @@ import CollectionBinder from "../CollectionBinder/collectionBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import FileData from "../../Models/FileData";
 import { EntityOperations } from "../EntityOperations";
-import { findInArray, getObjectValue, removeAtIndex } from "../../Extensions/";
+import { findInArray, getObjectValue, removeAtIndex } from "../../Extensions";
 export class EntityBinderProps{
   Options?: BinderOptions
   id?: string | number | string[];
@@ -135,7 +135,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     if(props.i18n) props.languageKey = `${this.state.languageID}`
     else props.languageKey = "0";
-    return <InputField translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + "-field-" + props.name} {...props} listener={this}/>
+    return <InputField translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + this.state.id + "-field-" + props.name} {...props} listener={this}/>
   }
   async ImageUploadHandler(fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined){
     return undefined
@@ -221,7 +221,11 @@ export default class EntityBinder<P> extends React.Component<
     for (let index = 0; index < this.InputFields.length; index++) {
       const field: any = this.InputFields[index];
       if(field.Validate){
-        var valid = field.Validate(getObjectValue(this.state.data, field.props.name))
+        var value = getObjectValue(this.state.data, field.props.name);
+        if(!value && field.props.type == "file"){
+          value = this.UploadFiles.filter((file) => file.KeyName == field.props.name && (file.LanguageID == 0 || file.LanguageID == this.state.languageID));
+        }
+        var valid = field.Validate(value)
         if(!valid) validForm = false;
       }
     }
@@ -350,6 +354,7 @@ export default class EntityBinder<P> extends React.Component<
         this.Options.IsNewEntity = data?.id == 0
     }
     this.setState({loadingState: data? LoadingState.Loaded: LoadingState.Waiting, id: id, data: data, messages: [], languageID: this.DefaultLanguageID})
+    if(data) this.onAfterSetData(data);
   }
 
   componentDidMount(){
@@ -366,16 +371,23 @@ export default class EntityBinder<P> extends React.Component<
     }
     else if(this.state.loadingState === LoadingState.Waiting){
       this.GetEntity(this.state.id, this.state.data).then((data) => {
-        if(data && data.data)
+        if(data && data.data){
           this.setState({id: this.props.id, data: data.data, messages: data.messages, languageID: this.DefaultLanguageID})
-        else if(data)
-          this.setState({id: 0, data: {}, messages: data.messages})
+          this.onAfterSetData(data.data)
+        }
+        else if(data){
+          this.setState({id: 0, data: {id: 0}, messages: data.messages})
+          this.onAfterSetData({id: 0})
+        }
       })
     }
     else{
       this.setMetaTags(this.state.data);
       if(!this.props.shownInParent) this.props.AppClient?.UpdateMetaTags();
     }
+  }
+  onAfterSetData(data: any){
+    this.setMetaTags(data);
   }
   onChildAction(type: string){
 

@@ -38,10 +38,10 @@ const Indicator: React.FC<{
   if (!visible) return <></>;
 
   if (!rootClassName) rootClassName = "flex center-content" 
-  if (!className) className = "flex items-center text-sm font-medium text-gray-900 dark:text-white me-3";
-  if (!iconClassName) iconClassName = "flex w-3 h-3 me-3 bg-teal-500 rounded-full"
+  if (!className) className = "flex items-center text-sm font-medium text-gray-900 dark:text-white";
+  if (!iconClassName) iconClassName = "flex w-2 h-2 bg-white opacity-50 rounded-full"
   if (!selectedClassName) selectedClassName = className;
-  if (!selectedIconClassName) selectedIconClassName = "flex w-3 h-3 me-3 bg-yellow-300 rounded-full";
+  if (!selectedIconClassName) selectedIconClassName = "flex w-2 h-2 me-1 bg-white rounded-full";
 
   if (count > 0) {
     return (

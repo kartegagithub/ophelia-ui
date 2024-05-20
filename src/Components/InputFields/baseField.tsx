@@ -30,7 +30,7 @@ export default class BaseField<P> extends React.Component<
     required?: boolean;
     theme?: InputFieldsTheme;
     onChange?: Function,
-    visible?: boolean | (() => boolean)
+    visible?: boolean | Function
   },
   { hasValidationError: boolean; message: any }
 > {
@@ -54,8 +54,8 @@ export default class BaseField<P> extends React.Component<
   checkVisibility = (setLocalvalue: boolean = true) => {
     var visibility: boolean = true
     if(!visibility) visibility = true;
-    if(this.props.visible !== undefined && typeof this.props.visible === "boolean") visibility = this.props.visible == true;
-    else if(this.props.visible !== undefined && typeof this.props.visible === "function"){
+    if(this.props.visible != undefined && typeof this.props.visible == "boolean") visibility = this.props.visible == true;
+    else if(this.props.visible != undefined && typeof this.props.visible == "function"){
       visibility = this.props.visible()
     }
     if(setLocalvalue) this.Visibility = visibility;
@@ -166,9 +166,6 @@ export default class BaseField<P> extends React.Component<
       this.props.listener && this.props.listener.getFieldData
         ? this.props.listener.getFieldData(this)
         : undefined;
-    if (isValidDate(value)) {
-      value = getFormattedDateString(value, this.props.format, this.props.type);
-    }
     return value ?? this.props.value ?? this.props.defaultValue;
   }
   GetProps() {

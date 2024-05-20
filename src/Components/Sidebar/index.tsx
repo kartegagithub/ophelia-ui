@@ -1,2 +1,2 @@
-export * from "./Sidebar"
-export * from "./SidebarMenuClass"
+export { default as Sidebar, type SidebarTheme} from "./Sidebar"
+export { default as SidebarMenuClass } from "./SidebarMenuClass"

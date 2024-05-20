@@ -3,7 +3,7 @@ import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
 import DataList from "./DataList";
 import { getAppTheme } from "../../AppTheme";
 
-interface TextInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+export interface TextInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
   labelType?: any; // Örnek olarak any kullanıldı, gerçek türüne göre değiştirilebilir
   list?: string;
 }

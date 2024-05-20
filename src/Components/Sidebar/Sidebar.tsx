@@ -100,7 +100,7 @@ const Sidebar: React.FC<{
       >
         <div className="flex items-center justify-between mb-10">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/assets/quip-logo.png" className="h-[22px]" />
+            <Icon name="/assets/quip-logo.png" className="h-[22px]" size={24}/>
             {!menuCollapsed && <p className="text-white text-3xl">quip</p>}
           </Link>
           {!menuCollapsed && (

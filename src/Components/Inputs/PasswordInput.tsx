@@ -3,8 +3,7 @@ import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 import Icon from "../Icon";
 
-interface PasswordInputProps
-  extends AdditionalHtmlAttributes,
+export interface PasswordInputProps extends AdditionalHtmlAttributes,
     InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
 }

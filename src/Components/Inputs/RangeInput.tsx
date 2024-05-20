@@ -2,7 +2,7 @@ import React, { InputHTMLAttributes } from "react";
 import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 
-interface RangeInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+export interface RangeInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
 }
 
