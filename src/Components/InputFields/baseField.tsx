@@ -56,7 +56,8 @@ export default class BaseField<P> extends React.Component<
     if(!visibility) visibility = true;
     if(this.props.visible != undefined && typeof this.props.visible == "boolean") visibility = this.props.visible == true;
     else if(this.props.visible != undefined && typeof this.props.visible == "function"){
-      visibility = this.props.visible()
+      var fn: any = this.props.visible;
+      visibility = fn()
     }
     if(setLocalvalue) this.Visibility = visibility;
     return visibility

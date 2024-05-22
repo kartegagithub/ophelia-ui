@@ -5,20 +5,17 @@ import React, { ImgHTMLAttributes } from "react";
 const Image: React.FC<ImgHTMLAttributes<HTMLImageElement> & {
   src?: string | StaticImport
   alt?: string,
-  width?: number | `${number}` | undefined;
-  height?: number | `${number}` | undefined;
+  width?: number | undefined;
+  height?: number | undefined;
   size?: number,
   unoptimized?: boolean
 }> = ({
   src,
   alt,
-  width = 0,
   size = 0,
-  height = 0,
-  unoptimized = true,
   ...props
 }) => {
-  if(size > 0) width = size, height = size;
-  return <NextImage src={src ?? ""} width={width} height={height} unoptimized={unoptimized} alt={alt ?? ""} {...props} />;
+  if(size > 0) props.width = size, props.height = size;
+  return <NextImage src={src ?? ""} alt={alt ?? ""} {...props} />;
 };
 export default Image;

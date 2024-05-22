@@ -11,8 +11,8 @@ var iconProps: {
   ext2?: string;
   ext3?: string;
   unoptimized?: boolean,
-  width?: number | `${number}` | undefined;
-  height?: number | `${number}` | undefined;
+  width?: number | string | undefined;
+  height?: number | string | undefined;
 }
 
 export type IconProps = typeof iconProps
