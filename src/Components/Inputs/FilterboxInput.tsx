@@ -177,7 +177,7 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
               searchPlaceholder={this.props.searchPlaceholder}
               refreshSearchList={this.state.refreshSearchList}
               multipleSelection={this.props.multipleSelection ?? false}
-              handleOutboundClick={false}
+              handleOutboundClick={true}
               listHeight="h-[200px]">
                 {this.props.allowNew == true && <div className="p-2" key={`${this.props.name}_new_item`}>
                   <TextInput className={this.props.newTextInputClassName} placeholder={this.props.newTextInputPlaceholder} onKeyDown={(e) => this.newTextInputKeyDown(e)}/>

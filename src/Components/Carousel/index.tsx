@@ -21,8 +21,7 @@ const Carousel: React.FC<CarouselProps> = React.memo(
     const [firstShow, setFirstShow] = useState<boolean>(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const theme = getAppTheme() as AppTheme;
-    const [slideShow, setSlideShow] = useState<number>(3);
-    const [outerWidth, setOuterWidth] = useState<string>();
+    const [slidesToShow, setSlidesToShow] = useState<number>(3);
 
     const {
       autoplay = false,
@@ -38,7 +37,7 @@ const Carousel: React.FC<CarouselProps> = React.memo(
       iconRightName = "azChevronRight",
       iconLeftName = "azChevronLeft",
       iconColor = "#0D222E",
-      iconSize = 50,
+      iconSize = 40,
       arrowShow = false,
       arrowPosition = "right",
       indicatorPosition = "",
@@ -106,126 +105,116 @@ const Carousel: React.FC<CarouselProps> = React.memo(
         }`}
       />
     );
- 
 
     const getButtonClassName = (direction: string, classNameArrow: string) => {
-   
-      if(arrowPosition === "normal" ) {
-        let buttonClassName =  classNameArrow;
-        return buttonClassName;
-
-      }else{
+      if (arrowPosition === "normal" ) {
+        let buttonClassName = `${classNameArrow} `;
+        return buttonClassName ;
+      } else {
         const classNames = direction === "right"
             ? theme.Carousel?.RightButtonClass
             : theme.Carousel?.LeftButtonClass;
         let buttonClassName = classNames ?? "";
-          if (arrowPosition === "top") {
-            buttonClassName +=
-              " " +
-              (direction === "right"
-                ? theme.Carousel?.ArrowTopRight
-                : theme.Carousel?.ArrowTopLeft);
-          } else if (arrowPosition === "right") {
-            buttonClassName +=
-              " " +
-              (direction === "right"
-                ? theme.Carousel?.ArrowRightNext
-                : theme.Carousel?.ArrowRightPrev);
-          } else if (arrowPosition === "left") {
-            buttonClassName +=
-              " " +
-              (direction === "right"
-                ? theme.Carousel?.ArrowRightNext
-                : theme.Carousel?.ArrowRightNext);
-          } else {
-            buttonClassName +=
-              " " +
-              (direction === "right"
-                ? theme.Carousel?.ArrowRightNext
-                : theme.Carousel?.ArrowRightPrev);
-          }
+        if (arrowPosition === "top") {
+          buttonClassName +=
+            " " +
+            (direction === "right"
+              ? theme.Carousel?.ArrowTopRight
+              : theme.Carousel?.ArrowTopLeft);
+        } else if (arrowPosition === "right") {
+          buttonClassName +=
+            " " +
+            (direction === "right"
+              ? theme.Carousel?.ArrowRightNext
+              : theme.Carousel?.ArrowRightPrev);
+        } else if (arrowPosition === "left") {
+          buttonClassName +=
+            " " +
+            (direction === "right"
+              ? theme.Carousel?.ArrowRightNext
+              : theme.Carousel?.ArrowRightNext);
+        } else {
+          buttonClassName +=
+            " " +
+            (direction === "right"
+              ? "right-0 "+ theme.Carousel?.ArrowRightNext
+              : "left-0 "+theme.Carousel?.ArrowRightPrev);
+        }
         return buttonClassName;
       }
-     
     };
 
     useEffect(() => {
-      const changeSize = window.innerWidth < 768 ? "100%" : `${window.innerWidth}px`
-      setOuterWidth(changeSize);
       const handleResize = () => {
         const windowWidth = window.innerWidth;
-
-        // Genişlik aralıklarını kontrol ederek slayt gösterisini güncelle
-        for (let i = responsive.length - 1; i >= 0; i--) {
+        let newSlidesToShow = responsive[0].settings.slidesToShow; // Varsayılan slayt sayısı
+      
+        for (let i = 0; i < responsive.length; i++) {
           const breakpoint = responsive[i].breakpoint;
           const settings = responsive[i].settings;
-
-          // Eğer pencere genişliği, mevcut breakpoint'ten büyükse ve slidesToShow tanımlıysa
+      
           if (windowWidth >= breakpoint && settings.slidesToShow) {
-            setSlideShow(settings.slidesToShow);
-            break; // İlk uygun breakpoint'i bulduktan sonra döngüyü durdur
+            newSlidesToShow = settings.slidesToShow;
           }
         }
+      
+        setSlidesToShow(newSlidesToShow);
       };
 
-      // Sayfa ilk yüklendiğinde boyutu ayarla
       handleResize();
-
-      // Resize olayına abone ol
       window.addEventListener("resize", handleResize);
 
-      // Temizleme fonksiyonunu geri döndür
       return () => window.removeEventListener("resize", handleResize);
-    }, [responsive]); // responsive bağımlılığı ile güncelle
-    
+    }, [responsive]);
 
     if (visible) return null;
 
     return (
-      <div className={`${theme.Carousel?.Class} ${containerClass}`} style={{ width : `${overflow ? outerWidth : "100%"}`}}>
-        <div className={`${theme.Carousel?.ClassAnimated} ${gap} overflow-hidden`}>
+      <div className={`${theme.Carousel?.Class} ${containerClass} ${overflow && "100%"}`}>
+        <div className={`${theme.Carousel?.ClassAnimated} ${gap} flex xxs:overflow-hidden ${overflow && "md:overflow-visible"}`}>
           {slider.map((item, index) => {
-           // Eğer item görüntüleniyorsa isVisible true, değilse false olacak
-            const isVisible = index >= activeIndex && index < activeIndex + slideShow;
-            const itemWidthPercentage = 100 / slideShow; 
+            const isVisible = index >= activeIndex && index < activeIndex + slidesToShow;
+            const itemWidthPercentage = 100 / slidesToShow; 
 
             return (
-             <div
-              key={index}
-              className={`
-                ${theme.Carousel?.ItemClass}
-                ${isVisible ? "" : "hidden"}
-              `}
-              style={{
-                flexBasis: `${itemWidthPercentage }%`,
-                width: `${itemWidthPercentage - 20}%`,
-
-              }}
-            >
-              {getImageComponent(item.image, {
-                className: theme.Carousel?.ItemImageClass, 
-              })}
-              {item.component}
-            </div>
+              <div
+                key={index}
+                className={`
+                  ${theme.Carousel?.ItemClass}
+                  ${isVisible ? "" : "hidden"}
+                `}
+                style={{
+                  flexBasis: `${overflow ? itemWidthPercentage: 100}%`,
+                  flexGrow: 0,
+                  flexShrink: 0,
+                  width: `${overflow ? itemWidthPercentage: 100}%`,
+                  gap: gap
+                }}
+              >
+                {getImageComponent(item.image, {
+                  className: theme.Carousel?.ItemImageClass, 
+                })}
+                {item.component}
+              </div>
             );
           })}
         </div>
-        {arrowShow && (
+        {arrowShow &&  (
           <button type="button" onClick={nextSlide} className={getButtonClassName("right", classNameArrow)}>
-            {getImageComponent(iconLeft)}
+            {iconLeft}
           </button>
         )}
-        {arrowShow && (
+        {arrowShow && !classNameArrow && (
           <button type="button" onClick={prevSlide} className={getButtonClassName("left", classNameArrow)}>
-            {firstShow ? getImageComponent(iconRight) : null}
+            {firstShow ? iconRight : null}
           </button>
         )}
         {indicatorShow && (
           <Indicator
             rootClassName={`${theme.Carousel?.IndicatorPositionDefault} ${indicatorPosition} ${theme.Carousel?.IndicatorClass}`}
-            activeIndex={activeIndex / slideShow}
-            count={Math.ceil(slider.length / slideShow)}
-            onChange={(i) => setActiveIndex(i * slideShow)}
+            activeIndex={Math.floor(activeIndex / slidesToShow)}
+            count={Math.ceil(slider.length / slidesToShow)}
+            onChange={(i) => setActiveIndex(i * slidesToShow)}
           />
         )}
       </div>

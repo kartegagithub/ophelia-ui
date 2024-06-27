@@ -20,8 +20,9 @@ import RangeField from "./rangeField";
 import ImageField from "./imageField";
 import DropdownFilterboxField from "./dropdownFilterboxField";
 import ColorField from "./colorField";
-import CheckboxInput from "../Inputs/CheckboxInput";
+import CodeField from "./codeField";
 import RadioField from "./radioField";
+import AgreementCheckboxField from "./agreementCheckboxField";
 
 const InputField: React.FC<any> = (props) => {
   const {
@@ -36,8 +37,10 @@ const InputField: React.FC<any> = (props) => {
   return (
     <>
       {props.type === "numeric" && <NumericField {...pureProps} />}
+      {props.type === "withCode" && <CodeField {...pureProps} />}
       {props.type === "date" && <DateField {...pureProps} />}
       {props.type === "time" && <TimeField {...pureProps} />}
+      {props.type === "agreementCheckbox" && <AgreementCheckboxField {...pureProps} />}
       {props.type === "datetime" && <DateTimeField {...pureProps} />}
       {(props.type === "checkbox" || props.type === "boolean") && (
         <BoolField {...pureProps} />
@@ -58,7 +61,7 @@ const InputField: React.FC<any> = (props) => {
       {props.type === "radio" && <RadioField {...pureProps} />}
       {props.type === "selectbox" && <DropdownField {...pureProps} />}
       {props.type === "password" && <PasswordField {...pureProps} />}
-      {props.type === "text" && <TextField {...pureProps} />}
+      {props.type === "text" && <TextField isDate={props.isDate} {...pureProps} />}
       {props.type === "richtext" && <RichTextField {...pureProps} />}
       {props.type === "textarea" && <TextAreaField {...pureProps} />}
       {props.type === "email" && <EmailField {...pureProps} />}
@@ -75,5 +78,7 @@ const InputField: React.FC<any> = (props) => {
     </>
   );
 };
+
+InputField.displayName = "InputField";
 
 export default InputField;

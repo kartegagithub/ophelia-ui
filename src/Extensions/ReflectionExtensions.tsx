@@ -1,6 +1,6 @@
 import { Children } from "react";
 import { isNumeric, parseFloatIfCan } from "./StringExtensions";
-import _ from "lodash-es"
+import { merge as LodashMerge } from "lodash-es"
 
 export function getKeyByValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -163,6 +163,7 @@ export const convertToBool = (val?: any) => {
   if(typeof val == "string"){
     if(val.toLocaleLowerCase() == "true") return true;
     if(val.toLocaleLowerCase() == "false") return false;
+    if(val.toLocaleLowerCase() == "on") return true;
     return parseFloatIfCan(val) > 0
   }
   return false;
@@ -170,12 +171,13 @@ export const convertToBool = (val?: any) => {
 
 export const merge = (obj1: any, ...objs: Array<any>) => {
   var result: any = {};
-  if(obj1) result = _.merge(result, obj1);
+  if(obj1) result = LodashMerge(result, obj1);
   if(objs && objs.length > 0){
     for (let index = 0; index < objs.length; index++) {
       const element = objs[index];
-      result = _.merge(result, element);
+      result = LodashMerge(result, element);
     }
   }
   return result;
 }
+

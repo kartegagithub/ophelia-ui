@@ -18,6 +18,7 @@ var inputsTheme: {
     date?: string,
     datetime?: string,
     numeric?: string,
+    withCode?: string,
     label?: string,
     file?: string,
     inputLabel?: string,

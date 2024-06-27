@@ -1,18 +1,16 @@
 import { getAppTheme } from "../../AppTheme";
-import React from "react";
+import React, { useEffect } from "react";
 const Backdrop: React.FC<{
   id?: string;
   visible?: boolean;
   className?: string;
-}> = ({
-  id = undefined,
-  className = undefined,
-  visible = true,
-}) => {
+}> = ({ id = undefined, className = undefined, visible = true }) => {
   const theme = getAppTheme();
   return (
     <>
-      {visible && <div id={id} className={className ?? theme.Common?.Backdrop}></div>}
+      {visible && (
+        <div id={id} className={className ?? theme.Common?.Backdrop}></div>
+      )}
     </>
   );
 };

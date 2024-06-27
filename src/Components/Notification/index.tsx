@@ -18,9 +18,6 @@ const Notification: React.FC<NotificationProps> = ({
   const [notifyData, setNotifyData] = useState(undefined);
 
   const handleNotification = (e:any) => {
-    type = e.detail.type
-    title = e.detail.title
-    content = e.detail.description
     setNotifyData(e?.detail)
     setIsVisible(true);
     setTimeout(() => {
@@ -32,6 +29,9 @@ const Notification: React.FC<NotificationProps> = ({
     listenCustomEvent("notification", handleNotification)
   }, [type, handleNotification])  
   
+  if(notifyData){
+    type = (notifyData as any).type;
+  }
   if(!image){
     if(type == "success") image = Theme?.SuccessImage
     if(type == "error") image = Theme?.ErrorImage
@@ -45,7 +45,6 @@ const Notification: React.FC<NotificationProps> = ({
     // if(type == "success") ContainerClass = Theme?.InfoContainer
   }
   
-
   return (
     <>
       {isVisible &&  (

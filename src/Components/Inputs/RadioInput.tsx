@@ -14,25 +14,29 @@ const RadioInput: React.FC<RadioInputProps> = ({
   className,
   labelClass,
   label,
+  style,
   ...props
 }) => {
+  const InputRef = React.createRef<HTMLInputElement>();
   const [newChecked, setNewChecked] = useState(
     defaultChecked || checked || false
   );
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: any) => {
     setNewChecked(!newChecked);
-    if (props.onChange) props.onChange(e);
+    var event: any = { currentTarget: InputRef.current, bubbles: true };
+    if (props.onChange) props.onChange(event);
   };
 
   return (
-    <div className="w-full flex items-center gap-2">
+    <div className="w-full flex items-center gap-2" onClick={(e) => onChange(e)}>
       <input
         type="radio"
+        ref={InputRef}
         id={props.id}
-        onChange={onChange}
-        checked={defaultChecked || checked}
+        defaultChecked={newChecked}
         className={className ?? getAppTheme().Inputs?.radio}
+        style={style}
         {...props}
       />
       <svg

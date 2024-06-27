@@ -1,19 +1,27 @@
 import React from "react";
-const Tab: React.FC<TabsProps> = ({ theme, visible, id, text, active, children }) => {  
-  if(visible === false) return <></>
-  
+const Tab: React.FC<TabsProps> = ({
+  theme,
+  visible,
+  id,
+  tabPaneClass,
+  text,
+  active,
+  children,
+}) => {
+  if (visible === false) return <></>;
+
   return (
     <div
       id={id}
       key={id}
       role="tabpanel"
       aria-labelledby={id + "-tab"}
-      className={`${active === true ? "block" : "hidden"} ${theme?.TabPaneClass}`}
+      className={`${active === true ? "block" : "hidden"} ${tabPaneClass}`}
     >
       {children}
     </div>
   );
-}
+};
 Tab.displayName = "Tab";
 export default Tab;
 
@@ -22,22 +30,37 @@ var tabsProps: {
   id?: string;
   text?: string;
   active?: boolean;
+  tabPaneClass?: string;
   children?: React.ReactNode;
   theme?: TabsTheme;
   type?: "monochrome";
-}
-export type TabsProps = typeof tabsProps
+};
+export type TabsProps = typeof tabsProps;
 
-var tabsTheme:  {
-  RootClass?: string,
-  TabHeaderClass?: string,
-  TabContentClass?: string,
-  TabHeaderButtonClass?: string,
-  SelectedTabHeaderButtonClass?: string,
-  TabHeaderButtonContainerClass?: string,
-  TabPaneClass?: string,
-  Types?: { monochrome?: string, colorful?: string, rounded?: string, verticalColorful?: string},
-  SelectedTypes?: { monochrome?: string, colorful?: string, rounded?: string, verticalColorful?: string},
-
-}
-export type TabsTheme = typeof tabsTheme
+var tabsTheme: {
+  RootClass?: string;
+  TabHeaderClass?: string;
+  TabContentClass?: string;
+  TabHeaderButtonClass?: string;
+  SelectedTabHeaderButtonClass?: string;
+  TabHeaderButtonContainerClass?: string;
+  SelectedTabHeaderButtonContainerClass?: any;
+  TabPaneClass?: string;
+  Types?: {
+    monochrome?: any;
+    colorful?: any;
+    rounded?: any;
+    verticalColorful?: any;
+    bgColorful?: any;
+    horizontal?: any;
+  };
+  SelectedTypes?: {
+    monochrome?: string;
+    colorful?: string;
+    rounded?: string;
+    verticalColorful?: string;
+    bgColorful?: string;
+    horizontal?: any;
+  };
+};
+export type TabsTheme = typeof tabsTheme;

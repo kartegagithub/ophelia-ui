@@ -12,6 +12,7 @@ const Button: React.FC<
     background?: string;
     text?: string;
     extraClass?: string;
+    spanClass?: string;
     leftIcon?: React.JSX.Element | string | undefined | IconProps;
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
   }
@@ -24,6 +25,7 @@ const Button: React.FC<
   priority = "primary",
   className = "" || undefined,
   extraClass = "" || undefined, //className bozulmasın ama extrada ekleme yapayım propsu.
+  spanClass = "" || undefined,  //buton içindeki RawHTML e müdahale etmek için
   value = undefined,
   ...props
 }) => {
@@ -40,7 +42,7 @@ const Button: React.FC<
       {...props}
     >
       {leftIcon && getImageComponent(leftIcon)}
-      <RawHTML html={text ?? value} />
+      <RawHTML html={text ?? value} className={spanClass} />
       {rightIcon && getImageComponent(rightIcon)}
     </button>
   );

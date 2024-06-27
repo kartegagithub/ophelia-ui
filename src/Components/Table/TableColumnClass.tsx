@@ -9,7 +9,7 @@ export default class TableColumnClass{
     TextFormatter?: Function = (text: string) => text;
     Freeze?: boolean = false
     DisplayOrder?: number = 0
-    Visible?: boolean = true
+    Visible?: boolean | Function = true
     AllowSorting?: boolean = true
     AllowFiltering?: boolean = true
     AllowEditing?: boolean = false

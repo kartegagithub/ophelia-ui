@@ -17,6 +17,7 @@ import { getObjectValue, setObjectValue } from "../../Extensions";
 import Button from "../Button";
 import Navigation from "../Navigation";
 import Backdrop from "../Backdrop";
+import { useRouter } from "next/router";
 const Dropdown: React.FC<DropdownProps> = ({
   id = "",
   multipleSelection = undefined,
@@ -58,9 +59,15 @@ const Dropdown: React.FC<DropdownProps> = ({
   var Timer: any;
   const RootRef = React.createRef<HTMLDivElement>();
   const ListRef = React.createRef<HTMLUListElement>();
+  const { pathname } = useRouter();
 
   if (!selectedItemValueProp) selectedItemValueProp = valueProp;
   if (!selectedItemDisplayProp) selectedItemDisplayProp = displayProp;
+
+  useEffect(() => {
+    setOpen(false);
+    //url değişirse dropdown kapansın.
+  }, [pathname]);
 
   const onSearchKeyup = async (
     e?: React.KeyboardEvent<HTMLInputElement>,
@@ -215,9 +222,11 @@ const Dropdown: React.FC<DropdownProps> = ({
         <Navigation
           className={button.className ?? getAppTheme().Buttons?.primary}
           id={`${id}_button`}
+          data-testid={`${id}_button`}
           onClick={(e) => handleMainButtonClick(e, button)}
           text={button.text}
           leftIcon={button.leftIcon}
+          rawClass={button.rawClass}
           rightIcon={button.rightIcon}
           size={button.size ?? "small"}
           onMouseOver={() => {
@@ -233,7 +242,11 @@ const Dropdown: React.FC<DropdownProps> = ({
       <div
         id={id}
         key={id}
-        className={`${Theme?.Class} ${positionClass || "left-0"} ${open ? "opacity-100 max-h-[800px]" : "opacity-0 max-h-0"} ${contentTopClass}`}
+        className={`${Theme?.Class} ${positionClass || "left-0"} ${
+          open
+            ? "opacity-100 max-h-[800px]"
+            : "opacity-0 max-h-0 overflow-hidden"
+        } ${contentTopClass}`}
         ref={RootRef}
       >
         {enableSearch && (
@@ -263,7 +276,9 @@ const Dropdown: React.FC<DropdownProps> = ({
           <ul
             ref={ListRef}
             onScroll={(e) => onListScrolled(e)}
-            className={`${Theme?.ContentClass} ${listHeight} ${open ? "opacity-100" : "opacity-0 max-h-0"}`}
+            className={`${Theme?.ContentClass} ${listHeight} ${
+              open ? "opacity-100" : "opacity-0 max-h-0"
+            }`}
             aria-labelledby="dropdownSearchButton"
           >
             {filteredOptions.map((option, i) => {
@@ -359,6 +374,7 @@ var dropdownProps: {
     leftIcon?: IconProps | string | React.JSX.Element;
     rightIcon?: IconProps | string | React.JSX.Element;
     size?: string;
+    rawClass?: string;
     btnChildren?: React.JSX.Element;
   };
   newBtn?: React.JSX.Element;
@@ -406,6 +422,7 @@ var dropdownTheme: {
   ClassWhenInner?: string;
   ButtonContainerClass?: string;
   contentBasicText?: string;
+  selectbox?: string;
   ButtonClass?: string;
   ContentClass?: string;
   SuccessClass?: string;

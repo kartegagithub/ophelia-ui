@@ -3,7 +3,7 @@ import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
 import RawHTML from "../RawHTML";
 import { IconProps } from "../Icon";
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { ChevronDownIcon,ChevronUpIcon } from "@heroicons/react/24/solid";
 
 const Accordion: React.FC<AccordionProps> = ({
   leftIcon = undefined,
@@ -21,11 +21,13 @@ const Accordion: React.FC<AccordionProps> = ({
       <details className={`${Theme?.DetailClass}`} open={defaultOpen} onToggle={(e) => setIsOpen(e.currentTarget.open)}>
         <summary className={Theme?.SummaryClass}>
           <p className={Theme?.TitleClass}>
-          <span className="mr-1">{leftIcon && getImageComponent(leftIcon)}</span>
+          {leftIcon && (
+              <span className="mr-1">{getImageComponent(leftIcon)}</span>
+            )}
           {title}
           </p>
-          {isOpen && <ChevronDownIcon width={24} height={24} />}
-          {!isOpen && <ChevronRightIcon width={24} height={24}/>}
+          {isOpen && <ChevronUpIcon width={24} height={24} className={Theme?.OpenIconClass}/>}
+          {!isOpen && <ChevronDownIcon width={24} height={24} className={Theme?.ClosedIconClass}/>}
         </summary>
         <div className={Theme?.ContentClass}>
           {content && <RawHTML html={content} />}
@@ -52,6 +54,8 @@ var accordionTheme: {
   DetailClass?: string,
   SummaryClass?: string
   TitleClass?: string
+  OpenIconClass?: string
+  ClosedIconClass?: string
   ContentClass?: string
 }
 export type AccordionTheme = typeof accordionTheme

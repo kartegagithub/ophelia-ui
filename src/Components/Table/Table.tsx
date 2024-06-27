@@ -26,7 +26,9 @@ const Table: React.FC<TableProps> = React.memo(({
   listener,
   hierarchicalDisplay = false,
   hierarchyPropertyName = undefined,
-  hierarchyParentValue = undefined
+  hierarchyParentValue = undefined,
+  allowFiltering = true,
+  allowSorting = true
 }) => {
   var [selectedRow, setSelectedRow] = useState(-1)
   var [selectedCell, setSelectedCell] = useState([-1,-1])
@@ -66,23 +68,30 @@ const Table: React.FC<TableProps> = React.memo(({
   }, []);
   
   if (!table) return <div></div>;
-
+  const isColumnVisible = (column: TableColumnClass) => {
+    if(typeof column.Visible == "boolean") return column.Visible !== false;
+    else if(column.Visible){
+      var fn: any = column.Visible;
+      return fn();
+    }
+    return true;
+  }
   const renderColumns = () => {
     return (<tr className={Theme?.ColumnsRowClass}>
       {hierarchycalDisplayEnabled() && <th></th>}
-      {table.Columns.filter((column) => column.Visible !== false).map((column, index) => {
+      {table.Columns.filter((column) => isColumnVisible(column)).map((column, index) => {
         return <th key={index} className={`${column.Freeze ? "sticky": "relative"} col-${index} ${selectedColumn == index? Theme?.SelectedColumnClass: Theme?.ColumnClass}`}>
           <div className={Theme?.ColumnRootComponentClass}>
             <div className={Theme?.ColumnTitleClass}><RawHTML html={column.HeaderText} /></div>
             <div className={Theme?.ColumnButtonsClass}>
-              {column.AllowSorting !== false && <>
+              {allowSorting && column.AllowSorting !== false && <>
                 <span onClick={(e) => onSortingClick(e, column)} style={{ cursor: "pointer"}}>
                   {!column.SortDirection && getImageComponent(Theme?.Icons?.NotSorted)}
                   {column.IsSorted && column.SortDirection === "DESC" && getImageComponent(Theme?.Icons?.DescSorted)}
                   {column.IsSorted && column.SortDirection === "ASC" && getImageComponent(Theme?.Icons?.AscSorted)}
                 </span>
               </>}
-              {column.AllowFiltering !== false && <>
+              {allowFiltering && column.AllowFiltering !== false && <>
                 <span onClick={(e) => onFilteringClick(e, column)} style={{ cursor: "pointer"}}>
                   {!column.IsFiltered && getImageComponent(Theme?.Icons?.NotFiltered)}
                   {column.IsFiltered && getImageComponent(Theme?.Icons?.Filtered)}
@@ -195,9 +204,11 @@ const Table: React.FC<TableProps> = React.memo(({
     if(!data) return <></>;
     
     var childrenRows: Array<any> | undefined = undefined
-    if(!rowsToRender){
-      rowsToRender = data.filter((item, i) => {
-        if(!item.viewOrderIndex) item.viewOrderIndex = i; 
+    data.map((item, i) => {
+      if(!item.viewOrderIndex) item.viewOrderIndex = i; 
+    })
+    if(!rowsToRender && hierarchyPropertyName){
+      rowsToRender = data.filter((item, i) => { 
         return getObjectValue(item, hierarchyPropertyName) == hierarchyParentValue
       })
     }
@@ -214,7 +225,7 @@ const Table: React.FC<TableProps> = React.memo(({
       var selectedRowData: any = selectedRow > -1 ? data[selectedRow]: undefined
       var isSelected = selectedRow === row.viewOrderIndex || (selectedRowData && selectedRowData.viewOrderStr && row.viewOrderStr && selectedRowData.viewOrderStr.startsWith(row.viewOrderStr));
       return (<>
-        <tr key={row.viewOrderIndex} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${additionalClassName}`}>
+        <tr key={row.viewOrderIndex} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${!allowFiltering && row.isValid === false? "bg-red-400 text-white": ""} ${additionalClassName?? ""}`}>
           {hierarchycalDisplayEnabled() && 
             <td onClick={(e) => {
               if(selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1)
@@ -231,7 +242,7 @@ const Table: React.FC<TableProps> = React.memo(({
             {childrenRows && childrenRows.length > 0 && !isSelected && <ArrowRightIcon width={18} height={18}></ArrowRightIcon>}
             {childrenRows && childrenRows.length > 0 && isSelected && <ArrowDownIcon width={18} height={18}></ArrowDownIcon>}
           </td>}
-          {table.Columns.filter((column) => column.Visible !== false).map((column, columnIndex) => {
+          {table.Columns.filter((column) => isColumnVisible(column)).map((column, columnIndex) => {
             return renderCell(row, column, row.viewOrderIndex, columnIndex)
           })}
         </tr>
@@ -323,7 +334,7 @@ const Table: React.FC<TableProps> = React.memo(({
     else if(column.Type == "image"){
       if(value){
         if(value.indexOf("size") > -1) value = value.replace("{size}", "Size1")
-        value = <Image src={value} className="w-full max-w-25" />
+        value = <Image src={value} size={100} className="w-full max-w-25" />
       }
     }
     else if(column.Type == "checkbox"){
@@ -390,6 +401,8 @@ var tableProps:{
   hierarchicalDisplay?: boolean
   hierarchyPropertyName?: string
   hierarchyParentValue?: string | number
+  allowFiltering?: boolean
+  allowSorting?: boolean
   listener?: {
     onCellClick?: Function;
     // onRowClick?: Function;

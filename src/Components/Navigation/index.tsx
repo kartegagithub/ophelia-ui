@@ -12,6 +12,7 @@ const Navigation: React.FC<
     direction?: string;
     leftIcon?: React.JSX.Element | string | undefined | IconProps;
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
+    rawClass?: string;
     disable?: string;
   }
 > = ({
@@ -22,6 +23,7 @@ const Navigation: React.FC<
   size = undefined,
   disable = undefined,
   className = "" || undefined,
+  rawClass,
   children,
   ...otherProps
 }) => {
@@ -38,7 +40,7 @@ const Navigation: React.FC<
       {...otherProps}
     >
       {leftIcon && getImageComponent(leftIcon)}
-      {text ? <RawHTML html={text} /> : children}
+      {text ? <RawHTML html={text} className={rawClass} /> : children}
       {rightIcon && getImageComponent(rightIcon)}
     </button>
   );

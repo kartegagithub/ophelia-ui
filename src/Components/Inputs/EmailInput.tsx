@@ -14,6 +14,7 @@ const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
   className,
   name,
   labelType,
+  style,
   ...props
 }) => {
   const appTheme = getAppTheme();
@@ -23,6 +24,7 @@ const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
       <input
         type="email"
         className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.email} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        style={style}
         {...props}
       />
     </>

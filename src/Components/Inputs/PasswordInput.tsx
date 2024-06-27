@@ -11,6 +11,7 @@ export interface PasswordInputProps extends AdditionalHtmlAttributes,
 const PasswordInput: React.FC<PasswordInputProps> = ({
   className,
   labelType,
+  style,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -21,6 +22,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       <input
         type={showPassword ? "text" : "password"}
         className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.password} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        style={style}
         {...props}
       />
       <div
@@ -29,7 +31,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       >
         <Icon
           name={showPassword ? "azVisible" : "azNotVisible"}
-          color="#5b6782"
+          color="#9BA0A4"
           className="cursor-pointer"
         />
       </div>

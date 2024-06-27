@@ -3,13 +3,15 @@ import AppClient from "../AppClient";
 import Endpoint, { EndpointOptions, ServiceStatus } from "./endpoint";
 import ServiceResult from "./serviceResult";
 import { convertToDate } from "../Extensions/StringExtensions";
+import Locker from "../Store/Locker";
 
 export default class APIService {
   RootURL:string = ""
   Client?: AppClient
-
+  Locker?: Locker
   constructor(client?: AppClient) {
     this.Client = client
+    this.Locker = new Locker();
   }
   
   getURL(url: string) {
@@ -20,8 +22,13 @@ export default class APIService {
   }
 
   async invokeEndpoint(endpoint: Endpoint) : Promise<any>{
+    if(this.Locker?.IsLocked === true){
+      endpoint.Status = ServiceStatus.Abort
+      console.warn("There is an ongoing request, could not call endpoint", endpoint)
+      return undefined
+    }
     this.OnBeforeRequest(endpoint)
-
+    this.Locker?.Lock();
     var httpsAgent: any = undefined
     if(endpoint.URL.startsWith("https")){
       const https = require('https');
@@ -43,9 +50,11 @@ export default class APIService {
 
     var url = getQueryString(endpoint.Options.Parameters, endpoint.URL);
     var fetcher = fetch(url, options).then((res) => {
+      this.Locker?.Unlock();
       return res.json()
     }).catch((reason) => {
       console.error(url, reason)
+      this.Locker?.Unlock();
       endpoint.Status = ServiceStatus.Error
       this.OnErrorResponse(endpoint, reason)
     });

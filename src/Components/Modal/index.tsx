@@ -26,6 +26,7 @@ const Modal: React.FC<{
     text: string | React.ReactNode;
     closeModalOnClick?: boolean;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>, item: any) => void;
+    type?: "submit" | "reset" | "button" | undefined
   }>;
   children?: React.ReactNode;
   onCurrentValue?: Function | any;
@@ -54,18 +55,18 @@ const Modal: React.FC<{
   const [open, setOpen] = useState(false);
   const closeModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    onCurrentValue && onCurrentValue(false);
     setOpen(false);
     return false;
   };
   const buttonClick = (e: React.MouseEvent<HTMLButtonElement>, item: any) => {
-    e.preventDefault();
+    if (item.type !== "submit") e.preventDefault();
     if (item.closeModalOnClick) {
       closeModal(e);
-      setOpen(false);
     }
     if (item.onClick) item.onClick(e, item);
 
-    return false;
+    return item.type !== "submit";
   };
   const onScrollModalBody = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
     if (ModalBodyRef.current) {
@@ -153,7 +154,7 @@ const Modal: React.FC<{
                       key={i}
                       disabled={item.disabled}
                       onClick={(e) => buttonClick(e, item)}
-                      type="button"
+                      type={item.type ?? "button"}
                       className={
                         (item.className ?? theme.Modal?.ButtonClass) +
                         (item.disabled ? " disabled:opacity-50" : "")

@@ -9,6 +9,7 @@ interface ColorInputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const ColorInput: React.FC<ColorInputProps & AdditionalHtmlAttributes> = ({
   className,
+  style,
   defaultValue,
   value,
   labelType,
@@ -35,9 +36,10 @@ const ColorInput: React.FC<ColorInputProps & AdditionalHtmlAttributes> = ({
       <input
         onChange={(e) => onColorSelection(e)}
         type="color"
-        className="w-15 absolute right-4 top-4"
+        className="w-15 absolute right-1 top-9"
         defaultValue={defaultValue}
         value={value}
+        style={style}
       />
     </>
   );

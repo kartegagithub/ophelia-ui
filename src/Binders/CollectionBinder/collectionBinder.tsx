@@ -34,7 +34,7 @@ export class CollectionBinderProps{
   pageTitle?: string
   parent?: EntityBinder<{}> | CollectionBinder<{}>
 }
-export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number}> {
+export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting: boolean, importKey?: string}}> {
 
   Config: Config = new Config();
   Options: BinderOptions = new BinderOptions();
@@ -151,14 +151,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   componentDidUpdate(prevProps: any, prevState: any){
-    // console.log("Reiniting binder", prevState, this.state)
+    //console.log("Reiniting binder", prevState, this.state)
     if(!this.state) return;
     if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
       this.setInitData()
+      this.onAfterSetData();
     }
     else if(this.state.loadingState === LoadingState.Waiting){
       // console.log("loading binder data")
       this.getData().then((data) => {
+        this.onAfterSetData();
         if(data && data.data){
           this.ValidateColumns(data.data)
           this.setState({path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
@@ -171,7 +173,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!this.props.shownInParent) this.props.AppClient?.UpdateMetaTags();
     }
   }
+  onAfterSetData(){
 
+  }
   setMetaTags(data: any){
     if(!this.state.data || !this.props.AppClient || !this.Config.Entity) return
     if(!this.props.AppClient.DynamicSEO){
@@ -184,7 +188,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   getData = async () => {
-    // console.log("binder.Config.Data", binder.Config.Data)
+    //console.log("getdata", this.state)
+    if(this.state?.importState && this.state.importState.isImporting && this.state.importState.data){
+      const data = new serviceCollectionResult();
+      data.data = this.state.importState.data 
+      data.totalDataCount = this.state.importState.data?.length
+      this.setState({loadingState: LoadingState.Loaded})
+      return data;
+    }
     if(this.props.data){
       const data = new serviceCollectionResult();
       data.data = this.props.data 
@@ -323,7 +334,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     } catch (error) {}
 }
   onCellClick(e: React.MouseEvent<HTMLTableCellElement>, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
-    if(column.AllowEditing != true && this.Config.RowClickOption == "showEntityBinder"){
+    if(column.AllowEditing != true && this.Config.RowClickOption == "showEntityBinder" && !this.isImporting()){
       e.preventDefault();
       this.setState({clickedRowIndex: rowIndex})
     }
@@ -390,6 +401,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   renderFooter(){
     return <></>
   }
+  isImporting(){
+    return this.state && this.state.importState && this.state.importState.isImporting
+  }
+  setImportState(isImporting: boolean, importKey?: string, data?: any){
+    if(isImporting) this.setState({importState: { isImporting: true, importKey, data }, loadingState: LoadingState.Waiting})
+    else this.setState({importState: {isImporting: false, importKey: undefined, data: undefined}, loadingState: LoadingState.Waiting})
+  }
   renderChildBinder(){
     var data: any = {id: 0};
     if(this.state.clickedRowIndex >= 0) {
@@ -409,6 +427,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     return <></>
   }
+  renderChildAction(){
+    return <></>
+  }
   render(): React.ReactNode {
     if(!this.Config.Table || !this.state || !this.state.data)
       return <></>
@@ -420,10 +441,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
       <div className="collection-binder">
         <div ref={this.RootElementRef}>
-          <Table hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={this.state.data} listener={this}/>
+          <Table allowFiltering={!this.isImporting()} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={this.state.data} listener={this}/>
         </div>
         <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={this.state.data.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />
       </div>
+      {this.renderChildAction()}
       {this.renderFooter()}
     </>
   }

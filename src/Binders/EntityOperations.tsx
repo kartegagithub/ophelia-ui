@@ -42,7 +42,7 @@ export class EntityOperations{
         return value;
       }
     
-      setFieldData(data: any, name: string, value: any, languageID: number, uploadedFiles: Array<FileData>, multipleFile: boolean = false, i18n: boolean = false){
+      setFieldData(data: any, name: string, value: any, languageID: number, uploadedFiles: Array<FileData>, multipleFile: boolean = false, i18n: boolean = false, imageLoadCallback: Function | undefined = undefined){
         if(!name && name === "id") return;
         if(name === "selectedLanguageID") return
         if(name == "dateCreated") return
@@ -55,26 +55,60 @@ export class EntityOperations{
         var propName = validateKeyName(data, name);
         if(typeof value == "object" && value.constructor && value.constructor.name == "FileList"){
           var files = (value as FileList);
-          for (let index = 0; index < files.length; index++) {
-            const file = files[index];
-            if(multipleFile != true){
-              for (let index = uploadedFiles.length - 1; index >= 0; index--) {
-                const element = uploadedFiles[index];
-                if((element.LanguageID == 0 || element.LanguageID == languageID)){
-                  removeAtIndex(uploadedFiles, index)
-                }
+          //First remove non-existing files. Files may be removed
+          for (let index = uploadedFiles.length - 1; index >= 0; index--) {
+            const element = uploadedFiles[index];
+            if(element.FilePath) continue;
+            if(element.KeyName != propName) continue;
+
+            var found = false;
+            for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+              const file = files[fileIndex];
+              if((element.LanguageID == 0 || element.LanguageID == languageID) && element.FileName == file.name){
+                found = true;
+                break;
               }
             }
-            readUploadedFile(file, (name, size, base64, buffer) => {
-              var fileData = new FileData();
-              fileData.FileName = name;
-              fileData.KeyName = propName;
-              fileData.FileSize = size;
-              fileData.Base64Data = base64;
-              if(i18n) fileData.LanguageID = languageID;
-              else fileData.LanguageID = 0;
-              uploadedFiles.push(fileData);
-            })
+            if(!found){
+              removeAtIndex(uploadedFiles, index)
+              console.log("File deleted (NOTEXISTS)", element, uploadedFiles)
+            }
+          }
+          if(files.length == 0){
+            this.setFieldData(data, name, undefined, languageID, uploadedFiles, multipleFile, i18n, imageLoadCallback);
+          }
+          else{
+            for (let index = 0; index < files.length; index++) {
+              const file = files[index];
+              var existing = uploadedFiles.find((item) => item.FileName == file.name);
+              if(existing){
+                existing.StatusID = 1;
+                continue;
+              }
+  
+              if(multipleFile != true){
+                for (let index = uploadedFiles.length - 1; index >= 0; index--) {
+                  const element = uploadedFiles[index];
+                  if((element.LanguageID == 0 || element.LanguageID == languageID) && element.KeyName == propName){
+                    removeAtIndex(uploadedFiles, index)
+                    console.log("File deleted (SINGLE)", element, uploadedFiles)
+                  }
+                }
+              }
+              readUploadedFile(file, (name, size, base64, buffer) => {
+                var fileData = new FileData();
+                fileData.FileName = name;
+                fileData.KeyName = propName;
+                fileData.FileSize = size;
+                fileData.StatusID = 1;
+                fileData.Base64Data = base64;
+                if(i18n) fileData.LanguageID = languageID;
+                else fileData.LanguageID = 0;
+                uploadedFiles.push(fileData);
+                imageLoadCallback && imageLoadCallback()
+                console.log("File uploaded (SINGLE)", fileData, uploadedFiles)
+              })
+            }
           }
         }
         else{

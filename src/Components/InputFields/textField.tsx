@@ -4,10 +4,11 @@ export default class TextField<P> extends BaseField<P & {
     name: string,
     text?: string,
     value?: string,
-    listener?: any
+    listener?: any,
+    isDate?: boolean
   }>{
     
     renderInput(){
-        return <TextInput {...this.GetProps()} />;
+        return <TextInput isDate={this.props.isDate} {...this.GetProps()} />;
     }
   }

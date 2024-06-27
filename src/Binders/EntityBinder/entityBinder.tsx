@@ -38,7 +38,8 @@ export default class EntityBinder<P> extends React.Component<
     data: any, 
     messages: Array<ServiceMessage>, 
     languageID: number,
-    rerenderCounter: number
+    rerenderCounter: number,
+    processing: boolean
 }
 > {
   Key: number = 0;
@@ -135,7 +136,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     if(props.i18n) props.languageKey = `${this.state.languageID}`
     else props.languageKey = "0";
-    return <InputField translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + this.state.id + "-field-" + props.name} {...props} listener={this}/>
+    return <InputField languageID={this.state.languageID} translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + this.state.id + "-field-" + props.name} {...props} listener={this}/>
   }
   async ImageUploadHandler(fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined){
     return undefined
@@ -223,7 +224,7 @@ export default class EntityBinder<P> extends React.Component<
       if(field.Validate){
         var value = getObjectValue(this.state.data, field.props.name);
         if(!value && field.props.type == "file"){
-          value = this.UploadFiles.filter((file) => file.KeyName == field.props.name && (file.LanguageID == 0 || file.LanguageID == this.state.languageID));
+          value = this.UploadFiles.filter((file) => file.StatusID != 2 && file.KeyName == field.props.name && (file.LanguageID == 0 || file.LanguageID == this.state.languageID));
         }
         var valid = field.Validate(value)
         if(!valid) validForm = false;
@@ -257,7 +258,9 @@ export default class EntityBinder<P> extends React.Component<
 
       try {
         data = this.beforeSendRequest(data);
+        this.setState({processing: true})
         var result = await this.EntityOperations.SaveEntity(this.state.languageID, data, this.UploadFiles);
+        this.setState({processing: false})
         if(!result) {
           raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotReachToAPI")  })
         }
@@ -312,7 +315,7 @@ export default class EntityBinder<P> extends React.Component<
       var fileList: Array<FileData> = []
       for (let index = 0; index < this.UploadFiles.length; index++) {
         const element = this.UploadFiles[index];
-        if(element.KeyName == field.props.name && (element.LanguageID == 0 || element.LanguageID == this.state.languageID)){
+        if(element.StatusID != 2 && element.KeyName == field.props.name && (element.LanguageID == 0 || element.LanguageID == this.state.languageID)){
           fileList.push(element);
         }
       }
@@ -324,13 +327,27 @@ export default class EntityBinder<P> extends React.Component<
     return data
   }
 
+  translate(key: string){
+    return this.props.AppClient?.Translate(key)
+  }
+  imageParsed(){
+    this.setState({ rerenderCounter: this.state.rerenderCounter + 1})
+  }
   setFieldData(name: string, value: any, field: any){
     if(name == "selectedLanguageID"){
       this.setState({languageID: parseInt(value)})
       return;
     }
-    this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n)
+    this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n, () => this.imageParsed())
     this.checkFieldVisibilities();
+  }
+  setFileDeleted(deletedFile: FileData){
+    var existing = this.UploadFiles.find((file) => file.FileName == deletedFile.FileName)
+    if(!existing){
+      this.UploadFiles.push(deletedFile)
+      existing = deletedFile;
+    }
+    existing.StatusID = 2;
   }
 
   setInitData(firstLoad: boolean = false, resetForNew: boolean = false){
@@ -399,7 +416,10 @@ export default class EntityBinder<P> extends React.Component<
     this.setMetaTags(this.state.data);
     return (<>
         {this.renderHeader()}
-        <div className="entity-binder" key="entity-binder" ref={this.RootElementRef}>
+        <div className="entity-binder bg-white p-4 shadow-lg" key="entity-binder" ref={this.RootElementRef}>
+          {this.state.processing === true && <div className="absolute flex items-center justify-center left-0 top-0 h-full min-h-full w-full bg-gray-800 z-10 opacity-50 text-white">
+            <label>{this.props.AppClient?.Translate("ProcessingPleaseWait")}</label>
+          </div>}
           {this.state.messages?.map((item: any, index: number) => (
             <ServiceMessageResult
               code={item.code}

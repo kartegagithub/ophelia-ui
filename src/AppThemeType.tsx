@@ -54,6 +54,7 @@ var appThemeType: {
     Background?: {
       red?: string,
       redTransparent?: string,
+      borderSky?: string,
       white?: string,
       stroke?: string,
       sky?: string

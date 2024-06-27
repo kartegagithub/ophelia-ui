@@ -1,5 +1,2 @@
-import SystemLog from "./SystemLog"
-
-export { 
-    SystemLog
-}
+export { default as SystemLog } from "./SystemLog"
+export * from "./SystemLog"

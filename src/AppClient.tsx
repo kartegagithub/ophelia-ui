@@ -1,5 +1,4 @@
 import { NextPageContext } from "next";
-import SystemLog from "./Diagnostic/SystemLog";
 import AnalyticsList from "./Metrics/AnalyticsList";
 import IAnalytics from "./Metrics/IAnalytics";
 import APIService from "./Service/apiService";
@@ -11,7 +10,6 @@ export default class AppClient {
   AppTitle: string = ""
   AppDescription: string = ""
   AppData: any
-  Logger: SystemLog = new SystemLog();
   Analytics: AnalyticsList = new AnalyticsList();
   IsClientSide: boolean = false
   Context?: NextPageContext

@@ -4,6 +4,7 @@ const RawHTML: React.FC<RawHTMLProps> = ({
   html = undefined,
   tag = "span",
   clearHtml = false,
+  className,
   sanitize = true
 }) => {  
   if(!html) return <></>
@@ -19,8 +20,8 @@ const RawHTML: React.FC<RawHTMLProps> = ({
     if(sanitize === true) htmlText = sanitizeHtml(htmlText as string)
   }
 
-  if(tag == "span") return <span dangerouslySetInnerHTML={{__html: htmlText ?? ""}} />
-  if(tag == "label") return <label dangerouslySetInnerHTML={{__html: htmlText ?? ""}} />
+  if(tag == "span") return <span className={className} dangerouslySetInnerHTML={{__html: htmlText ?? ""}} />
+  if(tag == "label") return <label className={className} dangerouslySetInnerHTML={{__html: htmlText ?? ""}} />
   return (
     <div dangerouslySetInnerHTML={{__html: htmlText ?? ""}} />
   );
@@ -30,6 +31,7 @@ export default RawHTML;
 var rawHTMLProps : { 
   html?: string | React.JSX.Element | React.ReactNode,
   tag?: "span" | "div" | "label",
+  className?: string;
   clearHtml?: boolean
   sanitize?: boolean
 }

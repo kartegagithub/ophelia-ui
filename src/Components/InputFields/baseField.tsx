@@ -1,15 +1,20 @@
 import { AppTheme, getAppTheme } from "../../AppTheme";
 import {
+  convertToDate,
   getFormattedDateString,
   isNullOrEmpty,
   isValidDate,
   parseFloatIfCan,
+  validateRange,
   validateEmail,
+  formatString,
 } from "../../Extensions/StringExtensions";
 import React, { SyntheticEvent } from "react";
 import { InputFieldsTheme } from "./InputFieldsTheme";
 import RawHTML from "../RawHTML";
-import { randomId } from "../../Extensions/ReflectionExtensions"
+import { convertToBool, randomId } from "../../Extensions/ReflectionExtensions";
+import InputValidationRule from "./InputValidationRule";
+import { FileData } from "../../Models";
 export default class BaseField<P> extends React.Component<
   P & {
     name: string;
@@ -22,6 +27,7 @@ export default class BaseField<P> extends React.Component<
     checked?: boolean;
     labelType?: "seperated" | "floatingFixed" | "floating";
     errorClassName?: string;
+    errorDisplayFn?: (name: string, msg?: string) => React.JSX.Element;
     format?: string;
     listener?: any;
     type?: string;
@@ -29,68 +35,89 @@ export default class BaseField<P> extends React.Component<
     i18n?: boolean;
     required?: boolean;
     theme?: InputFieldsTheme;
-    onChange?: Function,
-    visible?: boolean | Function
+    onChange?: Function;
+    visible?: boolean | Function;
+    rules?: InputValidationRule | Array<InputValidationRule>;
+    rootStyle?: any;
   },
-  { hasValidationError: boolean; message: any }
+  { hasValidationError: boolean; message: any, messageDisplayFn: Function | undefined }
 > {
-  Theme?: InputFieldsTheme = getAppTheme({ InputFields: this.props.theme }).InputFields;
-  Visibility: boolean = true
+  Theme?: InputFieldsTheme = getAppTheme({ InputFields: this.props.theme })
+    .InputFields;
+  Visibility: boolean = true;
   ID: string = randomId();
   constructor(props: any) {
     super(props);
     this.state = {
       hasValidationError: false,
-      message: undefined
+      message: undefined,
+      messageDisplayFn: undefined
     };
     if (this.props.listener?.registerField) {
       this.props.listener?.registerField(this);
-      //console.info("registerField", this.props.name, this.ID)
     }
-  }
-  componentDidMount(){
-    //console.info("componentDidMount", this.props.name, this.ID)
   }
   checkVisibility = (setLocalvalue: boolean = true) => {
-    var visibility: boolean = true
-    if(!visibility) visibility = true;
-    if(this.props.visible != undefined && typeof this.props.visible == "boolean") visibility = this.props.visible == true;
-    else if(this.props.visible != undefined && typeof this.props.visible == "function"){
+    var visibility: boolean = true;
+    if (!visibility) visibility = true;
+    if (
+      this.props.visible != undefined &&
+      typeof this.props.visible == "boolean"
+    )
+      visibility = this.props.visible == true;
+    else if (
+      this.props.visible != undefined &&
+      typeof this.props.visible == "function"
+    ) {
       var fn: any = this.props.visible;
-      visibility = fn()
+      visibility = fn();
     }
-    if(setLocalvalue) this.Visibility = visibility;
-    return visibility
-  }
+    if (setLocalvalue) this.Visibility = visibility;
+    return visibility;
+  };
   getVisibility = () => this.Visibility;
   render(): React.ReactNode {
-    if(!this.checkVisibility()) return <></>
+    if (!this.checkVisibility()) return <></>;
 
     return (
-      <div className={this.Theme?.RootClass}>
-        <div className={`field-input relative ${(!this.props.labelType || this.props.labelType == "seperated") && "flex flex-col-reverse"}`}>
+      <div className={this.Theme?.RootClass} style={this.props.rootStyle}>
+        <div
+          className={`field-input relative ${
+            (!this.props.labelType || this.props.labelType == "seperated") &&
+            "flex flex-col-reverse"
+          } ${this.state.hasValidationError? "has-error": ""}`}
+        >
           {this.renderInput()}
           {this.props.labelVisible != false && this.props.text && (
             <label
-              className={
+              className={`${
                 this.props.labelType == "floatingFixed"
                   ? getAppTheme().Inputs?.floatingFixedLabel
                   : this.props.labelType == "floating"
-                    ? getAppTheme().Inputs?.inputLabel
-                    : getAppTheme().Inputs?.seperatedLabel
-              }
+                  ? getAppTheme().Inputs?.inputLabel
+                  : getAppTheme().Inputs?.seperatedLabel
+              }`}
             >
               <RawHTML
-                html={`${this.props.text} ${this.props.required === true ? "*" : ""}`}
+                html={`${this.props.text} ${
+                  this.props.required === true ? "*" : ""
+                }`}
               />
             </label>
           )}
         </div>
-        {this.state.hasValidationError && (
+
+        {!this.props.errorDisplayFn && !this.state.messageDisplayFn && this.state.hasValidationError && (
           <span className={this.Theme?.ErrorMessageClass}>
             {this.state.message}
           </span>
         )}
+        {!this.props.errorDisplayFn && this.state.messageDisplayFn && this.state.hasValidationError && (
+          <>{this.state.messageDisplayFn(this.props.name, this.state.message)}</>
+        )}
+        {this.props.errorDisplayFn &&
+          this.state.hasValidationError &&
+          this.props.errorDisplayFn(this.props.name, this.state.message)}
       </div>
     );
   }
@@ -100,38 +127,58 @@ export default class BaseField<P> extends React.Component<
   }
 
   async onValueChange(e: SyntheticEvent | any) {
-    //console.log("giriş");
-    
     var inputEvent = e.nativeEvent as InputEvent;
-    var value: string | number = "";
+    var value: string | number | boolean | undefined = "";
     var target: any = undefined;
+    var deletedFile: FileData | undefined = undefined;
     if (inputEvent) {
       if (inputEvent.target) target = inputEvent.target;
       else if (inputEvent.currentTarget) target = inputEvent.currentTarget;
     } else if (e.target) target = e.target;
     else if (e.currentTarget) target = e.currentTarget;
 
+    var parentData = this.props.listener && typeof this.props.listener["getData"] == "function" ? this.props.listener?.getData(): undefined
     if (target) {
       value = target.value;
       if (
         this.props.type === "radio" ||
         this.props.type === "checkbox" ||
+        this.props.type === "agreementCheckbox" ||
         this.props.type === "boolean"
       ) {
-        value = target.checked ? 1 : 0;
+        var tmpValue = target.checked ? (isNullOrEmpty(value)? 1: value) ?? 1 : undefined;
+        if(parentData && (parentData as any).hasOwnProperty(this.props.name)){
+          if(typeof parentData[this.props.name] == "boolean") value = convertToBool(tmpValue)
+          else if(typeof parentData[this.props.name] == "number") {
+            if(tmpValue === true) value = 1
+            else if(tmpValue === false || tmpValue === undefined) value = 0
+            else value = tmpValue
+          }
+          else value = tmpValue
+        }
+        else value = tmpValue
       } else if (this.props.type === "file") {
         value = target.files;
-      } else if (this.props.type === "filterbox" && (this.props.multipleSelection == true)) {
-        if(e.rawValue && !this.props.name.endsWith("ID")) value = e.rawValue
+        deletedFile = e.deletedFile;
+      } else if (
+        this.props.type === "filterbox" &&
+        this.props.multipleSelection == true
+      ) {
+        if (e.rawValue && !this.props.name.endsWith("ID")) value = e.rawValue;
       }
     } else if (e.value) {
       value = e.value;
     }
-
     if (this.props.onChange)
       this.props.onChange({ name: this.props.name, value });
 
-    if(this.Validate(value)){
+    var isValid = this.Validate(value);
+    if(this.props.listener?.onChangeRequest) this.props.listener?.onChangeRequest(this.props.valueName ?? this.props.name, value, isValid)
+    if (isValid) {
+      if (this.props.listener?.setFileDeleted && deletedFile) {
+        deletedFile.KeyName = this.props.name;
+        this.props.listener?.setFileDeleted(deletedFile);
+      }      
       if (this.props.listener?.setFieldData) {
         this.props.listener?.setFieldData(
           this.props.valueName ?? this.props.name,
@@ -142,22 +189,123 @@ export default class BaseField<P> extends React.Component<
     }
     return true;
   }
-  Validate(val: any) {
+  Validate = (val: any) => {
     var isEmpty = isNullOrEmpty(val);
-    var message: string = "";
-    var isValid: boolean = !isEmpty || this.props.required !== true;
-    if (isValid) {
-      if (this.props.type === "email") {
-        isValid = validateEmail(val);
-        if (!isValid) message = "Invalid email";
+    var rule: InputValidationRule | undefined = undefined;
+    if (this.props.rules) {
+      if (Array.isArray(this.props.rules)) {
+        rule = this.props.rules.find(
+          (r) =>
+            (Array.isArray(r.field) && r.field.indexOf(this.props.name) > -1) ||
+            r.field == this.props.name
+        );
+      } else {
+        var tmpRule: any = this.props.rules;
+        rule = tmpRule;
       }
     }
-    if (!isValid && isNullOrEmpty(message)) message = "Please fill";
-    if(!isValid != this.state.hasValidationError){
-      //console.info("Validate", this.props.name, this.ID)
+    if (!rule) {
+      rule = {
+        field: this.props.name,
+      };
+    }
+
+    var isValid: boolean = !isEmpty || this.props.required !== true;
+    var isDateTextValid: boolean = !isEmpty || this.props.required !== true;
+
+    var msg = "";
+    if (typeof rule.message == "string") {
+      msg = rule.message;
+    } else if (rule.message) {
+      msg = rule.message(
+        val,
+        rule.max,
+        rule.min,
+        this.props.listener?.translate
+      );
+    }
+    if (isValid) {
+      if (rule.rule && rule.rule.constructor.name == "RegExp") {
+        isValid = (rule.rule as RegExp).test(val);
+        if (rule.ruleSatisfaction) rule.ruleSatisfaction(0, isValid);
+      } else if (Array.isArray(rule.rule)) {
+        for (let index = 0; index < rule.rule.length; index++) {
+          const _rule = rule.rule[index];
+          if(!_rule) continue;
+
+          var _IsValid = true;
+          if (_rule && _rule.constructor.name == "RegExp") {
+            _IsValid = (_rule as RegExp).test(val);
+          }
+          else if(typeof _rule == "function"){
+            _IsValid = _rule(val, this.props.listener?.getData());
+          }
+          if (!_IsValid) isValid = false;
+          if (rule.ruleSatisfaction) rule.ruleSatisfaction(index, _IsValid);
+        }
+      } else if (rule.rule && typeof rule.rule == "function") {
+        isValid = rule.rule(val, this.props.listener?.getData());
+        if (rule.ruleSatisfaction) rule.ruleSatisfaction(0, isValid);
+      }
+      if (isValid && this.props.type === "email") isValid = validateEmail(val);
+      if (isValid && (rule.max || rule.min)) {
+        if (
+          this.props.type === "date" ||
+          this.props.type === "datetime" ||
+          this.props.type === "text"
+        ) {
+          isValid = validateRange(
+            convertToDate(val).toDate(),
+            rule.max as Date,
+            rule.min as Date
+          );
+        } else isValid = validateRange(val, rule.max, rule.min);
+      }
+      if (isValid && (rule.max || rule.min)) {
+        if (this.props.type === "date" || this.props.type === "datetime") {
+          isValid = validateRange(
+            convertToDate(val).toDate(),
+            rule.max as Date,
+            rule.min as Date
+          );
+        } else isValid = validateRange(val, rule.max, rule.min);
+      } else if (isDateTextValid && (rule.max || rule.min)) {
+        if (this.props.type === "text") {
+          const newRule = rule?.rule as RegExp;
+          isValid =
+            newRule.test(val) &&
+            validateRange(
+              convertToDate(val).toDate(),
+              rule.max as Date,
+              rule.min as Date
+            );
+        }
+      }
+    }
+
+    if(!msg) msg = "FieldIsRequired";
+    if (this.props.listener && this.props.listener.translate)
+      msg = this.props.listener.translate(msg);
+
+    if (msg && msg.indexOf("{") > -1 && msg.indexOf("}") > -1) {
+      if (!rule.format) rule.format = (val: any) => val;
+      if (rule.min)
+        msg = msg.replace(
+          "{min}",
+          rule.format(rule.min, this.props.listener?.translate)
+        );
+      if (rule.max)
+        msg = msg.replace(
+          "{max}",
+          rule.format(rule.max, this.props.listener?.translate)
+        );
+    }
+
+    if (!isValid != this.state.hasValidationError) {
       this.setState({
         hasValidationError: !isValid,
-        message: isValid ? undefined : message,
+        message: isValid ? undefined : msg,
+        messageDisplayFn: isValid ? undefined: rule.messageDisplayFn
       });
     }
     return isValid;
@@ -170,16 +318,29 @@ export default class BaseField<P> extends React.Component<
     return value ?? this.props.value ?? this.props.defaultValue;
   }
   GetProps() {
-    var otherProps = (({ text, i18n, languageKey, visible, errorClassName, type, listener, onChange, value, ...others }) => others)(
-      this.props
-    );
+    var otherProps = (({
+      rules,
+      required,
+      text,
+      i18n,
+      languageKey,
+      visible,
+      errorClassName,
+      type,
+      listener,
+      onChange,
+      value,
+      rootStyle,
+      ...others
+    }) => others)(this.props);
     var checked = this.props.checked ?? false;
     var value = this.GetValue();
     if (
-      value &&
+      value !== undefined && value !== null &&
       !checked &&
       (this.props.type === "radio" ||
         this.props.type === "checkbox" ||
+        this.props.type === "agreementCheckbox" ||
         this.props.type === "boolean")
     ) {
       if (typeof value == "boolean") checked = value;
@@ -192,7 +353,9 @@ export default class BaseField<P> extends React.Component<
       ...{
         id: otherProps.name,
         key: `${this.props.languageKey}_${this.props.name}`,
-        errorClassName: this.state.hasValidationError? this.Theme?.InputErrorClass: undefined,
+        errorClassName: this.state.hasValidationError
+          ? this.Theme?.InputErrorClass
+          : undefined,
         defaultValue: value,
         value: undefined,
         defaultChecked: checked,

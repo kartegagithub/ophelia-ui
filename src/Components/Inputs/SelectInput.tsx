@@ -1,8 +1,11 @@
+import { AdditionalHtmlAttributes } from "../../Enums";
 import { getAppTheme } from "../../AppTheme";
 import React, { SelectHTMLAttributes, useEffect, useState } from "react";
 
 const SelectInput: React.FC<
-  SelectHTMLAttributes<HTMLSelectElement> & SelectInputProps
+  SelectHTMLAttributes<HTMLSelectElement> &
+    SelectInputProps &
+    AdditionalHtmlAttributes
 > = ({
   onChange = undefined,
   placeholder = undefined,
@@ -12,6 +15,7 @@ const SelectInput: React.FC<
   low = undefined,
   high = undefined,
   className = undefined,
+  style = undefined,
   displayProp = "text",
   valueProp = "value",
   switchbox = false,
@@ -120,7 +124,8 @@ const SelectInput: React.FC<
           value={value}
           defaultValue={defaultValue}
           {...pureProps}
-          className={className ?? getAppTheme().Inputs?.selectbox}
+          className={`${className ?? getAppTheme().Inputs?.selectbox} ${pureProps?.errorClassName}`}
+          style={style}
         >
           {placeholder && <option>{placeholder}</option>}
           {_options &&

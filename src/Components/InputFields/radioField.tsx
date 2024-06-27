@@ -9,6 +9,6 @@ export default class RadioField<P> extends BaseField<
   }
 > {
   renderInput() {
-    return <RadioInput {...this.GetProps()} />;
+    return <RadioInput {...this.GetProps()} value={this.props.value} defaultValue={this.props.defaultValue} />;
   }
 }

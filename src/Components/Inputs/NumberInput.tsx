@@ -3,11 +3,20 @@ import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
 import DataList from "./DataList";
 import { getAppTheme } from "../../AppTheme";
 
-export interface NumberInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+export interface NumberInputProps
+  extends AdditionalHtmlAttributes,
+    InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
 }
 
-const NumberInput: React.FC<NumberInputProps> = ({ className, dataOptions, list, labelType, ...props }) => {
+const NumberInput: React.FC<NumberInputProps> = ({
+  className,
+  dataOptions,
+  list,
+  labelType,
+  style,
+  ...props
+}) => {
   const appTheme = getAppTheme();
   return (
     <>
@@ -16,6 +25,7 @@ const NumberInput: React.FC<NumberInputProps> = ({ className, dataOptions, list,
         type="number"
         className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.numeric} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
         {...props}
+        style={style}
       />
     </>
   );

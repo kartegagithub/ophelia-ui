@@ -3,12 +3,21 @@ import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
 import DataList from "./DataList";
 import { getAppTheme } from "../../AppTheme";
 
-export interface URLInputProps extends AdditionalHtmlAttributes, InputHTMLAttributes<HTMLInputElement> {
+export interface URLInputProps
+  extends AdditionalHtmlAttributes,
+    InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
   list: string;
 }
 
-const URLInput: React.FC<URLInputProps> = ({ dataOptions, list, className, labelType, ...props }) => {
+const URLInput: React.FC<URLInputProps> = ({
+  dataOptions,
+  list,
+  className,
+  labelType,
+  style,
+  ...props
+}) => {
   const appTheme = getAppTheme();
   return (
     <>
@@ -16,6 +25,7 @@ const URLInput: React.FC<URLInputProps> = ({ dataOptions, list, className, label
       <input
         type="url"
         className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.url} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        style={style}
         {...props}
       />
     </>
