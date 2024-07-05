@@ -1,5 +1,5 @@
 export const getLocalstorage = (propName: string) => {
-    if(!global.localStorage)
+    if(!globalThis.localStorage)
       return null;
 
     const getData = localStorage.getItem(propName);
@@ -15,14 +15,14 @@ export const getLocalstorage = (propName: string) => {
   };
   
   export const setLocalstorage = (propName: string, data: any) => {
-    if(!global.localStorage)
+    if(!globalThis.localStorage)
       return null;
     localStorage.setItem(propName, JSON.stringify(data));
     return undefined
   };
   
   export const removeLocalstorage = (propName: string) => {
-    if(!global.localStorage)
+    if(!globalThis.localStorage)
       return null;
     localStorage.removeItem(propName);
     return undefined

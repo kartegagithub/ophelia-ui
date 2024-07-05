@@ -1,4 +1,3 @@
-import { values } from "lodash-es";
 import FilterboxInput from "../Inputs/FilterboxInput";
 import BaseField from "./baseField";
 export default class DropdownFilterboxField<P> extends BaseField<

@@ -48,7 +48,7 @@ export class SpeechRecognizer{
 }
 
 export const speechRecognitionSupported = ()=>{
-    var tmpWindow: any = global.window;
+    var tmpWindow: any = globalThis.window;
     if(!tmpWindow) return true
     if(!(tmpWindow.SpeechRecognition || tmpWindow.webkitSpeechRecognition)) return false
     if(!(tmpWindow.SpeechGrammarList || tmpWindow.webkitSpeechGrammarList)) return false

@@ -12,6 +12,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   className,
   labelType,
   style,
+  defaultValue,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -23,6 +24,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         type={showPassword ? "text" : "password"}
         className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.password} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
         style={style}
+        defaultValue={defaultValue}
         {...props}
       />
       <div

@@ -12,6 +12,7 @@ const Alert: React.FC<AlertProps> = ({
   type = "info",
   theme = undefined,
   image = undefined, 
+  style = undefined, 
 
 }) => {
   const Theme = getAppTheme({Alert: theme}).Alert;
@@ -26,7 +27,7 @@ const Alert: React.FC<AlertProps> = ({
 
   return (
     <>
-      {visible && <div id={id} className={className}>
+      {visible && <div id={id} className={className} style={style}>
         {image && <div className={Theme?.ImageClass}>
           {getImageComponent(image)}
         </div>}
@@ -49,6 +50,7 @@ var alertProps: {
   iconProps?: IconProps
   theme?: AlertTheme
   image?: string | any | React.JSX.Element,
+  style?: any ,
 }
 export type AlertProps = typeof alertProps
 

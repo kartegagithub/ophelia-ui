@@ -358,7 +358,7 @@ export function isNullOrEmpty(val?: any) {
 
 export function removeHtml(str?: string) {
   if (!str) return "";
-  if(global.document){
+  if(globalThis.document){
     let decoder = document.createElement("div");
     decoder.innerHTML = str;
     return decoder.textContent;

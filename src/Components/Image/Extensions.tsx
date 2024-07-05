@@ -2,6 +2,7 @@ import { getAppTheme } from "../../AppTheme";
 import { IconProps } from "../Icon";
 import RawHTML from "../RawHTML";
 import Image from "./Image";
+import React from "react";
 
 export function getImageComponent(elem: string | React.JSX.Element | Function | IconProps | any | undefined, props?: any, funcParams?: any): React.JSX.Element{
     if(!elem) return <></> 

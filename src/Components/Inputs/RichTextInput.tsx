@@ -1,6 +1,5 @@
 import { getAppTheme } from "../../AppTheme";
 import React, { InputHTMLAttributes, useEffect, useMemo } from "react";
-import "react-quill/dist/quill.snow.css"
 import hljs from 'highlight.js';
 import dynamic from 'next/dynamic';
 import { readUploadedFile } from "../../Extensions/InputExtensions";
@@ -20,6 +19,11 @@ const modules = {
   }
 };
 
+/**
+ * Project must import quill Template import "react-quill/dist/quill.snow.css"
+ * @param param0 
+ * @returns 
+ */
 const RichTextInput: React.FC<{ 
   id?: string, 
   className?: string, 

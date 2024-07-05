@@ -19,6 +19,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   mask,
   maskRule,
   style,
+  defaultValue,
   ...props
 }) => {
   const appTheme = getAppTheme();
@@ -30,6 +31,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         type="tel"
         className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.phone} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
         style={style}
+        defaultValue={defaultValue}
         {...props}
       />
     </>

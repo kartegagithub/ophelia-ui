@@ -56,6 +56,6 @@ export default class AppClient {
     
   }
   constructor(){
-    this.IsClientSide = global.window !== undefined;
+    this.IsClientSide = globalThis.window !== undefined;
   }
 }

@@ -18,6 +18,7 @@ const SelectInput: React.FC<
   style = undefined,
   displayProp = "text",
   valueProp = "value",
+  isDisabled = false,
   switchbox = false,
   ...pureProps
 }) => {
@@ -32,7 +33,12 @@ const SelectInput: React.FC<
         var tmp = tmpOptions[index];
         if (displayProp == "itself" && valueProp == "itself")
           _options.push({ text: tmp, value: tmp });
-        else _options.push({ text: tmp[displayProp], value: tmp[valueProp] });
+        else
+          _options.push({
+            text: tmp[displayProp],
+            value: tmp[valueProp],
+            isDisabled: tmp.isDisabled,
+          });
       }
     } else if (low && high) {
       for (let index = low; index <= high; index++) {
@@ -131,7 +137,7 @@ const SelectInput: React.FC<
           {_options &&
             _options.map((item, i) => {
               return (
-                <option key={i} value={item.value}>
+                <option key={i} value={item.value} disabled={item.isDisabled}>
                   {item.text}
                 </option>
               );
@@ -151,12 +157,14 @@ var selectInputProps: {
   displayProp?: string;
   valueProp?: string;
   switchbox?: boolean;
+  isDisabled?: boolean;
 };
 var selectOption: {
   text: string;
   value: string;
   className?: string;
   selectedClassName?: string;
+  isDisabled?: boolean;
 };
 export type SelectInputOption = typeof selectOption;
 export type SelectInputProps = typeof selectInputProps;

@@ -1,5 +1,7 @@
 import Icon from "../Icon"
 import MenuClass from "../Menu/MenuClass"
+import React from "react"
+
 export default class SidebarMenuClass extends MenuClass {
     Name?: string = "Sidebar"
     EnableSearch?: boolean = true

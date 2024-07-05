@@ -1,6 +1,5 @@
 import { Children } from "react";
-import { isNumeric, parseFloatIfCan } from "./StringExtensions";
-import { merge as LodashMerge } from "lodash-es"
+import { clone, isNullOrEmpty, isNumeric, parseFloatIfCan } from "./StringExtensions";
 
 export function getKeyByValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -111,17 +110,21 @@ export const validateKeyName = (obj: any, key?: string) => {
 export const setObjectValue = (obj: any, propName?: string, value?: any) => {
   if (!propName || !obj) return
 
-  if(propName.indexOf(".") > -1){
-    var names = propName.split(".");
-    var tmpObj = obj
-    for (let index = 0; index < names.length - 1; index++) {
-      const indexedName = names[index];
-      if(!tmpObj[indexedName]) tmpObj[indexedName] = {}
-      tmpObj = tmpObj[indexedName];
+  try {
+    if(propName.indexOf(".") > -1){
+      var names = propName.split(".");
+      var tmpObj = obj
+      for (let index = 0; index < names.length - 1; index++) {
+        const indexedName = names[index];
+        if(!tmpObj[indexedName]) tmpObj[indexedName] = {}
+        tmpObj = tmpObj[indexedName];
+      }
+      if(tmpObj) tmpObj[names[names.length - 1]] = value
     }
-    if(tmpObj) tmpObj[names[names.length - 1]] = value
+    else obj[propName] = value;
+  } catch (error) {
+    
   }
-  else obj[propName] = value;
 }
 
 export function functionExists(obj?: any, funcName?: string){
@@ -171,13 +174,68 @@ export const convertToBool = (val?: any) => {
 
 export const merge = (obj1: any, ...objs: Array<any>) => {
   var result: any = {};
-  if(obj1) result = LodashMerge(result, obj1);
+
+  if(obj1) result = mergeObjects(result, obj1);
   if(objs && objs.length > 0){
     for (let index = 0; index < objs.length; index++) {
+      if(!isObject(objs[index])) continue;
+
       const element = objs[index];
-      result = LodashMerge(result, element);
+      result = mergeObjects(result, element);
     }
   }
   return result;
 }
 
+export const mergeObjects = (obj1: any, obj2: any) => {
+  var invalidKeys = ["$$typeof"]
+  if(!isObject(obj1)){
+    if(isNullOrEmpty(obj2)) return obj1;
+    return obj2;
+  }
+
+  var keys = Object.keys(obj1);
+  for (let index = 0; index < keys.length; index++) {
+    const key = keys[index];
+    if(invalidKeys.indexOf(key) > -1) continue;
+    setObjectValue(obj1, key, mergeObjects(getObjectValue(obj1, key), getObjectValue(obj2, key)))
+  }
+  keys = Object.keys(obj2);
+  for (let index = 0; index < keys.length; index++) {
+    const key = keys[index];
+    if(invalidKeys.indexOf(key) > -1) continue;
+    setObjectValue(obj1, key, mergeObjects(getObjectValue(obj1, key), getObjectValue(obj2, key)))
+  }
+  return obj1;
+}
+/**
+ * Gets the `toStringTag` of `value`. https://github.com/lodash/lodash/blob/main/src/.internal/getTag.ts
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+export const getTag = (value: any) => {
+  if (value == null) {
+    return value === undefined ? '[object Undefined]' : '[object Null]'
+  }
+  return toString.call(value)
+}
+
+export const isBoolean = (value: any): boolean => {
+  return (
+      value === true ||
+      value === false ||
+      (isObject(value) && getTag(value) === '[object Boolean]')
+  );
+}
+
+export const isObject = (value: any) => {
+  return typeof value === 'object' && value !== null;
+}
+
+export const isNumber = (value: any) => {
+  return (
+      typeof value === 'number' || (isObject(value) && getTag(value) === '[object Number]')
+  );
+}

@@ -1,6 +1,7 @@
 import { Component, MouseEventHandler } from "react"
 import MenuClass from "./MenuClass"
 import { replaceQueryParam, urlMatch } from "../../Extensions/StringExtensions"
+import React from "react"
 
 export default class MenuItemClass{
     Text?: string = undefined

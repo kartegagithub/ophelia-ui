@@ -1,26 +1,36 @@
 {
   "name": "ophelia-next",
-  "version": "1.0.5",
+  "version": "1.0.12",
   "description": "Ophelia UI NextJS Development Library",
   "author": "kartegagithub",
   "license": "MIT",
   "repository": "https://github.com/kartegagithub/ophelia-ui",
-  "main": "dist/index.js",
-  "module": "dist/index.modern.js",
-  "source": "src/index.tsx",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+        ".": {
+            "require": "./dist/cjs/index.js",
+            "import": "./dist/esm/index.js",
+            "types": "./dist/esm/index.d.ts"
+        }
+    },
   "engines": {
     "node": ">=18.17.1"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
+    "build": "rimraf dist && npm run build:esm && npm run build:cjs && tsc --build --clean",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
     "prepare": "run-s build"
   },
   "peerDependencies": {
-    "next": "^14.1.0",
-    "react": "^18.2.0"
+    "next": "*",
+    "react": "*"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-unicode-property-regex": "^7.18.6",
+    "@babel/plugin-transform-unicode-property-regex": "^7.24.7",
     "@rollup/plugin-typescript": "^11.1.6",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.2",
@@ -71,7 +81,7 @@
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
     "moment": "^2.30.1",
-    "next": "^14.1.0",
+    "next": "*",
     "nvm": "^0.0.4",
     "pluralize": "^8.0.0",
     "react-quill": "^2.0.0",
