@@ -10,8 +10,9 @@ const Image: React.FC<
     height?: number | undefined;
     size?: number;
     unoptimized?: boolean;
+    defaultImage?: string
   }
-> = ({ src, alt, size = 0, ...props }) => {
+> = ({ src, alt, size = 0, defaultImage = "/assets/default-image.png", ...props }) => {
   if (size > 0) (props.width = size), (props.height = size);
   const image = useMemo(() => {
     return (
@@ -20,7 +21,10 @@ const Image: React.FC<
         alt={alt ?? ""}
         {...props}
         onError={(e: any) => {
-          (e.target as HTMLImageElement).src = "/assets/default-image.png";
+          var src = (e.target as HTMLImageElement).src;
+          if(!src || src.indexOf("default") == -1 && defaultImage){
+            (e.target as HTMLImageElement).src = defaultImage;
+          }
         }}
       />
     );
