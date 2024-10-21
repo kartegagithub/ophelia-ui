@@ -1,29 +1,17 @@
 import { getAppTheme } from "../../AppTheme";
-import React, { InputHTMLAttributes, useEffect, useMemo } from "react";
-import hljs from 'highlight.js';
-import dynamic from 'next/dynamic';
-import { readUploadedFile } from "../../Extensions/InputExtensions";
+import React, { InputHTMLAttributes, useEffect, useMemo, useRef } from "react";
+import { Editor } from '@tinymce/tinymce-react';
 
-const modules = {
-  toolbar: {
-    container: new Array<any>(),
-    handlers: {}
-  },
-  syntax: {
-    highlight: (text: string) => {
-      return hljs.highlightAuto(text).value
-    }
-  },
-  clipboard: {
-    matchVisual: true,
-  }
-};
+interface BlobInfo {
+  id: () => string;
+  name: () => string;
+  filename: () => string;
+  blob: () => Blob;
+  base64: () => string;
+  blobUri: () => string;
+  uri: () => string | undefined;
+}
 
-/**
- * Project must import quill Template import "react-quill/dist/quill.snow.css"
- * @param param0 
- * @returns 
- */
 const RichTextInput: React.FC<{ 
   id?: string, 
   className?: string, 
@@ -31,7 +19,7 @@ const RichTextInput: React.FC<{
   defaultValue?: string, 
   visible?: boolean, 
   onChange: Function,
-  imageHandler?: ((fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined) => Promise<string | undefined>)
+  imageHandler?: ((fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined, progress?: Function) => Promise<string | undefined>)
 }> = ({ 
   defaultValue = undefined, 
   onChange = undefined, 
@@ -40,66 +28,44 @@ const RichTextInput: React.FC<{
   className = "",
   ...props
 }) => {  
-  const ReactQuill = useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
+  const editorRef = useRef(null as any);
   const theme = getAppTheme();
   const InputRef = React.createRef<HTMLInputElement>();
-  
-  useEffect(() => {
-    hljs.configure({
-      languages: theme.Highlight?.Languages
-    });
-    if(window) (window as any).hljs = hljs
 
-    var toolbar: any = modules.toolbar;
-    if(theme.Quill?.Toolbar) toolbar.container = theme.Quill?.Toolbar
-    toolbar.handlers.image = imageHandler
-  }, [])
+  async function imageHandler (file: BlobInfo, progress: Function): Promise<string> {
+    if(!props.imageHandler) return "";
 
-  function imageHandler (this: { quill: any; }) {
-    var quill = this.quill;
-    // Create an input element of type 'file'
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
-
-    // When a file is selected
-    input.onchange = () => {
-      if(!quill || !input.files || input.files.length == 0)  return;
-      if(!quill || !quill.editor) return;
-
-      const file = input.files[0];
-      const range = quill.getSelection(true);
-      readUploadedFile(input.files[0], (name, size, base64, buffer) => {
-        if(!props.imageHandler) return;
-
-        var promise = props.imageHandler(file.name, file.size, buffer, base64);
-        if(!promise){
-          quill.insertEmbed(range.index, "image", base64);
-        }
-        else{
-          promise.then((url) => {
-            if(url) quill.insertEmbed(range.index, "image", url);
-          });
-        }
-      })   
-    };
+    var arrayBuffer = await file.blob().arrayBuffer();
+    var size = arrayBuffer.byteLength;
+    var base64 = file.base64();
+    return (await props.imageHandler(file.filename(), size, arrayBuffer, base64, progress)) ?? "";
   }
   
   return (
     <>
       <input onChange={(e) => onChange && onChange(e)} ref={InputRef} type="hidden" id={id} name={name}/>
-      <ReactQuill 
-        value={defaultValue}
-        className={className}
-        formats={theme.Quill?.Formats}
-        modules={modules}
-        onChange={(value, delta, source, editor) => {
+      <Editor
+        tinymceScriptSrc={theme.RichTextEditor?.FileLocation}
+        apiKey={theme.RichTextEditor?.APIKey}
+        onInit={(_evt, editor) => editorRef.current = editor}
+        initialValue={defaultValue}
+        onChange={(e: any) => {
           if(InputRef && InputRef.current && window){
-            InputRef.current.value = value;
+            InputRef.current.value = editorRef.current.getContent();
             var event: any = {currentTarget: InputRef.current,  bubbles: true };
             onChange && onChange(event);
           }
+        }}
+        init={{
+          height: theme.RichTextEditor?.Height,
+          menubar: false,
+          plugins: theme.RichTextEditor?.Plugins,
+          toolbar: theme.RichTextEditor?.Toolbar,
+          automatic_uploads: true,
+          images_upload_handler: imageHandler,
+          content_style: theme.RichTextEditor?.ContentStyle,
+          content_css: theme.RichTextEditor?.ContentCSS,
+          body_class: theme.RichTextEditor?.BodyClassName
         }}
       />
     </>

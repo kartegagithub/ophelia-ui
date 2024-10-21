@@ -23,21 +23,30 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     selected = selected && item.Selected;
     const [collapsed, setCollapsed] = useState(selected);
 
-    const onClick = () => {
-      if(!item.Selected) listener?.onSelect([item]);
-      setCollapsed(!collapsed)
+    const onClick = (e: any) => {
+      if(item.Location) {item.Selected = true; return true;}
+      else {
+        e.preventDefault();
+        if(!item.Selected) listener?.onSelect([item]);
+        else listener?.onUnselect([item]);
+        setCollapsed(item.Selected)
+        return false;
+      }
     };
 
     const childEventListener = {
       onSelect: (subItems: Array<MenuItemClass>) => {
         listener?.onSelect([item].concat(subItems));
       },
+      onUnselect: (subItems: Array<MenuItemClass>) => {
+        subItems.forEach((item) => item.Selected = false)
+      },
       onRightIconClick: (subItem: MenuItemClass) => {},
       onLeftIconClick: (subItem: MenuItemClass) => {},
     };
 
     if (!item) return <li></li>;
-    var visible = item.Visible !== false ?? false;
+    var visible = item.Visible !== false || false;
     if (menu.ItemVisiblityFn) visible = menu.ItemVisiblityFn(menu, item);
     if (visible !== true) return <></>;
     if (menu.SearchInProgress === true && item.SearchVisiblity !== true)
@@ -98,7 +107,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     }
 
     if(menuCollapsed){
-      return <div className="mb-5 cursor-pointer" onClick={() => {setMenuCollapsed && setMenuCollapsed(false),listener?.onSelect([item]);}}>
+      return <div className="mb-5 cursor-pointer" onClick={() => { setMenuCollapsed && setMenuCollapsed(false); listener?.onSelect([item]);}}>
         {LeftIconComponent}
       </div>
     }
@@ -111,12 +120,12 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
             <Link
               key="item-link"
               className={className}
-              href={item.Location || ""}
+              href={item.Location ?? "#"}
               onClick={onClick}
             >
               <div className="flex items-center gap-3">
                 <div>{LeftIconComponent}</div>
-                {AppClient? AppClient.Translate(item.Text): item.Text}
+                {AppClient? AppClient?.Translate(item.Text): item.Text}
               </div>
               {RightIconComponent}
             </Link>
@@ -144,6 +153,7 @@ var menuItemProps: {
   AppClient?: AppClient
   listener?: {
     onSelect: Function;
+    onUnselect: Function;
     onRightIconClick: Function;
     onLeftIconClick: Function;
   };

@@ -36,7 +36,8 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
   newTextInputClassName?: string;
   newTextInputPlaceholder?: string;
   onNewAction?: (text: string) => Promise<void>,
-  dropdownTheme?: DropdownTheme
+  dropdownTheme?: DropdownTheme,
+  alwaysOpen?: boolean
 }, {filteredOptions: Array<any>, selectedOptions: Array<any>, showDropdown: boolean, refreshSearchList: boolean}>{
   HiddenInputRef = React.createRef<HTMLInputElement>()
   SelectionLabelRef = React.createRef<HTMLDivElement>()
@@ -120,7 +121,7 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
     this.setState({selectedOptions: []})
   }
   toggleDropDown(){
-    this.setState({ showDropdown: !this.state.showDropdown})
+      this.setState({ showDropdown: !this.state.showDropdown})
   }
   getButtons(){
     var buttons = new Array<any>();
@@ -161,6 +162,7 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
           </div>}
           <div className="relative">
             <Dropdown
+              alwaysOpen={this.props.alwaysOpen}
               key={`${this.props.id}${this.props.name}-dropdown`}
               theme={_dropdownTheme}
               enableSearch={true} 

@@ -16,6 +16,10 @@ const Menu: React.FC<MenuProps> = React.memo(({ menu, AppClient, stateKey, id, s
       subItems.forEach((item) => item.Selected = true)
       setSelectedItems(subItems)
     },
+    onUnselect: (subItems: Array<MenuItemClass>) => {
+      menu.UnselectItems(menu);
+      setSelectedItems([])
+    },
     onRightIconClick: (subItem: MenuItemClass) => {
 
     },

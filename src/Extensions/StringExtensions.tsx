@@ -2,6 +2,7 @@ import moment from "moment";
 import { getCurrentRegionSetting } from "../Localization/RegionSetting";
 import sanitizer from "sanitize-html";
 import { getDaysInMonth } from "./DateExtensions";
+import { randomId } from "./ReflectionExtensions";
 
 export function capitalizeFirstLetter(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -233,10 +234,73 @@ export function stringToDateInputValue(
   var returnValue = getFormattedDateString(value, format);
   return returnValue;
 }
+export function EuropeanDateFormat(
+  value?: string | undefined,
+  format: string = "DD/MM/YYYY"
+) {
+  if (!value) return "";
+  var returnValue = getFormattedDateString(value, format);
+  return returnValue;
+}
+export function EuropeanDateDotFormat(
+  value?: any,
+  format: string = "DD.MM.YYYY"
+) {
+  if (!value) return "";
+  var returnValue = getFormattedDateString(value, format);
+  return returnValue;
+}
 export function isNumeric(str: string) {
   if (!str || str == "") return false;
   const re = /^\d*(\.\d+)?$/;
   return re.test(str);
+}
+
+export const getTimestamps = (day: number) => {
+  const now = new Date();
+  const toDate = now.setHours(23, 59, 59, 999);
+  const fromDate = new Date(now);
+  fromDate.setDate(fromDate.getDate() - day);
+  fromDate.setHours(0, 0, 0, 0);
+
+  return {
+    fromDate: fromDate.getTime(),
+    toDate: toDate,
+  };
+};
+
+export function formatTimestampToDateTime(timestamp: any, onlyHour?: string) {
+  const date = new Date(timestamp);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  if (onlyHour) {
+    return `${hours}:${minutes}`;
+  }
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
+}
+
+export function formatMoneyTr(value: any) {
+  // Türkiye formatına göre virgül ve nokta ayracı kullanarak sayıyı biçimlendirir.
+  return new Intl.NumberFormat("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+// resim url düzeltip boyutunu ayarlıyor
+export function imagesReplace(imgURl: any, size?: any) {
+  if (imgURl && !size) {
+    return imgURl.replace(/{size}/, "original");
+  } else if (imgURl && size) {
+    return imgURl.replace(/{size}/, size);
+  }
+
+  return undefined;
 }
 
 export function parseFloatIfCan(str: string) {
@@ -351,19 +415,16 @@ export function urlMatch(url1?: string, url2?: string) {
   return left == right;
 }
 
-export function isNullOrEmpty(val?: any) {
-  if (val == undefined || val == null || val == "") return true;
-  return false;
-}
+//null || undefined || "" olursa true döner.
+export const isNullOrEmpty = (val?: any) => (val ?? "") === "";
 
 export function removeHtml(str?: string) {
   if (!str) return "";
-  if(globalThis.document){
+  if (globalThis.document) {
     let decoder = document.createElement("div");
     decoder.innerHTML = str;
     return decoder.textContent;
-  }
-  else{
+  } else {
     return str.replaceAll("<[^>]*>", "");
   }
 }
@@ -377,180 +438,300 @@ export function sanitizeHtml(
   options?: sanitizer.IOptions
 ): string | undefined {
   if (!html) return "";
+
+  if (!options) options = {};
+  if (getSanitizeDefaults().allowedTags.indexOf("img") == -1) {
+    options.allowedTags = getSanitizeDefaults().allowedTags.concat(["img"]);
+    //getSanitizeDefaults().allowedAttributes["img"] = ["src"]
+    options.allowedSchemes = ["data", "http", "https"];
+  }
   return sanitizer(html, options) ?? html;
 }
 
 /**
- * 
+ *
  * @param val 12345678
  * @param mask (###) ### ## ##
  */
-export function maskText(val?: string, mask?: string, maskChars: string | undefined = undefined, rules?: Array<string | Function>){
-  if(!val) return "";
-  if(!mask) return val
-  if(!maskChars) maskChars = "()-. +/"
-  var clean = val.replace(/\D/g,'')
+export function maskText(
+  val?: string,
+  mask?: string,
+  maskChars: string | undefined = undefined,
+  rules?: Array<string | Function>
+) {
+  if (!val) return "";
+  if (!mask) return val;
+  if (!maskChars) maskChars = "()-. +/";
+  var clean = val.replace(/\D/g, "");
   for (let index = 0; index < maskChars.length; index++) {
     const c = maskChars[index];
-    clean = clean.replaceAll(c, "")
+    clean = clean.replaceAll(c, "");
   }
   var counter = 0;
-  var groups = []
+  var groups = [];
   var group = "";
   for (let index = 0; index < mask.length; index++) {
     const c = mask[index];
-    if(maskChars.indexOf(c) > -1){
-      if(group) groups.push(group)
-      groups.push(c)
+    if (maskChars.indexOf(c) > -1) {
+      if (group) groups.push(group);
+      groups.push(c);
       group = "";
-    }
-    else{
-      if(counter < clean.length && maskChars.indexOf(c) == -1){
-        if(c === "#" || c == clean[counter]){
+    } else {
+      if (counter < clean.length && maskChars.indexOf(c) == -1) {
+        if (c === "#" || c == clean[counter]) {
           group += clean[counter];
           counter++;
-        }
-        else{
+        } else {
           group += c + clean[counter];
           counter++;
         }
-      }
-      else break;
+      } else break;
     }
   }
-  if(group) groups.push(group)
-  var returnValue = checkRules(groups, maskChars, rules)
+  if (group) groups.push(group);
+  var returnValue = checkRules(groups, maskChars, rules);
   return returnValue;
 }
 
-export function checkRules(groups: Array<string>, maskChars: string, rules?: Array<string | Function>){
-  var value: string | undefined = groups.map((g) => g).join('');
-  if(!rules) return value;
+export function removeNonNumeric(val?: string) {
+  if (!val) return "";
+  return val.replace(/\D/g, "");
+}
+export function checkRules(
+  groups: Array<string>,
+  maskChars: string,
+  rules?: Array<string | Function>
+) {
+  var value: string | undefined = groups.map((g) => g).join("");
+  if (!rules) return value;
 
-  var dataTypeRule: string | undefined = undefined
-  var formatRule: string | undefined = undefined
+  var dataTypeRule: string | undefined = undefined;
+  var formatRule: string | undefined = undefined;
 
   var newGroups = [];
   var atomicIndex = -1;
   var dataGroups = [];
-  if(rules.length > 0){
+  if (rules.length > 0) {
     for (let index = 0; index < groups.length; index++) {
       const group = groups[index];
-      if(maskChars.indexOf(group) == -1){
+      if (maskChars.indexOf(group) == -1) {
         atomicIndex++;
         var valid = true;
         for (let index = 0; index < rules.length; index++) {
           const rule = rules[index];
-          if(typeof rule == "function"){
+          if (typeof rule == "function") {
             var fn: any = rule;
-            valid = fn(group)
-          }
-          else if(rule.startsWith("type")){
-            dataTypeRule = rule.replace("type:", "")
-          }
-          else if(rule.startsWith("format")){
-            formatRule = rule.replace("format:", "")
-          }
-          else{
+            valid = fn(group);
+          } else if (rule.startsWith("type")) {
+            dataTypeRule = rule.replace("type:", "");
+          } else if (rule.startsWith("format")) {
+            formatRule = rule.replace("format:", "");
+          } else {
             var matches = rule.match(/\[(.*?)\]/gm);
             //get rules inside parantheses
-            if(matches && matches.length > atomicIndex){
-              var match = matches[atomicIndex].replace("[", "").replace("]", "");
-              if(match == "?" || match == "*"){
+            if (matches && matches.length > atomicIndex) {
+              var match = matches[atomicIndex]
+                .replace("[", "")
+                .replace("]", "");
+              if (match == "?" || match == "*") {
                 continue;
               }
-              var subRules = match.split(",")
+              var subRules = match.split(",");
 
               // split rules & check if group is valid for rule
               for (let index = 0; index < subRules.length; index++) {
                 var subRule = subRules[index];
-                if(subRule){
+                if (subRule) {
                   subRule = subRule.trim();
                   var cmd: "min" | "max" | undefined = undefined;
                   var params = "";
-                  if(subRule.startsWith("min")) cmd = "min"
-                  else if(subRule.startsWith("max")) cmd = "max"
+                  if (subRule.startsWith("min")) cmd = "min";
+                  else if (subRule.startsWith("max")) cmd = "max";
                   params = subRule.replace(`${cmd}:`, "");
 
-                  if(!cmd || !params) continue;
+                  if (!cmd || !params) continue;
 
                   switch (cmd) {
                     case "min":
-                      if(group.length >= params.length && parseFloatIfCan(group) > 0) valid = parseFloatIfCan(group) >= parseFloatIfCan(params)
+                      if (
+                        group.length >= params.length &&
+                        parseFloatIfCan(group) > 0
+                      )
+                        valid =
+                          parseFloatIfCan(group) >= parseFloatIfCan(params);
                       break;
                     case "max":
-                      if(group.length <= params.length && parseFloatIfCan(group) > 0) valid = parseFloatIfCan(group) <= parseFloatIfCan(params)
+                      if (
+                        group.length <= params.length &&
+                        parseFloatIfCan(group) > 0
+                      )
+                        valid =
+                          parseFloatIfCan(group) <= parseFloatIfCan(params);
                       break;
                   }
                 }
-                if(!valid) break;
+                if (!valid) break;
               }
-              if(!valid) break;
+              if (!valid) break;
             }
           }
         }
-        if(valid){
-          newGroups.push(group)
-          dataGroups.push(group)
-        }
-        else{
-          newGroups.push(group.substring(0, group.length - 1))
-          dataGroups.push(group.substring(0, group.length - 1))
+        if (valid) {
+          newGroups.push(group);
+          dataGroups.push(group);
+        } else {
+          newGroups.push(group.substring(0, group.length - 1));
+          dataGroups.push(group.substring(0, group.length - 1));
           break;
-        } 
-      }
-      else newGroups.push(group)
+        }
+      } else newGroups.push(group);
     }
   }
-  value = newGroups.map((g) => g).join('');
-  if(dataTypeRule === "date"){
-    if(!formatRule) formatRule = "DD/MM/YYYY";
+  value = newGroups.map((g) => g).join("");
+  if (dataTypeRule === "date") {
+    if (!formatRule) formatRule = "DD/MM/YYYY";
     var splitter = "/";
-    if(formatRule.indexOf(".") > -1) splitter = ".";
-    if(formatRule.indexOf("-") > -1) splitter = "-";
-    var dateParts = formatRule.split(splitter)
+    if (formatRule.indexOf(".") > -1) splitter = ".";
+    if (formatRule.indexOf("-") > -1) splitter = "-";
+    var dateParts = formatRule.split(splitter);
     var day: string | undefined = undefined;
     var month: string | undefined = undefined;
     var year: string | undefined = undefined;
     for (let index = 0; index < dateParts.length; index++) {
       const element = dateParts[index];
-      if(element == "DD" && dataGroups.length > index) day = dataGroups[index]
-      if(element == "MM" && dataGroups.length > index) month = dataGroups[index]
-      if(element == "YYYY" && dataGroups.length > index) year = dataGroups[index]
+      if (element == "DD" && dataGroups.length > index) day = dataGroups[index];
+      if (element == "MM" && dataGroups.length > index)
+        month = dataGroups[index];
+      if (element == "YYYY" && dataGroups.length > index)
+        year = dataGroups[index];
     }
-    if(day && parseInt(day) >= 1 && parseInt(day) <= 31){
-      value = formatRule.replace("DD", day)
-      if(month && parseInt(month) > 0 && parseInt(month) <= 12){
-        if(parseInt(month) == 2 && parseInt(day) > 29){
-          return trimChars(value.replace("DD", "").replace("MM", "").replace("YYYY", ""), splitter);
+    if (day && parseInt(day) >= 1 && parseInt(day) <= 31) {
+      value = formatRule.replace("DD", day);
+      if (month && parseInt(month) > 0 && parseInt(month) <= 12) {
+        if (parseInt(month) == 2 && parseInt(day) > 29) {
+          return trimChars(
+            value.replace("DD", "").replace("MM", "").replace("YYYY", ""),
+            splitter
+          );
+        } else if (parseInt(month) != 2) {
+          var daysInMonth = getDaysInMonth(parseInt(month) - 1);
+          if (parseInt(day) > daysInMonth)
+            return trimChars(
+              value.replace("DD", "").replace("MM", "").replace("YYYY", ""),
+              splitter
+            );
         }
-        else if(parseInt(month) != 2){
-          var daysInMonth = getDaysInMonth(parseInt(month) - 1)
-          if(parseInt(day) > daysInMonth)
-              return trimChars(value.replace("DD", "").replace("MM", "").replace("YYYY", ""), splitter)
-        }
-        if(year && parseInt(year) > 0){
-          if(year.length == 4){
-            var daysInMonth = getDaysInMonth(parseInt(month) - 1, parseInt(year))
-            if(parseInt(day) > daysInMonth)
-              return trimChars(value.replace("DD", "").replace("MM", "").replace("YYYY", ""), splitter)
+        if (year && parseInt(year) > 0) {
+          if (year.length == 4) {
+            var daysInMonth = getDaysInMonth(
+              parseInt(month) - 1,
+              parseInt(year)
+            );
+            if (parseInt(day) > daysInMonth)
+              return trimChars(
+                value.replace("DD", "").replace("MM", "").replace("YYYY", ""),
+                splitter
+              );
           }
-          value = value.replace("MM", month).replace("YYYY", year)
-        }
-        else if(year == "0"){
-          value = value.replace("MM", month).replace("YYYY", year)
-        }
-        else value = value.replace("MM", month)
-      }
-      else if(month == "0")
-        value = value.replace("MM", month)
-    }
-    else if(day == "0")
-      value = day;
-    else{
+          value = value.replace("MM", month).replace("YYYY", year);
+        } else if (year == "0") {
+          value = value.replace("MM", month).replace("YYYY", year);
+        } else value = value.replace("MM", month);
+      } else if (month == "0") value = value.replace("MM", month);
+    } else if (day == "0") value = day;
+    else {
       value = "";
     }
-    value = trimChars(value.replace("DD", "").replace("MM", "").replace("YYYY", ""), splitter)
+    value = trimChars(
+      value.replace("DD", "").replace("MM", "").replace("YYYY", ""),
+      splitter
+    );
   }
   return value;
 }
+export const dataUrlToFile = (
+  dataUrl: string,
+  filename: string
+): File | null => {
+  if (!dataUrl || !dataUrl.startsWith("data:")) {
+    console.error("Geçersiz Data URL");
+    return null;
+  }
+  const [header, base64Data] = dataUrl.split(",");
+  if (!header || !base64Data) {
+    console.error("Data URL bölünemedi");
+    return null;
+  }
+
+  const mimeMatch = header.match(/:(.*?);/);
+  if (!mimeMatch || mimeMatch.length < 2) {
+    console.error("MIME tipi bulunamadı");
+    return null;
+  }
+  const mime = mimeMatch[1];
+
+  // Base64 verisini binary veriye dönüştürme
+  const binaryString = atob(base64Data);
+  const array = Array.from(binaryString).map((char) => char.charCodeAt(0));
+  const uint8Array = new Uint8Array(array);
+
+  return new File([uint8Array], filename, { type: mime });
+};
+
+// bugün ile verilen ay farkını bul timeStamp cinsinden
+export const getRemainingMonths = (targetDate: number) => {
+  const now = new Date();
+  const target = new Date(targetDate);
+
+  const yearsDifference = target.getFullYear() - now.getFullYear();
+  const monthsDifference = target.getMonth() - now.getMonth();
+
+  const totalMonthsDifference = yearsDifference * 12 + monthsDifference;
+
+  return totalMonthsDifference;
+};
+
+//verilen second cinsinden zamanı dakika ve saniye olarak döner
+export const formatTimeTotalSecond = (totalSeconds: number) => {
+  const hours = Math.floor(totalSeconds / 3600)
+    .toString()
+    .padStart(2, "0");
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+
+  return `${hours}:${minutes}:${seconds}`;
+};
+
+export const createHtmlIndex = (
+  val: string | undefined,
+  indexTags: string = "h2"
+) => {
+  var indexData: {
+    val: string | undefined;
+    index: Array<{ text: string; id: string; type: string }>;
+  } = { val: val, index: [] };
+  if (!indexData.val) return indexData;
+
+  var tags = indexTags.split(",");
+  for (let index = 0; index < tags.length; index++) {
+    const tag = tags[index];
+    var exp = `<${tag}>(.*?)<\\/${tag}>`;
+    var matches = indexData.val.match(new RegExp(exp, "g"));
+    if (matches && matches.length > 0) {
+      matches.forEach((element) => {
+        var text = removeHtml(element);
+        if (text && text.replaceAll("&nbsp;", "").trim() != "") {
+          var index = { id: randomId(), text: text, type: tag };
+          indexData.index.push(index);
+          indexData.val = indexData.val?.replace(
+            element,
+            `<a class="scroll-mt-[70px]" id="${index.id}">${element}</a>`
+          );
+        }
+      });
+    }
+  }
+  return indexData;
+};

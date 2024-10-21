@@ -20,13 +20,15 @@ const Modal: React.FC<{
   dismissOnBackdropClick?: boolean;
   maxWidth?: string;
   bodyClassName?: string;
+  draggable?: boolean;
+  containerCls?: string;
   buttons?: Array<{
     disabled?: boolean;
     className?: string;
     text: string | React.ReactNode;
     closeModalOnClick?: boolean;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>, item: any) => void;
-    type?: "submit" | "reset" | "button" | undefined
+    type?: "submit" | "reset" | "button" | undefined;
   }>;
   children?: React.ReactNode;
   onCurrentValue?: Function | any;
@@ -43,8 +45,10 @@ const Modal: React.FC<{
   onCurrentValue = undefined,
   maxWidth = "800px",
   showCloseButton = false,
+  containerCls = undefined,
   bodyClassName = undefined,
   buttons = [],
+  draggable = false,
   center = false,
   backdrop = true,
   children,
@@ -53,6 +57,38 @@ const Modal: React.FC<{
   const ModalRef = React.createRef<HTMLDivElement>();
   const ModalBodyRef = React.createRef<HTMLDivElement>();
   const [open, setOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [currentY, setCurrentY] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    if (draggable) {
+      setIsDragging(true);
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+      setStartY(clientY);
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (isDragging && draggable) {
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+      const diff = clientY - startY;
+      setCurrentY(diff > 0 ? diff : 0); // sadece positive yükseliğe izin veriliyor. daha yükseğe çıkarmasın.
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (draggable) {
+      setIsDragging(false);
+      if (currentY > 100) {
+        // currentY 100 den büyükse kapatsın.(100den fazla bottom yaparsa)
+        setOpen(false);
+        onCurrentValue(false);
+      }
+      setCurrentY(0);
+    }
+  };
+
   const closeModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onCurrentValue && onCurrentValue(false);
@@ -115,9 +151,18 @@ const Modal: React.FC<{
               : undefined;
           });
         }}
+        style={{ transform: `translateY(${currentY}px)` }}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchMove={handleMouseMove}
+        onTouchEnd={handleMouseUp}
       >
         <div className={theme.Modal?.SubClass} style={{ maxWidth }}>
-          <div className={theme.Modal?.ContainerClass} ref={ModalRef}>
+          <div
+            className={containerCls + " " + theme.Modal?.ContainerClass}
+            ref={ModalRef}
+          >
             {showCloseButton && (
               <div
                 className="absolute right-5 top-4 z-30"
@@ -132,6 +177,15 @@ const Modal: React.FC<{
                   size={24}
                   className="cursor-pointer"
                 />
+              </div>
+            )}
+            {draggable && (
+              <div
+                className="flex sm:hidden justify-center items-center h-10 cursor-pointer group"
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleMouseDown}
+              >
+                <div className="w-12 h-1 bg-blue-200 group-hover:bg-blue-400 rounded-full"></div>
               </div>
             )}
             {title && (

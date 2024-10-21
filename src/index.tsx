@@ -1,4 +1,6 @@
-export {default as AppClient } from "./AppClient"
+import AppClient from "./AppClient"
+
+export default AppClient
 export * from "./AppTheme"
 export * from "./AppThemeType"
 export * from "./Binders"
@@ -14,3 +16,4 @@ export * from "./Service"
 export * from "./Store"
 export * from "./Components"
 export * from "./Models"
+export * from "./Routing"

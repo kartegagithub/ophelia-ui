@@ -8,15 +8,18 @@ const CheckboxInput: React.FC<
     onText?: string;
     offText?: string;
     bodyClass?: string;
+    strokeColor?: string;
     switchClassName?: string;
     label?: string;
     labelClass?: string;
+    onClick?: void;
   }
 > = ({
   onText = null,
   offText = null,
   className = undefined,
   style = undefined,
+  strokeColor = undefined,
   switchbox = undefined,
   type = undefined,
   checked = undefined,
@@ -27,6 +30,7 @@ const CheckboxInput: React.FC<
   labelClass = undefined,
   readOnly = undefined,
   onChange = undefined,
+  onClick = undefined,
   ...props
 }) => {
   const appTheme = getAppTheme();
@@ -45,7 +49,7 @@ const CheckboxInput: React.FC<
     return (
       <label className="inline-flex items-center cursor-pointer">
         <input
-          className={className ?? "sr-only peer"}
+          className={`${className ? className : ""} sr-only peer`}
           type="checkbox"
           name={props.name}
           id={props.id}
@@ -53,6 +57,7 @@ const CheckboxInput: React.FC<
           onChange={(e) => onCheckedChange(e)}
           defaultChecked={checkedValue}
           checked={checked !== undefined ? checked : checkedValue}
+          onClick={onClick}
           {...props}
         />
         <div
@@ -70,7 +75,7 @@ const CheckboxInput: React.FC<
     return (
       <div className={bodyClass ?? "w-full flex items-center gap-2"}>
         <input
-          className={className ?? getAppTheme().Inputs?.checkbox}
+          className={`${className ? className : ""} ${getAppTheme().Inputs?.checkbox}`}
           type="checkbox"
           name={props.name}
           id={props.id}
@@ -78,16 +83,17 @@ const CheckboxInput: React.FC<
           onChange={(e) => onCheckedChange(e)}
           defaultChecked={checkedValue}
           checked={checked !== undefined ? checked : checkedValue}
+          onClick={onClick}
           {...props}
           style={style}
         />
         <svg
-          className="absolute w-4 h-4 pointer-events-none hidden peer-checked:block stroke-white mt-0.5 ml-0.5 outline-none"
+          className={`absolute w-4 h-4 pointer-events-none hidden peer-checked:block ${strokeColor ? strokeColor : "stroke-white"} mt-[1px] ml-0.5 outline-none`}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="4"
+          strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
         >

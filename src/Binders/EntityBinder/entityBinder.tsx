@@ -11,7 +11,6 @@ import { camelize, clone, pascalize, removeLastPropName } from "../../Extensions
 import { LoadingState } from "../../Enums/loadingState";
 import { getAppTheme } from "../../AppTheme";
 import Panel from "../../Components/Panel";
-import { PDFExporter } from "../../Exporters/PDFExporter";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
 import CollectionBinder from "../CollectionBinder/collectionBinder";
@@ -19,6 +18,7 @@ import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import FileData from "../../Models/FileData";
 import { EntityOperations } from "../EntityOperations";
 import { findInArray, getObjectValue, removeAtIndex } from "../../Extensions";
+import ContentLoading from "../../Components/ContentLoading";
 export class EntityBinderProps{
   Options?: BinderOptions
   id?: string | number | string[];
@@ -167,9 +167,12 @@ export default class EntityBinder<P> extends React.Component<
     else if(key === "Delete" && confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))){
       this.DeleteEntity()
     }
-    if(key === "AddNew"){
+    else if(key === "AddNew"){
       this.resetMetaTags()
       this.setInitData(false, true)
+    }
+    else if(key === "Reload"){
+      this.setInitData(false, false, this.state.data.id)
     }
   }
   getExportFileName(){
@@ -178,13 +181,7 @@ export default class EntityBinder<P> extends React.Component<
   async onExportButtonClicked(option: ExportOption){
     if(this.RootElementRef.current){
       if(this.Options.ExportMode == "screenshot"){
-        if(option.extension == "pdf"){
-          var exporter = new PDFExporter();
-          exporter.HtmlElement = this.RootElementRef.current
-          exporter.FileName = this.getExportFileName() + "." + option.extension;
-          exporter.Export();
-        }
-        else if(option.extension == "xls"){
+        if(option.extension == "xls"){
           var xlsExporter = new ExcelExporter();
           xlsExporter.FileName = this.getExportFileName() + "." + option.extension;
           xlsExporter.HtmlElement = this.RootElementRef.current
@@ -213,9 +210,9 @@ export default class EntityBinder<P> extends React.Component<
   setMetaTags(data: any){
     if(!data || !this.props.AppClient) return
     if(!this.props.AppClient.DynamicSEO) this.props.AppClient.DynamicSEO = {};
-    if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = this.props.AppClient.Translate(this.Entity) + " (#" + data.id + ")"
+    if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = this.props.AppClient?.Translate(this.Entity) + " (#" + data.id + ")"
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient.DynamicSEO.Title;
-    if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient.Translate(this.Entity);
+    if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient?.Translate(this.Entity);
   }
   validateFields(){
     var validForm = true;
@@ -223,6 +220,8 @@ export default class EntityBinder<P> extends React.Component<
       const field: any = this.InputFields[index];
       if(field.Validate){
         var value = getObjectValue(this.state.data, field.props.name);
+        if(field.props.type == "filterbox" && field.props.multipleSelection !== true) value = getObjectValue(this.state.data, field.props.name + "ID");
+        if(field.props.type == "filterbox" && field.props.multipleSelection === true) value = getObjectValue(this.state.data, field.props.name);
         if(!value && field.props.type == "file"){
           value = this.UploadFiles.filter((file) => file.StatusID != 2 && file.KeyName == field.props.name && (file.LanguageID == 0 || file.LanguageID == this.state.languageID));
         }
@@ -237,8 +236,14 @@ export default class EntityBinder<P> extends React.Component<
     var rerender: boolean = false;
     this.InputFields.forEach((field: any) => {
       if(field.getVisibility == undefined) return;
-      if(field.getVisibility != field.checkVisibility(false)){
+
+      var visibility = true;
+      if(typeof field.getVisibility == "function") visibility = field.getVisibility();
+      else visibility = field.getVisibility;
+
+      if(visibility != field.checkVisibility(false)){
         rerender = true;
+        //console.log("getVisibility", field.getVisibility, field.checkVisibility(false));
       }
     })
     if(rerender) this.setState({rerenderCounter: this.state.rerenderCounter + 1})
@@ -288,6 +293,7 @@ export default class EntityBinder<P> extends React.Component<
 
   async DeleteEntity(){
     try {
+      this.setState({processing: true})
       var result = await this.EntityOperations.DeleteEntity(this.state.data)
       if(result){
         if (!result.hasFailed) {
@@ -307,6 +313,7 @@ export default class EntityBinder<P> extends React.Component<
         raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntityDeletedSuccessfully")  })
       }
     } catch (error) {}
+    this.setState({processing: false})
   }
 
   getFieldData = (field: any) => {
@@ -350,8 +357,10 @@ export default class EntityBinder<P> extends React.Component<
     existing.StatusID = 2;
   }
 
-  setInitData(firstLoad: boolean = false, resetForNew: boolean = false){
+  setInitData(firstLoad: boolean = false, resetForNew: boolean = false, reloadID: any = undefined){
     var id: string | undefined | number | string[] = this.props.id;
+    if(reloadID) id = reloadID;
+
     if(resetForNew) id = 0;
     var data: any = undefined;
     if(firstLoad) data = this.props.Data 
@@ -410,27 +419,30 @@ export default class EntityBinder<P> extends React.Component<
 
   }
   render(): React.ReactNode {
+    //console.log("EntityBinder render");
     if(!this.state || !this.state.data)
       return <></>
     
     this.setMetaTags(this.state.data);
     return (<>
-        {this.renderHeader()}
-        <div className="entity-binder bg-white p-4 shadow-lg" key="entity-binder" ref={this.RootElementRef}>
-          {this.state.processing === true && <div className="absolute flex items-center justify-center left-0 top-0 h-full min-h-full w-full bg-gray-800 z-10 opacity-50 text-white">
-            <label>{this.props.AppClient?.Translate("ProcessingPleaseWait")}</label>
-          </div>}
-          {this.state.messages?.map((item: any, index: number) => (
-            <ServiceMessageResult
-              code={item.code}
-              description={item.description}
-              key={index}
-              type={0}
-            />
-          ))}
-          {this.renderBinder()}
-        </div>
-        {this.renderFooter()}
+        <ContentLoading appClient={this.props.AppClient} loading={this.state.processing || (this.state.loadingState != LoadingState.Failed && this.state.loadingState != LoadingState.Loaded)}>
+          {this.renderHeader()}
+          <div className="entity-binder bg-white p-4 shadow-lg" key="entity-binder" ref={this.RootElementRef}>
+            {this.state.processing === true && <div className="absolute flex items-center justify-center left-0 top-0 h-full min-h-full w-full bg-gray-800 z-10 opacity-50 text-white">
+              <label>{this.props.AppClient?.Translate("ProcessingPleaseWait")}</label>
+            </div>}
+            {this.state.messages?.map((item: any, index: number) => (
+              <ServiceMessageResult
+                code={item.code}
+                description={item.description}
+                key={index}
+                type={0}
+              />
+            ))}
+            {this.renderBinder()}
+          </div>
+          {this.renderFooter()}
+        </ContentLoading>
       </>
     )
   }

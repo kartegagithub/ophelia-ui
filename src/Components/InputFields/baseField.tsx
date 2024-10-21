@@ -40,7 +40,11 @@ export default class BaseField<P> extends React.Component<
     rules?: InputValidationRule | Array<InputValidationRule>;
     rootStyle?: any;
   },
-  { hasValidationError: boolean; message: any, messageDisplayFn: Function | undefined }
+  {
+    hasValidationError: boolean;
+    message: any;
+    messageDisplayFn: Function | undefined;
+  }
 > {
   Theme?: InputFieldsTheme = getAppTheme({ InputFields: this.props.theme })
     .InputFields;
@@ -51,7 +55,7 @@ export default class BaseField<P> extends React.Component<
     this.state = {
       hasValidationError: false,
       message: undefined,
-      messageDisplayFn: undefined
+      messageDisplayFn: undefined,
     };
     if (this.props.listener?.registerField) {
       this.props.listener?.registerField(this);
@@ -85,17 +89,18 @@ export default class BaseField<P> extends React.Component<
           className={`field-input relative ${
             (!this.props.labelType || this.props.labelType == "seperated") &&
             "flex flex-col-reverse"
-          } ${this.state.hasValidationError? "has-error": ""}`}
+          } ${this.state.hasValidationError ? "has-error" : ""}`}
         >
           {this.renderInput()}
           {this.props.labelVisible != false && this.props.text && (
             <label
+              htmlFor={this.props.name}
               className={`${
                 this.props.labelType == "floatingFixed"
                   ? getAppTheme().Inputs?.floatingFixedLabel
                   : this.props.labelType == "floating"
-                  ? getAppTheme().Inputs?.inputLabel
-                  : getAppTheme().Inputs?.seperatedLabel
+                    ? getAppTheme().Inputs?.inputLabel
+                    : getAppTheme().Inputs?.seperatedLabel
               }`}
             >
               <RawHTML
@@ -107,14 +112,20 @@ export default class BaseField<P> extends React.Component<
           )}
         </div>
 
-        {!this.props.errorDisplayFn && !this.state.messageDisplayFn && this.state.hasValidationError && (
-          <span className={this.Theme?.ErrorMessageClass}>
-            {this.state.message}
-          </span>
-        )}
-        {!this.props.errorDisplayFn && this.state.messageDisplayFn && this.state.hasValidationError && (
-          <>{this.state.messageDisplayFn(this.props.name, this.state.message)}</>
-        )}
+        {!this.props.errorDisplayFn &&
+          !this.state.messageDisplayFn &&
+          this.state.hasValidationError && (
+            <span className={this.Theme?.ErrorMessageClass}>
+              {this.state.message}
+            </span>
+          )}
+        {!this.props.errorDisplayFn &&
+          this.state.messageDisplayFn &&
+          this.state.hasValidationError && (
+            <>
+              {this.state.messageDisplayFn(this.props.name, this.state.message)}
+            </>
+          )}
         {this.props.errorDisplayFn &&
           this.state.hasValidationError &&
           this.props.errorDisplayFn(this.props.name, this.state.message)}
@@ -137,7 +148,10 @@ export default class BaseField<P> extends React.Component<
     } else if (e.target) target = e.target;
     else if (e.currentTarget) target = e.currentTarget;
 
-    var parentData = this.props.listener && typeof this.props.listener["getData"] == "function" ? this.props.listener?.getData(): undefined
+    var parentData =
+      this.props.listener && typeof this.props.listener["getData"] == "function"
+        ? this.props.listener?.getData()
+        : undefined;
     if (target) {
       value = target.value;
       if (
@@ -146,17 +160,18 @@ export default class BaseField<P> extends React.Component<
         this.props.type === "agreementCheckbox" ||
         this.props.type === "boolean"
       ) {
-        var tmpValue = target.checked ? (isNullOrEmpty(value)? 1: value) ?? 1 : undefined;
-        if(parentData && (parentData as any).hasOwnProperty(this.props.name)){
-          if(typeof parentData[this.props.name] == "boolean") value = convertToBool(tmpValue)
-          else if(typeof parentData[this.props.name] == "number") {
-            if(tmpValue === true) value = 1
-            else if(tmpValue === false || tmpValue === undefined) value = 0
-            else value = tmpValue
-          }
-          else value = tmpValue
-        }
-        else value = tmpValue
+        var tmpValue = target.checked
+          ? (isNullOrEmpty(value) ? 1 : value) ?? 1
+          : undefined;
+        if (parentData && (parentData as any).hasOwnProperty(this.props.name)) {
+          if (typeof parentData[this.props.name] == "boolean")
+            value = convertToBool(tmpValue);
+          else if (typeof parentData[this.props.name] == "number") {
+            if (tmpValue === true) value = 1;
+            else if (tmpValue === false || tmpValue === undefined) value = 0;
+            else value = tmpValue;
+          } else value = tmpValue;
+        } else value = tmpValue;
       } else if (this.props.type === "file") {
         value = target.files;
         deletedFile = e.deletedFile;
@@ -173,12 +188,17 @@ export default class BaseField<P> extends React.Component<
       this.props.onChange({ name: this.props.name, value });
 
     var isValid = this.Validate(value);
-    if(this.props.listener?.onChangeRequest) this.props.listener?.onChangeRequest(this.props.valueName ?? this.props.name, value, isValid)
+    if (this.props.listener?.onChangeRequest)
+      this.props.listener?.onChangeRequest(
+        this.props.valueName ?? this.props.name,
+        value,
+        isValid
+      );
     if (isValid) {
       if (this.props.listener?.setFileDeleted && deletedFile) {
         deletedFile.KeyName = this.props.name;
         this.props.listener?.setFileDeleted(deletedFile);
-      }      
+      }
       if (this.props.listener?.setFieldData) {
         this.props.listener?.setFieldData(
           this.props.valueName ?? this.props.name,
@@ -231,13 +251,12 @@ export default class BaseField<P> extends React.Component<
       } else if (Array.isArray(rule.rule)) {
         for (let index = 0; index < rule.rule.length; index++) {
           const _rule = rule.rule[index];
-          if(!_rule) continue;
+          if (!_rule) continue;
 
           var _IsValid = true;
           if (_rule && _rule.constructor.name == "RegExp") {
             _IsValid = (_rule as RegExp).test(val);
-          }
-          else if(typeof _rule == "function"){
+          } else if (typeof _rule == "function") {
             _IsValid = _rule(val, this.props.listener?.getData());
           }
           if (!_IsValid) isValid = false;
@@ -247,6 +266,7 @@ export default class BaseField<P> extends React.Component<
         isValid = rule.rule(val, this.props.listener?.getData());
         if (rule.ruleSatisfaction) rule.ruleSatisfaction(0, isValid);
       }
+      if (isValid && this.props.required === true && this.props.type === "filterbox" && this.props.multipleSelection == true) isValid = val && val.length > 0;
       if (isValid && this.props.type === "email") isValid = validateEmail(val);
       if (isValid && (rule.max || rule.min)) {
         if (
@@ -283,7 +303,7 @@ export default class BaseField<P> extends React.Component<
       }
     }
 
-    if(!msg) msg = "FieldIsRequired";
+    if (!msg) msg = "FieldIsRequired";
     if (this.props.listener && this.props.listener.translate)
       msg = this.props.listener.translate(msg);
 
@@ -305,7 +325,7 @@ export default class BaseField<P> extends React.Component<
       this.setState({
         hasValidationError: !isValid,
         message: isValid ? undefined : msg,
-        messageDisplayFn: isValid ? undefined: rule.messageDisplayFn
+        messageDisplayFn: isValid ? undefined : rule.messageDisplayFn,
       });
     }
     return isValid;
@@ -336,7 +356,8 @@ export default class BaseField<P> extends React.Component<
     var checked = this.props.checked ?? false;
     var value = this.GetValue();
     if (
-      value !== undefined && value !== null &&
+      value !== undefined &&
+      value !== null &&
       !checked &&
       (this.props.type === "radio" ||
         this.props.type === "checkbox" ||

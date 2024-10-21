@@ -40,7 +40,9 @@ const InputField: React.FC<any> = (props) => {
       {props.type === "withCode" && <CodeField {...pureProps} />}
       {props.type === "date" && <DateField {...pureProps} />}
       {props.type === "time" && <TimeField {...pureProps} />}
-      {props.type === "agreementCheckbox" && <AgreementCheckboxField {...pureProps} />}
+      {props.type === "agreementCheckbox" && (
+        <AgreementCheckboxField {...pureProps} />
+      )}
       {props.type === "datetime" && <DateTimeField {...pureProps} />}
       {(props.type === "checkbox" || props.type === "boolean") && (
         <BoolField {...pureProps} />
@@ -61,7 +63,9 @@ const InputField: React.FC<any> = (props) => {
       {props.type === "radio" && <RadioField {...pureProps} />}
       {props.type === "selectbox" && <DropdownField {...pureProps} />}
       {props.type === "password" && <PasswordField {...pureProps} />}
-      {props.type === "text" && <TextField isDate={props.isDate} {...pureProps} />}
+      {props.type === "text" && (
+        <TextField value={props.value} isDate={props.isDate} {...pureProps} />
+      )}
       {props.type === "richtext" && <RichTextField {...pureProps} />}
       {props.type === "textarea" && <TextAreaField {...pureProps} />}
       {props.type === "email" && <EmailField {...pureProps} />}

@@ -23,24 +23,57 @@ export const checkMouseInBound = (e: React.MouseEvent<any> | MouseEvent, ref: HT
     callback(inBound)
 };
 
-export const maskHandler = (mask?: string, e?: React.KeyboardEvent<HTMLInputElement>, onChange?: Function, rules?: Array<string | Function>)=>{
-  if(mask && e){
-    if(e.key.length > 1 && e.key != "Space") return;
-    else{
+export const maskHandler = (
+  mask?: string,
+  e?: React.KeyboardEvent<HTMLInputElement>,
+  onChange?: Function,
+  rules?: Array<string | Function>
+) => {
+  if (mask && e) {
+    if (e.key.length > 1 && e.key !== " ") return;
+    else {
       const value = e.currentTarget.value;
       let newValue;
       newValue = `${value.slice(0, e.currentTarget.selectionStart as number)}${e.key}${value.slice(e.currentTarget.selectionStart as number)}`;
-      var tmpValue = maskText(newValue, mask, undefined, rules);
-      e.preventDefault()
+      const tmpValue = maskText(newValue, mask, undefined, rules);
+      e.preventDefault();
       e.currentTarget.value = tmpValue;
-      onChange && onChange(({currentTarget: e.currentTarget, target: e.target, "bubbles": true }))
+      onChange &&
+        onChange({
+          currentTarget: e.currentTarget,
+          target: e.target,
+          bubbles: true,
+        });
     }
   }
-}
+};
 
+export const pasteHandler = (
+  mask?: string,
+  e?: React.ClipboardEvent<HTMLInputElement>,
+  onChange?: Function,
+  rules?: Array<string | Function>
+) => {
+  if (mask && e) {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("Text");
+    const currentValue = e.currentTarget.value;
+    const selectionStart = e.currentTarget.selectionStart ?? 0;
+    const selectionEnd = e.currentTarget.selectionEnd ?? 0;
+    const newValue = `${currentValue.slice(0, selectionStart)}${pastedText}${currentValue.slice(selectionEnd)}`;
+    const tmpValue = maskText(newValue, mask, undefined, rules);
+    e.currentTarget.value = tmpValue;
+    onChange &&
+      onChange({
+        currentTarget: e.currentTarget,
+        target: e.target,
+        bubbles: true,
+      });
+  }
+};
 export const useScrollInlineDynamically = (pathname: string) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const activeLinkRef = useRef<HTMLAnchorElement>(null);
+  const activeLinkRef = useRef<HTMLAnchorElement | any>(null);
 
   useEffect(() => {
     if (activeLinkRef.current && scrollContainerRef.current) {

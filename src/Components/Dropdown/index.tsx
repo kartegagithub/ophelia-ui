@@ -47,6 +47,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   visibilityCallback = undefined,
   refreshSearchList = false,
   listHeight = undefined,
+  alwaysOpen = false,
   ...props
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
@@ -65,7 +66,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   if (!selectedItemDisplayProp) selectedItemDisplayProp = displayProp;
 
   useEffect(() => {
-    setOpen(false);
+    if(!alwaysOpen) setOpen(false);
     //url değişirse dropdown kapansın.
   }, [pathname]);
 
@@ -180,7 +181,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     }
   };
   const mouseDown = (inbound: boolean) => {
-    if (open && !inbound) {
+    if (!alwaysOpen && open && !inbound) {
       setOpen(false);
       if (visibilityCallback) visibilityCallback(false);
     }
@@ -318,7 +319,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                             multipleSelection
                               ? Theme?.CheckboxClass ??
                                 getAppTheme().Inputs?.checkbox
-                              : Theme?.RadioClass ?? getAppTheme().Inputs?.radio
+                              : Theme?.RadioClass ?? getAppTheme().Inputs?.radio?.square
                           }
                         />
                       )}
@@ -414,6 +415,7 @@ var dropdownProps: {
   visibilityCallback?: (open: boolean) => void;
   refreshSearchList?: boolean;
   listHeight?: string;
+  alwaysOpen?: boolean;
 };
 export type DropdownProps = typeof dropdownProps;
 

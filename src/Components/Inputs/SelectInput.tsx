@@ -24,6 +24,7 @@ const SelectInput: React.FC<
 }) => {
   const [selectedItem, setSelectedItem] = useState(-1);
   const HiddenRef = React.createRef<HTMLInputElement>();
+  //console.log('pureProps :>> ', pureProps);
 
   const getOptions = () => {
     var _options: Array<SelectInputOption> = [];
@@ -130,7 +131,7 @@ const SelectInput: React.FC<
           value={value}
           defaultValue={defaultValue}
           {...pureProps}
-          className={`${className ?? getAppTheme().Inputs?.selectbox} ${pureProps?.errorClassName}`}
+          className={`custom-select ${className ?? getAppTheme().Inputs?.selectbox} ${pureProps?.errorClassName}`}
           style={style}
         >
           {placeholder && <option>{placeholder}</option>}

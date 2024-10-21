@@ -22,21 +22,28 @@ const Navigation: React.FC<
   rightIcon = undefined,
   size = undefined,
   disable = undefined,
-  className = "" || undefined,
+  className,
   rawClass,
   children,
   ...otherProps
 }) => {
   const Theme = getAppTheme();
-  if (!className) {
-    className = trimSpaces(
-      `${getObjectValue(Theme.Navigation?.Size, size, "")} ${getObjectValue(Theme.Navigation?.Direction, direction, "")}`
-    );
-    if (!className) className = Theme.Navigation?.Size?.small;
-  }
+
+  className =
+    className ??
+    (trimSpaces(
+      `${getObjectValue(Theme.Navigation?.Size, size, "")} ${getObjectValue(
+        Theme.Navigation?.Direction,
+        direction,
+        ""
+      )}`
+    ) ||
+      Theme.Navigation?.Size?.small ||
+      "");
+
   return (
     <button
-      className={`group inline-flex items-center gap-1.5 transition delay-100 ${className}`}
+      className={`group inline-flex items-center gap-1.5 transition delay-100 ${className}`} // Burada className her zaman string olur
       {...otherProps}
     >
       {leftIcon && getImageComponent(leftIcon)}

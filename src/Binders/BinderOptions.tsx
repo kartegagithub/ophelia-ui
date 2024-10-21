@@ -9,6 +9,7 @@ export default class BinderOptions {
   AllowNew?: boolean = true;
   AllowExport?: boolean = true;
   AllowSave?: boolean = true;
+  AllowRefresh?: boolean = true;
   AllowDelete?: boolean = true;
   IsNewEntity?: boolean = false;
   AllowEdit?: boolean = true;

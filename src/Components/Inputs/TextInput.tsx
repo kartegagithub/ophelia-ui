@@ -17,6 +17,7 @@ export interface TextInputProps
   iconWrapperStyle?: string;
   icon2WrapperStyle?: string;
   iconOnClick?: () => void;
+  value?: any;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -33,9 +34,12 @@ const TextInput: React.FC<TextInputProps> = ({
   iconWrapperStyle,
   icon2WrapperStyle,
   iconOnClick,
+  value,
   ...props
 }) => {
   const appTheme = getAppTheme();
+  //console.log("value", value);
+
   return (
     <>
       <DataList options={dataOptions} id={list} />
@@ -44,14 +48,22 @@ const TextInput: React.FC<TextInputProps> = ({
         onKeyDown={(e) => maskHandler(mask, e, props.onChange, maskRule)}
         className={`${appTheme?.Inputs?.text} ${
           props.errorClassName
-        } ${className} ${
-          labelType && labelType === "floating" ? "placeholder-transparent" : ""
-        }`}
+        } ${className} ${labelType && labelType === "floating" ? "" : ""}`}
         {...props}
         style={style}
+        onChange={props.onChange}
+        value={value}
       />
-      {rightIcon && <button className={iconWrapperStyle} onClick={iconOnClick}>{getImageComponent(rightIcon)}</button> }
-      {rightIcon2 && <button className={icon2WrapperStyle} onClick={iconOnClick}>{getImageComponent(rightIcon2)}</button> }
+      {rightIcon && (
+        <button className={iconWrapperStyle} onClick={iconOnClick}>
+          {getImageComponent(rightIcon)}
+        </button>
+      )}
+      {rightIcon2 && (
+        <button className={icon2WrapperStyle} onClick={iconOnClick}>
+          {getImageComponent(rightIcon2)}
+        </button>
+      )}
     </>
   );
 };

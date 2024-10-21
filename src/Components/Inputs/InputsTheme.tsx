@@ -10,7 +10,10 @@ var inputsTheme: {
     },
     filterbox?: string,
     checkbox?: string,
-    radio?: string,
+    radio?: {
+      square: string,
+      circle: string,
+    }
     boolean?: string,
     enum?: string,
     password?: string,

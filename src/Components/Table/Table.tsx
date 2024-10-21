@@ -322,7 +322,9 @@ const Table: React.FC<TableProps> = React.memo(({
     value = removeHtml(value)
     value = sanitizeHtml(value)
     if(column.Type == "date" || column.Type == "datetime" || column.Type == "week" || column.Type == "time" || column.Type == "month"){
-      value = getFormattedDateString(value, column.Format, column.Type)
+      if(value){
+        value = getFormattedDateString(value, column.Format, column.Type)
+      }
     }
     else if(column.Type == "enum"){
       if(!column.DataSource && column.Filtering?.EnumSelectionType) column.DataSource = enumToArray(column.Filtering.EnumSelectionType, (key) => appClient?.Translate(key))
@@ -372,21 +374,31 @@ const Table: React.FC<TableProps> = React.memo(({
       }
     }
   }
-  return (
-    <>
-      <div className={Theme?.TopScrollClass} ref={topScrollRef} onScroll={() => onTopScroll()}><div className={Theme?.TopScrollbarClass}></div></div>
-      <div className={Theme?.ContainerClass} ref={containerRef} onScroll={() => onTableScroll()}>
-        <table className={Theme?.Class} border={1}>
-          <thead className={Theme?.HeadClass}>
-            {renderColumns()}
-          </thead>
-          <tbody>
-            {renderRows()}
-          </tbody>
-        </table>
+
+  try {
+    return (
+      <>
+        <div className={Theme?.TopScrollClass} ref={topScrollRef} onScroll={() => onTopScroll()}><div className={Theme?.TopScrollbarClass}></div></div>
+        <div className={Theme?.ContainerClass} ref={containerRef} onScroll={() => onTableScroll()}>
+          <table className={Theme?.Class} border={1}>
+            <thead className={Theme?.HeadClass}>
+              {renderColumns()}
+            </thead>
+            <tbody>
+              {renderRows()}
+            </tbody>
+          </table>
+        </div>
+      </>
+    ); 
+  } catch (error) {
+      console.error(error);
+      return <div>
+        <div>Location: Table</div>
+        <div>Type: RenderError</div>
+        <div>{JSON.stringify(error)}</div>
       </div>
-    </>
-  );
+  }
 });
 Table.displayName = "Table";
 export default Table;

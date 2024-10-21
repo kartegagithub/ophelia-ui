@@ -80,9 +80,10 @@ export class EntityOperations{
           else{
             for (let index = 0; index < files.length; index++) {
               const file = files[index];
-              var existing = uploadedFiles.find((item) => item.FileName == file.name);
+              var existing = uploadedFiles.find((item) => item.FileName == file.name && (item.LanguageID == 0 || item.LanguageID == languageID) && item.KeyName == propName);
               if(existing){
                 existing.StatusID = 1;
+                console.log("Found existing image, not loaded new one", existing);
                 continue;
               }
   
@@ -106,7 +107,7 @@ export class EntityOperations{
                 else fileData.LanguageID = 0;
                 uploadedFiles.push(fileData);
                 imageLoadCallback && imageLoadCallback()
-                console.log("File uploaded (SINGLE)", fileData, uploadedFiles)
+                console.log("File uploaded (SINGLE)", uploadedFiles)
               })
             }
           }

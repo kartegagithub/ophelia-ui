@@ -14,7 +14,10 @@ export default class AgreementCheckboxInput<P> extends React.Component<
       rejectButtonText?: string;
       rejectButtonClassName?: string;
       waitForBottomScroll?: boolean;
-      onCheckChange?: (checked: boolean, ref: HTMLInputElement | undefined | null) => void;
+      onCheckChange?: (
+        checked: boolean,
+        ref: HTMLInputElement | undefined | null
+      ) => void;
       label?: React.ReactNode;
     },
   { showModal: boolean; checked: boolean; viewedAgreement: boolean }
@@ -39,12 +42,17 @@ export default class AgreementCheckboxInput<P> extends React.Component<
   onButtonClick(e: any, item: any) {
     var checked = item.text === this.props.agreeButtonText;
     this.setState({ showModal: false, checked: checked });
-    
-    if(this.cbRef.current) this.cbRef.current.checked = checked;
-    this.props.onCheckChange && this.props.onCheckChange(this.state.checked, this.cbRef.current)
 
-    var event: any = {currentTarget: this.cbRef.current, target: this.cbRef.current,  bubbles: true };
-    if(this.props.onChange) this.props.onChange(event)
+    if (this.cbRef.current) this.cbRef.current.checked = checked;
+    this.props.onCheckChange &&
+      this.props.onCheckChange(this.state.checked, this.cbRef.current);
+
+    var event: any = {
+      currentTarget: this.cbRef.current,
+      target: this.cbRef.current,
+      bubbles: true,
+    };
+    if (this.props.onChange) this.props.onChange(event);
   }
 
   handleLabelClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -59,7 +67,7 @@ export default class AgreementCheckboxInput<P> extends React.Component<
         className: this.props.agreeButtonClassName,
         closeModalOnClick: true,
         onClick: (e: any, item: any) => this.onButtonClick(e, item),
-        disabled: !this.state.viewedAgreement,
+        disabled: this.props.waitForBottomScroll && !this.state.viewedAgreement,
       },
       {
         text: this.props.rejectButtonText,

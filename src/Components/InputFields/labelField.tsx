@@ -1,5 +1,6 @@
 import { getFormattedDateString, isValidDate } from "../../Extensions";
 import Label from "../Label";
+import RawHTML from "../RawHTML";
 import BaseField from "./baseField";
 export default class LabelField<P> extends BaseField<P & {
     name: string,
@@ -12,9 +13,9 @@ export default class LabelField<P> extends BaseField<P & {
     renderInput(){
         const {value, defaultValue, ...pureProps} = this.GetProps()
         var valueToShow = value ?? defaultValue;
-        if (isValidDate(valueToShow)) {
-          valueToShow = getFormattedDateString(value, this.props.format, this.props.type);
+        if (valueToShow && isValidDate(valueToShow)) {
+          valueToShow = getFormattedDateString(valueToShow, this.props.format, this.props.type);
         }
-        return <Label {...pureProps}>{valueToShow}</Label>;
+        return <Label {...pureProps}><RawHTML replaceNewLines={true} html={valueToShow} tag="span"></RawHTML></Label>;
     }
   }

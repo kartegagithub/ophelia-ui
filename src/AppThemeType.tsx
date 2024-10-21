@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTheme } from "./Components/Alert"
+import { AlertTheme } from "./Components/Alert";
 import { IconProps } from "./Components/Icon";
 import { TabsTheme } from "./Components/Tabs/Tab";
 import { PaginationTheme } from "./Components/Pagination";
@@ -26,93 +26,118 @@ import { SelectBoxTheme } from "./Components/Inputs/SelectBoxTheme";
 import { CarouselTheme } from "./Components/Carousel/CarouselTheme";
 
 var appThemeType: {
-  Common?:{
-    Backdrop?: string
-  },
-  Alert?: AlertTheme,
+  Common?: {
+    Backdrop?: string;
+  };
+  Alert?: AlertTheme;
   Binders?: {
-    SubBinderModal?:{
-      Class?: string
-    }
-  },
-  InputFields?: InputFieldsTheme,
-  Tabs?: TabsTheme,
-  Buttons?:{
-    text?: string
-    default?: string
-    primary?: string
+    SubBinderModal?: {
+      Class?: string;
+    };
+  };
+  InputFields?: InputFieldsTheme;
+  Tabs?: TabsTheme;
+  Buttons?: {
+    text?: string;
+    default?: string;
+    primary?: string;
     Priority?: {
-      primary?: string,
-      primaryWithHover?: string,
-      secondary?: string,
-      tertiary: string
-    },
+      primary?: string;
+      primaryWithHover?: string;
+      secondary?: string;
+      tertiary: string;
+      outline?: string;
+    };
     Size?: {
-      medium?: string,
-      small?: string,
-    },
+      medium?: string;
+      small?: string;
+    };
     Background?: {
-      red?: string,
-      redTransparent?: string,
-      borderSky?: string,
-      white?: string,
-      stroke?: string,
-      sky?: string
-      none?: string
-    }
-    LeftIcon?: React.JSX.Element | string | undefined | IconProps,
-    RightIcon?: React.JSX.Element | string | undefined | IconProps,
-  },
-  Navigation?:{
-    text?: string
+      red?: string;
+      redTransparent?: string;
+      borderSky?: string;
+      white?: string;
+      stroke?: string;
+      sky?: string;
+      none?: string;
+    };
+    LeftIcon?: React.JSX.Element | string | undefined | IconProps;
+    RightIcon?: React.JSX.Element | string | undefined | IconProps;
+  };
+  Navigation?: {
+    text?: string;
     Size?: {
-      medium?: string,
-      small?: string,
-    },
+      medium?: string;
+      small?: string;
+    };
     Direction?: {
-      default?: string,
-      filled?: string,
-      dark?: string,
-      question?: string,
-      disableDefault?: string,
-      disableFilled?: string,
-    },
-    LeftIcon?: React.JSX.Element | string | undefined | IconProps,
-    RightIcon?: React.JSX.Element | string | undefined | IconProps,
-  },
-  Drawer?: DrawerTheme,
-  Panel?: PanelTheme,
-  Pagination?: PaginationTheme,
-  Carousel?: CarouselTheme,
-  Inputs?: InputsTheme,
-  SelectBox?: SelectBoxTheme,
-  Searchbar?: SearchbarTheme,
-  ShortcutList?: ShortcutListTheme,
-  Menu?: MenuTheme,
-  Sidebar?: SidebarTheme,
-  Table?: TableTheme,
-  Grid?: GridTheme,
-  Spinner?: SpinnerTheme,
-  IconRating?: IconRatingTheme,
-  Toast?: ToastTheme,
-  Notification?: NotificationTheme,
-  SpeedDial?: SpeedDialTheme,
-  Progress?: ProgressTheme,
-  Modal?: ModalTheme,
-  Dropdown?: DropdownTheme,
-  Accordion?: AccordionTheme,
-  Highlight?:{
-    Languages?: Array<string>
-  },
-  Quill?: {
-    Formats?: Array<string>,
-    Toolbar?: Array<any>
-  },
-  Icons?:{
-    DefaultSize?: string,
-    getCustomIconSvg?: ((iconName: string, size?: string, className?: string, strokeColor?: string, fillColor?: string, ext1?: string, ext2?: string, ext3?: string) => React.JSX.Element | string),
-    getIconSvg?: ((iconName: string, size?: string, className?: string, strokeColor?: string, fillColor?: string, ext1?: string, ext2?: string, ext3?: string) => React.JSX.Element | string)
-  }
+      default?: string;
+      filled?: string;
+      dark?: string;
+      question?: string;
+      disableDefault?: string;
+      disableFilled?: string;
+    };
+    LeftIcon?: React.JSX.Element | string | undefined | IconProps;
+    RightIcon?: React.JSX.Element | string | undefined | IconProps;
+  };
+  Drawer?: DrawerTheme;
+  Panel?: PanelTheme;
+  Pagination?: PaginationTheme;
+  Carousel?: CarouselTheme;
+  Inputs?: InputsTheme;
+  SelectBox?: SelectBoxTheme;
+  Searchbar?: SearchbarTheme;
+  ShortcutList?: ShortcutListTheme;
+  Menu?: MenuTheme;
+  Sidebar?: SidebarTheme;
+  Table?: TableTheme;
+  Grid?: GridTheme;
+  Spinner?: SpinnerTheme;
+  IconRating?: IconRatingTheme;
+  Toast?: ToastTheme;
+  Notification?: NotificationTheme;
+  SpeedDial?: SpeedDialTheme;
+  Progress?: ProgressTheme;
+  Modal?: ModalTheme;
+  Dropdown?: DropdownTheme;
+  Accordion?: AccordionTheme;
+  Highlight?: {
+    Languages?: Array<string>;
+  };
+  RichTextEditor?: {
+    APIKey?: string,
+    FileLocation?: string,
+    Height?: number | string,
+    ContentStyle?: string,
+    ContentCSS?: string,
+    BodyClassName?: string,
+    Plugins?: Array<string>;
+    Toolbar?: string;
+  };
+  Icons?: {
+    DefaultSize?: string;
+    getCustomIconSvg?: (
+      iconName: string,
+      size?: string,
+      className?: string,
+      strokeColor?: string,
+      fillColor?: string,
+      ext1?: string,
+      ext2?: string,
+      ext3?: string
+    ) => React.JSX.Element | string;
+    getIconSvg?: (
+      iconName: string,
+      size?: string,
+      className?: string,
+      strokeColor?: string,
+      fillColor?: string,
+      ext1?: string,
+      ext2?: string,
+      ext3?: string
+    ) => React.JSX.Element | string;
+  };
 };
 
-export type AppThemeType = typeof appThemeType
+export type AppThemeType = typeof appThemeType;

@@ -23,19 +23,19 @@ const Button: React.FC<
   background = "red",
   size = "medium",
   priority = "primary",
-  className = "" || undefined,
-  extraClass = "" || undefined, //className bozulmasın ama extrada ekleme yapayım propsu.
-  spanClass = "" || undefined,  //buton içindeki RawHTML e müdahale etmek için
+  className,
+  extraClass = "", //className bozulmasın ama extrada ekleme yapayım propsu.
+  spanClass = "",  //buton içindeki RawHTML e müdahale etmek için
   value = undefined,
   ...props
 }) => {
   const Theme = getAppTheme();
-  if (!className) {
-    className = trimSpaces(
+  className = className ?? (
+    trimSpaces(
       `${getObjectValue(Theme.Buttons?.Priority, priority, "")} ${getObjectValue(Theme.Buttons?.Background, background, "")} ${getObjectValue(Theme.Buttons?.Size, size, "")}`
-    );
-    if (!className) className = Theme.Buttons?.Priority?.primary;
-  }
+    ) || Theme.Buttons?.Priority?.primary || ""
+  );
+
   return (
     <button
       className={`${extraClass} group flex items-center justify-center w-full gap-2 font-medium ${className}`}

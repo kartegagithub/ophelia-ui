@@ -1,5 +1,6 @@
 import { Children } from "react";
 import { clone, isNullOrEmpty, isNumeric, parseFloatIfCan } from "./StringExtensions";
+import { FileSizeUnit } from "../Enums";
 
 export function getKeyByValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -158,6 +159,12 @@ export const enumToArray = (type: any, translateFn?: (key: string) => string | u
       text: text}
   });
 }
+
+export const enumToText = (type: any, value: any, translateFn?: (key: string) => string | undefined) => {
+  var array = enumToArray(type, translateFn);
+  return array.find((item) => item.value == value)?.text;
+}
+
 export const convertToBool = (val?: any) => {
   if(val == undefined || val == null || val == "") return false;
   if(typeof val == "boolean") return val
@@ -238,4 +245,22 @@ export const isNumber = (value: any) => {
   return (
       typeof value === 'number' || (isObject(value) && getTag(value) === '[object Number]')
   );
+}
+
+export function convertFileSize(
+  size: number,
+  unit: FileSizeUnit,
+  convertUnit: FileSizeUnit,
+  decimalPlaces: number = 2
+): string {
+  const unitMultipliers: Record<FileSizeUnit, number> = {
+    BYTE: 1,
+    KB: 1024,
+    MB: 1024 * 1024,
+    GB: 1024 * 1024 * 1024
+  };
+
+  const sizeInBytes = size * unitMultipliers[unit];
+  const convertedSize = sizeInBytes / unitMultipliers[convertUnit];
+  return convertedSize.toFixed(decimalPlaces);
 }

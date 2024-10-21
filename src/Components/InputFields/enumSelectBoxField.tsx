@@ -8,14 +8,14 @@ export default class EnumSelectBoxField<P> extends BaseField<
     text?: string;
     value?: string;
     placeholder?: string;
-    options: Array<{ text: string; value: string }>;
+    options?: Array<{ text: string; value: string }>;
     enumSelectionType?: any
     listener?: any
     translateFn?: (key: string) => string
   }
 > {
   renderInput() {
-    var options: Array<{ text: string; value: string }> = this.props.options;
+    var options: Array<{ text: string; value: string }> = this.props.options ?? [];
     var displayProp = (this.props as any).displayProp;
     var valueProp = (this.props as any).valueProp;
     var otherProps = (({ options, displayProp, translateFn, placeholder, enumSelectionType, valueProp, ...others }) => others)(this.GetProps())

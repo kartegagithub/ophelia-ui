@@ -16,7 +16,6 @@ import QuerySorter from "./query/querySorter";
 import QueryData from "./query/queryData";
 import { getAppTheme } from "../../AppTheme";
 import { getObjectValue, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
-import { PDFExporter } from "../../Exporters/PDFExporter";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
 import Modal from "../../Components/Modal";
@@ -24,6 +23,7 @@ import EntityBinder from "../EntityBinder/entityBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import { EntityOperations } from "../EntityOperations";
 import Drawer from "../../Components/Drawer";
+import ContentLoading from "../../Components/ContentLoading";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -50,24 +50,28 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   Init(){
-    if(this.state && this.state.initialized) return;
+    try {
+      if(this.state && this.state.initialized) return;
 
-    var newConfig = new Config();
-    if(this.props.config)
-      newConfig = { ...newConfig, ...this.props.config };
-    this.Config = newConfig;
-    if(this.props.options)
-      this.Options = { ...this.Options, ...this.props.options };
-    this.Options.AllowSave = false;
-    this.Options.AllowDelete = false;
-    if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
-    this.Configure();
-    this.EntityOperations.UpdateURL = `${this.Config.Schema}/update${this.Config.Entity}`
-    this.EntityOperations.GetEntityURL = `${this.Config.Schema}/get${this.Config.Entity}`
-    if(this.Config.Entity) this.EntityOperations.Entity = this.Config.Entity;
-    this.EntityOperations.UseI18n = true
-    this.ProcessColumns();
-    this.setInitData(true)
+      var newConfig = new Config();
+      if(this.props.config)
+        newConfig = { ...newConfig, ...this.props.config };
+      this.Config = newConfig;
+      if(this.props.options)
+        this.Options = { ...this.Options, ...this.props.options };
+      this.Options.AllowSave = false;
+      this.Options.AllowDelete = false;
+      if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
+      this.Configure();
+      this.EntityOperations.UpdateURL = `${this.Config.Schema}/update${this.Config.Entity}`
+      this.EntityOperations.GetEntityURL = `${this.Config.Schema}/get${this.Config.Entity}`
+      if(this.Config.Entity) this.EntityOperations.Entity = this.Config.Entity;
+      this.EntityOperations.UseI18n = true
+      this.ProcessColumns();
+      this.setInitData(true) 
+    } catch (error) {
+      console.error(error);
+    }
   }
   Configure() {
     
@@ -151,26 +155,30 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   componentDidUpdate(prevProps: any, prevState: any){
-    //console.log("Reiniting binder", prevState, this.state)
-    if(!this.state) return;
-    if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
-      this.setInitData()
-      this.onAfterSetData();
-    }
-    else if(this.state.loadingState === LoadingState.Waiting){
-      // console.log("loading binder data")
-      this.getData().then((data) => {
+    try {
+      //console.log("Reiniting binder", prevState, this.state)
+      if(!this.state) return;
+      if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
+        this.setInitData()
         this.onAfterSetData();
-        if(data && data.data){
-          this.ValidateColumns(data.data)
-          this.setState({path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
-        }
-        else if(data)
-          this.setState({path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
-      })
-    }
-    else{
-      if(!this.props.shownInParent) this.props.AppClient?.UpdateMetaTags();
+      }
+      else if(this.state.loadingState === LoadingState.Waiting){
+        // console.log("loading binder data")
+        this.getData().then((data) => {
+          this.onAfterSetData();
+          if(data && data.data){
+            this.ValidateColumns(data.data)
+            this.setState({path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
+          }
+          else if(data)
+            this.setState({path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
+        })
+      }
+      else{
+        if(!this.props.shownInParent) this.props.AppClient?.UpdateMetaTags();
+      } 
+    } catch (error) {
+      console.error(error)
     }
   }
   onAfterSetData(){
@@ -184,7 +192,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = Pluralize(this.Config.Entity)
 
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient.DynamicSEO.Title;
-    if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient.Translate(this.Config.Entity + "List");
+    if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient?.Translate(this.Config.Entity + "List");
   }
 
   getData = async () => {
@@ -264,13 +272,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async onExportButtonClicked(option: ExportOption){
     if(this.RootElementRef.current){
       if(this.Options.ExportMode == "screenshot"){
-        if(option.extension == "pdf"){
-          var exporter = new PDFExporter();
-          exporter.HtmlElement = this.RootElementRef.current
-          exporter.FileName = this.getExportFileName() + "." + option.extension;
-          exporter.Export();
-        }
-        else if(option.extension == "xls"){
+        if(option.extension == "xls"){
           var xlsExporter = new ExcelExporter();
           xlsExporter.FileName = this.getExportFileName() + "." + option.extension;
           xlsExporter.HtmlElement = this.RootElementRef.current
@@ -314,6 +316,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.setState({clickedRowIndex: -1})
       else
         Router.push(this.getLink({id: 0}))
+    }
+    else if(key == "Reload"){
+      this.setState({loadingState: LoadingState.Waiting})
     }
   }
   onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false){
@@ -431,22 +436,35 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return <></>
   }
   render(): React.ReactNode {
-    if(!this.Config.Table || !this.state || !this.state.data)
-      return <></>
-
-    this.setMetaTags(this.state.data)
-    this.OnBeforeRender();
-    return <>
-      {this.renderHeader()}
-      {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
-      <div className="collection-binder">
-        <div ref={this.RootElementRef}>
-          <Table allowFiltering={!this.isImporting()} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={this.state.data} listener={this}/>
-        </div>
-        <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={this.state.data.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />
+    try {
+      //console.log("this.state.loadingState ", this.state?.loadingState )
+      if(!this.Config.Table || !this.state)
+        return <></>
+  
+      var stateData = this.state.data ?? []
+      this.setMetaTags(stateData)
+      this.OnBeforeRender();
+      return <>
+        <ContentLoading appClient={this.props.AppClient} loading={this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed}>
+          {this.renderHeader()}
+          {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
+          <div className="collection-binder">
+            <div ref={this.RootElementRef}>
+              <Table allowFiltering={!this.isImporting()} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+            </div>
+            {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
+          </div>
+          {this.renderChildAction()}
+          {this.renderFooter()}
+        </ContentLoading>
+      </>
+    } catch (error) {
+      console.error(error);
+      return <div>
+        <div>Location: CollectionBinder</div>
+        <div>Type: RenderError</div>
+        <div>{JSON.stringify(error)}</div>
       </div>
-      {this.renderChildAction()}
-      {this.renderFooter()}
-    </>
+    }    
   }
 }

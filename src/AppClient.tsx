@@ -1,9 +1,12 @@
-import { NextPageContext } from "next";
 import AnalyticsList from "./Metrics/AnalyticsList";
 import IAnalytics from "./Metrics/IAnalytics";
 import APIService from "./Service/apiService";
 import { AppTheme } from "./AppTheme";
 import { changeRegion } from "./Localization/RegionSetting";
+import { UrlHandler, UrlHandlerClass } from "./Routing";
+import { NextRequest, NextResponse } from "next/server";
+import { NextPageContext } from "next/types";
+import { IncomingMessage } from "http";
 
 export default class AppClient {
   Region: string = "EN"
@@ -18,7 +21,7 @@ export default class AppClient {
   Hydrate() {
 
   }
-  ChangeUserRegion = (code?: string) => {
+  ChangeUserRegion (code?: string) {
     if(!code) code = this.Region
     if(!code) return;
     this.Region = code;
@@ -31,10 +34,10 @@ export default class AppClient {
   CreateService (): APIService {
     return new APIService();
   }
-  RegisterAnalytics = (analytic: IAnalytics) => {
+  RegisterAnalytics (analytic: IAnalytics) {
     this.Analytics.push(analytic);
   }
-  UpdateMetaTags = () => {
+  UpdateMetaTags() {
     if(!this.DynamicSEO) return
     var seo = this.DynamicSEO;
     var head = document.getElementsByTagName("head")[0]
@@ -53,8 +56,15 @@ export default class AppClient {
         })
       }
     }
-    
   }
+  PushUrl(destination: string, onSuccess?: Function) {
+    return UrlHandler.Current.Push(destination, this.Region, onSuccess);
+  }
+
+  GetUrl(destination: string): string {
+    return UrlHandler.Current.Get(destination, this.Region) ?? "";
+  }
+
   constructor(){
     this.IsClientSide = globalThis.window !== undefined;
   }

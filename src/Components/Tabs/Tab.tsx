@@ -34,6 +34,7 @@ var tabsProps: {
   children?: React.ReactNode;
   theme?: TabsTheme;
   type?: "monochrome";
+  onClick?: any;
 };
 export type TabsProps = typeof tabsProps;
 
@@ -51,6 +52,8 @@ var tabsTheme: {
     colorful?: any;
     rounded?: any;
     verticalColorful?: any;
+    vertical?: any;
+    inlineBasic?: any;
     bgColorful?: any;
     horizontal?: any;
   };
@@ -58,7 +61,9 @@ var tabsTheme: {
     monochrome?: string;
     colorful?: string;
     rounded?: string;
+    inlineBasic?: any;
     verticalColorful?: string;
+    vertical?: any;
     bgColorful?: string;
     horizontal?: any;
   };

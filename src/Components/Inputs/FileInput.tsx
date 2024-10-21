@@ -19,8 +19,11 @@ const FileInput: React.FC<
     sizeKey?: string;
     languageID?: number;
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
+    leftIcon?: React.JSX.Element | string | undefined | IconProps;
     iconText?: string;
+    bodyClassName?: string;
     iconWrapperStyle?: string;
+    withEyeCls?: string;
     placeholderStyle?: string;
     fileTypeWithButton?: boolean;
   }
@@ -33,15 +36,19 @@ const FileInput: React.FC<
   sizeKey = "size",
   type = undefined,
   className = undefined,
+  bodyClassName = undefined,
   iconWrapperStyle = undefined,
   placeholderStyle = undefined,
+  withEyeCls = undefined,
   iconText = undefined,
   languageID = undefined,
   rightIcon = undefined,
+  leftIcon = undefined,
   fileTypeWithButton = false,
   ...props
 }) => {
   const [selectedFiles, setSelectedFiles] = useState(new Array<FileData>());
+  const [showPreview, setShowPreview] = useState(true);
   const FileRef: React.RefObject<HTMLInputElement> =
     React.createRef<HTMLInputElement>();
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +62,7 @@ const FileInput: React.FC<
           setSelectedFiles(arr);
         });
       }
+      setShowPreview(true);
     } else setSelectedFiles([]);
   };
   useEffect(() => {
@@ -119,6 +127,7 @@ const FileInput: React.FC<
       removeFileFromFileList(FileRef.current, file.FileName);
       setSelectedFiles(arr);
     }
+    setShowPreview(false);
     var event: any = {
       currentTarget: FileRef.current,
       target: FileRef.current,
@@ -132,14 +141,15 @@ const FileInput: React.FC<
     FileRef.current?.click();
   };
   const renderSelectedFiles = () => {
-    if (selectedFiles && selectedFiles.length > 0) {
+    if (selectedFiles && selectedFiles.length > 0 && showPreview) {
       return (
-        <div className="block cursor-pointer w-full">
+        <div className="block cursor-pointer w-full ">
           {selectedFiles.map((file, i) => {
             return (
               <div
                 key={i}
-                className={`flex items-center justify-between ${fileTypeWithButton ? "border-none" : "border-l-4"}  border-slate-400 py-1`}
+                className={`flex items-center justify-between py-1`}
+                // className={`flex items-center justify-between ${fileTypeWithButton ? "border-none" : "border-l-4"} border-slate-400 py-1`}
               >
                 <label onClick={(e) => onUploadClick(e)} className="ml-2">
                   {fileTypeWithButton ? (
@@ -148,7 +158,7 @@ const FileInput: React.FC<
                     file.FileName
                   )}
                 </label>
-                <div className="flex items-center">
+                <div className={`flex items-center ${withEyeCls ?? withEyeCls}`}>
                   <EyeIcon
                     width={18}
                     height={18}
@@ -180,14 +190,15 @@ const FileInput: React.FC<
     return (
       <div
         onClick={(e) => onUploadClick(e)}
-        className="flex items-center justify-between w-full cursor-pointer"
+        className={`${bodyClassName ?? "flex items-center justify-between w-full"} cursor-pointer`}
       >
         <div className={placeholderStyle}>{placeholder}</div>
-        {rightIcon && (
-          <div className={iconWrapperStyle}>
-            {iconText} {getImageComponent(rightIcon)}
-          </div>
-        )}
+
+        <div className={iconWrapperStyle}>
+          {leftIcon && getImageComponent(leftIcon)}
+          {iconText}
+          {rightIcon && getImageComponent(rightIcon)}
+        </div>
       </div>
     );
   };

@@ -7,11 +7,16 @@ export default class Endpoint{
     URL: string = ""
     Options: EndpointOptions = new EndpointOptions()
     Status: ServiceStatus = ServiceStatus.NotInitialized;
+    StatusCode: number = 0
     RetreivedFromCache?: boolean = false
     RequestID: string = ""
     Data: any = {}
 
     call(): Promise<ServiceResult> {
+        return this.Service.invokeEndpoint(this);
+    }
+
+    callT<T>(): Promise<T> {
         return this.Service.invokeEndpoint(this);
     }
 
@@ -34,6 +39,7 @@ export class EndpointOptions{
     Headers?: Record<string, any> = []
     ValidateCache?: Function = undefined
     ValidateSSL?: boolean = false
+    ByPassHttpsAgent?: boolean = false
     toString? = (apiURL: string) => {
         return `${apiURL}_${this.Method}_${JSON.stringify(this.Parameters)}`
     }

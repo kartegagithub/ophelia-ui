@@ -21,6 +21,9 @@ const Form: React.FC<{
     const [data, SetData] = useState(formData ?? {})
     const [fields, setFields] = useState(new Array<any>());
 
+    if(formData != data){
+      SetData(formData)
+    }
     const listener = {
       getData: () => {
         return data;

@@ -30,7 +30,7 @@ export default class APIService {
     this.OnBeforeRequest(endpoint)
     this.Locker?.Lock();
     var httpsAgent: any = undefined
-    if(endpoint.URL.startsWith("https")){
+    if(endpoint.Options.ByPassHttpsAgent != true && endpoint.URL.startsWith("https")){
       const https = require('https');
       httpsAgent = new https.Agent({
         rejectUnauthorized: endpoint.Options.ValidateSSL,
@@ -38,6 +38,7 @@ export default class APIService {
     }
     endpoint.Status = ServiceStatus.Fetching
     
+    //console.log(endpoint.URL + " " + JSON.stringify(endpoint.Options.Headers))
     var options: RequestInit | any = {
       body: endpoint.Options.Payload? JSON.stringify(endpoint.Options.Payload): null,
       cache: "no-cache",
@@ -51,16 +52,23 @@ export default class APIService {
     var url = getQueryString(endpoint.Options.Parameters, endpoint.URL);
     var fetcher = fetch(url, options).then((res) => {
       this.Locker?.Unlock();
+      if(res.status != 200){
+        endpoint.Status = ServiceStatus.Error
+      }
+      endpoint.StatusCode = res.status
       return res.json()
-    }).catch((reason) => {
-      console.error(url, reason)
+    }).catch((reason: any) => {
+      console.error("Request Error:" + url + ", Error: " + JSON.stringify(reason))
       this.Locker?.Unlock();
       endpoint.Status = ServiceStatus.Error
       this.OnErrorResponse(endpoint, reason)
     });
 
-    var data = await fetcher;
     endpoint.Status = ServiceStatus.Success
+    endpoint.StatusCode = 200
+
+    var data = await fetcher;
+    if(data) data.responseStatusCode = endpoint.StatusCode;
     endpoint.Data = data;
     this.onAfterResponse(endpoint, data)
     return data
@@ -75,6 +83,10 @@ export default class APIService {
 
   CallEndpoint(api: string, options?: EndpointOptions): Promise<ServiceResult> {
     return new Endpoint(this, api, options).call();
+  }
+
+  CallEndpointT<T>(api: string, options?: EndpointOptions): Promise<T> {
+    return new Endpoint(this, api, options).callT<T>();
   }
 
   OnBeforeRequest(endpoint: Endpoint) {
