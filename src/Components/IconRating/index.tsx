@@ -20,7 +20,7 @@ const IconRating: React.FC<{ text?: string, count?: number, value?: number, visi
           </div>
         }
       )}
-      {text && <p className={textClassName ?? theme.IconRating?.TextClass}>{formatString(text, value, count)}</p>}
+      {text && <p className={textClassName ?? theme.IconRating?.TextClass}>{formatString(text, value.toString(), count.toString())}</p>}
     </div>
   );
 }

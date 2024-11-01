@@ -140,8 +140,11 @@ var AppThemeConfig: AppThemeType = {
       "flex flex-row items-center bg-transparent border border-pastelBlue rounded-lg p-4 text-black text-sm appearance-none focus:border-darkSky block w-full peer focus:outline-none focus:ring-0",
     selectbox:
       "mx-2 bg-transparent border-0  text-black text-sm appearance-none focus:border-none block w-full peer focus:outline-none focus:ring-0",
-    filterbox:
-      "border-b border-wildBlueYonder text-black text-sm focus:border-black outline-none block w-full py-2 flex gap-3",
+    filterbox: {
+      className: "border-b border-wildBlueYonder text-black text-sm focus:border-black outline-none block w-full py-2 flex gap-3",
+      selectedItemContainerClass: "relative flex gap-2 w-fit p-1 bg-gray-100",
+      placeholderContainerClass: "relative flex gap-2 w-fit p-1"
+    },
     checkbox:
       "border-b border-wildBlueYonder text-black text-sm focus:border-black outline-none block py-2",
     radio: {
@@ -369,7 +372,7 @@ var AppThemeConfig: AppThemeType = {
     Class:
       "fixed left-0 top-10 w-full overflow-y-auto overflow-x-hidden outline-none",
     SubClass:
-      "pointer-events-none relative flex min-h-[calc(100%-1rem)] !w-full translate-y-[-50px] items-center transition-all duration-300 ease-in-out sm:mx-auto sm:mt-15 sm:min-h-[calc(100%-3.5rem)] sm:max-w-[800px]",
+      "pointer-events-none relative flex min-h-[calc(100%-1rem)] !w-full translate-y-[-50px] items-center justify-center transition-all duration-300 ease-in-out sm:mx-auto sm:mt-15 sm:min-h-[calc(100%-3.5rem)] sm:max-w-[800px]",
     ContainerClass:
       "pointer-events-auto sm:mx-4 relative flex w-full flex-col rounded-md border-none bg-white bg-clip-padding text-current shadow-4 outline-none dark:bg-surface-dark",
     HeaderClass:

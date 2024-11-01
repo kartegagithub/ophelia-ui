@@ -34,7 +34,7 @@ export class CollectionBinderProps{
   pageTitle?: string
   parent?: EntityBinder<{}> | CollectionBinder<{}>
 }
-export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting: boolean, importKey?: string}}> {
+export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {dataIndex: number, path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting: boolean, importKey?: string}}> {
 
   Config: Config = new Config();
   Options: BinderOptions = new BinderOptions();
@@ -145,11 +145,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     })   
 
     if(!this.props.shownInParent){
-      this.setState({path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      this.setState({dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
     }
     else{
       setTimeout(() => {
-        this.setState({path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+        this.setState({dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
       }, 1000);
     }
   }
@@ -168,10 +168,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           this.onAfterSetData();
           if(data && data.data){
             this.ValidateColumns(data.data)
-            this.setState({path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
+            this.setState({dataIndex: this.state.dataIndex + 1, path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
           }
           else if(data)
-            this.setState({path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
+            this.setState({dataIndex: this.state.dataIndex + 1, path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
         })
       }
       else{
@@ -260,7 +260,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   getEditUrl (id: number = 0) {
     if(this.Options?.EditURL)
-      return formatString(this.Options.EditURL, id);
+      return formatString(this.Options.EditURL, id.toString());
     
     return `/${this.Config.Schema}/edit${this.Config.Entity}/${id}`;
   };
@@ -294,7 +294,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   getViewUrl (id = 0){
     if (this.Options?.ViewURL)
-      return formatString(this.Options.ViewURL, id);
+      return formatString(this.Options.ViewURL, id.toString());
     return `/${this.Config.Schema}/view${this.Config.Entity}/${id}`;
   };
   getBackUrl() {
@@ -450,7 +450,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
           <div className="collection-binder">
             <div ref={this.RootElementRef}>
-              <Table allowFiltering={!this.isImporting()} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+              <Table refreshKey={this.state.dataIndex} allowFiltering={!this.isImporting()} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
             </div>
             {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
           </div>

@@ -74,6 +74,11 @@ const Dropdown: React.FC<DropdownProps> = ({
     e?: React.KeyboardEvent<HTMLInputElement>,
     searchedPage: number = 1
   ) => {
+    if(e?.key == "Escape"){
+      setSearching(false);
+      setOpen(false);
+      if (visibilityCallback) visibilityCallback(false);
+    }
     if (searching) return;
     setSearching(true);
 

@@ -1,4 +1,5 @@
 import moment from "moment";
+import "moment/locale/az";
 import { getCurrentRegionSetting } from "../Localization/RegionSetting";
 import sanitizer from "sanitize-html";
 import { getDaysInMonth } from "./DateExtensions";
@@ -255,6 +256,16 @@ export function isNumeric(str: string) {
   const re = /^\d*(\.\d+)?$/;
   return re.test(str);
 }
+//format date with moment for locale language
+export function formatDateByLocale(
+  date: any,
+  language: string,
+  format: string
+) {
+  moment.locale(language);
+  const localTime = moment.utc(date);
+  return localTime.format(format);
+}
 
 export const getTimestamps = (day: number) => {
   const now = new Date();
@@ -269,7 +280,11 @@ export const getTimestamps = (day: number) => {
   };
 };
 
-export function formatTimestampToDateTime(timestamp: any, onlyHour?: string) {
+export function formatTimestampToDateTime(
+  timestamp: any,
+  onlyHour?: string,
+  onlyDate?: boolean
+) {
   const date = new Date(timestamp);
 
   const day = String(date.getDate()).padStart(2, "0");
@@ -280,6 +295,9 @@ export function formatTimestampToDateTime(timestamp: any, onlyHour?: string) {
 
   if (onlyHour) {
     return `${hours}:${minutes}`;
+  }
+  if (onlyDate) {
+    return `${day}.${month}.${year}`;
   }
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
@@ -313,12 +331,12 @@ export function getFileName(path?: string) {
 }
 export function formatString(
   str: string,
-  ...params: Array<string | number>
+  ...params: Array<string | undefined>
 ): string {
   if (!params || params.length == 0) return str;
   for (var i = 0; i < params.length; i++) {
     var reg = new RegExp("\\{" + i + "\\}", "gm");
-    str = str.replace(reg, params[i].toString());
+    str = str.replace(reg, params[i]?.toString() ?? "");
   }
   return str;
 }

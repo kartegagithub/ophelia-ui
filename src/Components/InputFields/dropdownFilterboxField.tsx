@@ -42,7 +42,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
     var props = this.GetProps();
     var pureProps = (({ value, defaultValue, displayProp, valueProp,  remoteDataSource, ...others }) => others)(props)
     return <FilterboxInput 
-     alwaysOpen={true}
+     alwaysOpen={this.props.dropDownDefaultOpen}
      hideSelections={this.props.hideSelections}
      displayProp={this.props.displayProp ?? this.props.remoteDataSource?.DisplayProp ?? "name"}
      valueProp={this.props.valueProp ?? this.props.remoteDataSource?.ValueProp ?? "id"}

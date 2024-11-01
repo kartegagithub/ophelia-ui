@@ -100,8 +100,10 @@ const Sidebar: React.FC<{
       >
         <div className="flex items-center justify-between mb-10">
           <Link href="/" className="flex items-center gap-2.5">
-            <Icon name="/assets/quip-logo.png" className="h-[22px]" size={24}/>
-            {!menuCollapsed && <p className="text-white text-3xl">quip</p>}
+            {menu.AppIcon && typeof menu.AppIcon == "string" && <Icon name={menu.AppIcon} className="app-icon h-[22px]" size={24}/>}
+            {menu.AppIcon && typeof menu.AppIcon !== "string" && menu.AppIcon}
+            {!menuCollapsed && menu.AppTitle && typeof menu.AppTitle == "string" && <p className="app-title text-white text-3xl">{menu.AppTitle}</p>}
+            {!menuCollapsed && menu.AppTitle && typeof menu.AppTitle !== "string" && menu.AppTitle}
           </Link>
           {!menuCollapsed && (
             <button onClick={() => {setMenuCollapsed(!menuCollapsed), !open && setMobile(false)}}>

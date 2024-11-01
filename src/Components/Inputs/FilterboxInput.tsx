@@ -26,6 +26,7 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
   applyText?: string
   resetText?: string
   applyButtonClassName?: string
+  allowSorting?: boolean
   resetButtonClassName?: string
   applyIcon?: string | React.JSX.Element
   resetIcon?: string | React.JSX.Element
@@ -95,16 +96,16 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
     }
   }
   getItemDisplayText(item: any, i: number){
-    return (<div className="relative flex gap-2 w-fit" key={i}>
-      <label>
+    return (<div className={this.Theme?.Inputs?.filterbox?.selectedItemContainerClass} key={i} style={{ cursor: this.props.allowSorting != false && this.props.multipleSelection == true? "move": "default"}} draggable={true} onDragEnd={(e) => this.onDragEnd(e)} onDragStart={(e) => this.onDrag(e, item, i)} aria-colindex={i}>
+      <label style={{ cursor: this.props.allowSorting != false && this.props.multipleSelection == true? "move": "default"}}>
         {typeof item == "string" && item}
         {typeof item != "string" && getObjectValue(item, this.props.displayProp)}
       </label>
-      <XMarkIcon onClick={() => this.removeItem(item)} width={12} height={12} className="cursor-pointer"></XMarkIcon>
+      <XMarkIcon onClick={() => this.removeItem(item)} width={13} height={13} className="cursor-pointer"></XMarkIcon>
     </div>)
   }
   getEmptyDisplayText(){
-    return (<div className="relative flex gap-2 w-fit" key={-1}>
+    return (<div className={this.Theme?.Inputs?.filterbox?.placeholderContainerClass} key={-1}>
       <label>{this.props.placeholder ?? "Select"}</label>
     </div>)
   }
@@ -145,6 +146,52 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
       this.setState({refreshSearchList: false})
     }
   }
+  onDrop(e: React.DragEvent<HTMLDivElement>){
+    if(this.props.multipleSelection != true) return;
+    e.preventDefault();
+    var elem = document.querySelectorAll(`.dragging`)[0] as HTMLDivElement
+    elem.classList.remove("dragging");
+    if(elem.parentNode != this.SelectionLabelRef.current) return;
+    var indexedItem = this.state.selectedOptions[parseInt(elem.ariaColIndex ?? "-1")];
+    if (indexedItem) {
+      var newOptions: Array<any> = [];
+      var itemInjected = false;
+      for (let i = 0; i < this.state.selectedOptions.length; i++) {
+        if(i == parseInt(elem.ariaColIndex ?? "-1")) continue;
+
+        const element = this.state.selectedOptions[i];
+        var tmpElem = document.querySelectorAll(`[aria-colindex='${i}']`)[0] as HTMLDivElement
+        if(tmpElem.parentNode == elem.parentNode){
+          if((tmpElem.getBoundingClientRect().left + tmpElem.getBoundingClientRect().width / 2) < e.clientX){
+            newOptions.push(element);
+          }
+          else {
+            if(!itemInjected){
+              newOptions.push(indexedItem)
+              itemInjected = true;
+            }
+            newOptions.push(element)
+          } 
+        }
+      }
+      if(!itemInjected) newOptions.push(indexedItem);
+      this.setState({selectedOptions: newOptions});
+      this.onSelection(newOptions)
+    }
+    //(e.target as HTMLDivElement).appendChild(document.querySelectorAll("aria-col"));
+  }
+  onDragOver(e: React.DragEvent<HTMLDivElement>){
+    if(this.props.multipleSelection != true) return;
+    e.preventDefault();
+  }
+  onDrag(e: React.DragEvent<HTMLDivElement>, item: any, index: number){
+    if(this.props.multipleSelection != true) return;
+    e.currentTarget.classList.add("dragging")
+  }
+  onDragEnd(e: React.DragEvent<HTMLDivElement>){
+    if(this.props.multipleSelection != true) return;
+    e.currentTarget.classList.remove("dragging")
+  }
   render(): React.ReactNode {
     
     var _dropdownTheme: DropdownTheme = {
@@ -153,9 +200,9 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
     }
     return (
       <>
-        <div ref={this.RootRef}>
+        <div ref={this.RootRef} onDrop={(e) => this.onDrop(e)} onDragOver={(e) => this.onDragOver(e)}>
           <input ref={this.HiddenInputRef} type="hidden" name={this.props.valueName ?? this.props.name} id={this.props.valueName ?? this.props.name} />
-            {this.props.hideSelections != true && <div ref={this.SelectionLabelRef} className={`relative ${this.props.className ?? this.Theme.Inputs?.filterbox}`} onClick={() => this.toggleDropDown()}>
+            {this.props.hideSelections != true && <div ref={this.SelectionLabelRef} className={`relative ${this.props.className ?? this.Theme.Inputs?.filterbox?.className}`} onClick={() => this.toggleDropDown()}>
             {this.state.selectedOptions && this.state.selectedOptions.length > 0 && this.state.selectedOptions.map((item, i) => this.getItemDisplayText(item, i))}
             {(!this.state.selectedOptions || this.state.selectedOptions.length == 0) && this.getEmptyDisplayText()}
             {this.props.multipleSelection == true && this.props.allowClear != false && <XMarkIcon onClick={() => this.clear()} width={13} height={13} className="cursor-pointer absolute right-1 top-1"></XMarkIcon>}

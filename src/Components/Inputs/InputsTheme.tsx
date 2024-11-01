@@ -8,7 +8,11 @@ var inputsTheme: {
       ItemClass?: string,
       SelectedItemClass?: string
     },
-    filterbox?: string,
+    filterbox?: {
+      className?: string,
+      selectedItemContainerClass?: string,
+      placeholderContainerClass?: string
+    },
     checkbox?: string,
     radio?: {
       square: string,

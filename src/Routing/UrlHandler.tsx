@@ -1,5 +1,5 @@
 import Router from "next/router";
-import { randomId, trimChars } from "../Extensions";
+import { clone, randomId, trimChars } from "../Extensions";
 
 export class UrlHandlerClass{
     Initialized: boolean = false
@@ -62,10 +62,12 @@ export class UrlHandlerClass{
         return destination;
     }
 
-    async FindRoute(path: string, triggerNotFound: boolean = true): Promise<RouteItem | undefined>{
+    async FindRoute(path: string, triggerNotFound: boolean = true, userLang: string | undefined = undefined): Promise<RouteItem | undefined>{
         if(!path) return;
 
         try {
+            if(userLang) userLang = userLang.toLowerCase();
+
             path = path.toLocaleLowerCase();
 
             var item = this.ReverseRouteData[path] as RouteItem;
@@ -76,6 +78,11 @@ export class UrlHandlerClass{
                         this.RegisterItems(newRoutes);
                 }
                 return this.FindRoute(path, false);
+            }
+            else if (item && userLang && userLang != item.language){
+                var tmpItem: RouteItem = this.RouteData[item.destination][userLang]
+                if(tmpItem)
+                    return { permanent: false, destination: tmpItem.source, source: tmpItem.destination};
             }
             return item;
         } catch (error) {

@@ -17,6 +17,7 @@ import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
 import { findInArray } from "../../Extensions";
 const Table: React.FC<TableProps> = React.memo(({ 
+  refreshKey,
   table, 
   theme, 
   data, 
@@ -225,7 +226,7 @@ const Table: React.FC<TableProps> = React.memo(({
       var selectedRowData: any = selectedRow > -1 ? data[selectedRow]: undefined
       var isSelected = selectedRow === row.viewOrderIndex || (selectedRowData && selectedRowData.viewOrderStr && row.viewOrderStr && selectedRowData.viewOrderStr.startsWith(row.viewOrderStr));
       return (<>
-        <tr key={row.viewOrderIndex} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${!allowFiltering && row.isValid === false? "bg-red-400 text-white": ""} ${additionalClassName?? ""}`}>
+        <tr key={`${row.viewOrderIndex}${refreshKey}`} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${!allowFiltering && row.isValid === false? "bg-red-400 text-white": ""} ${additionalClassName?? ""}`}>
           {hierarchycalDisplayEnabled() && 
             <td onClick={(e) => {
               if(selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1)
@@ -404,6 +405,7 @@ Table.displayName = "Table";
 export default Table;
 
 var tableProps:{
+  refreshKey?: string | number| undefined;
   table?: TableClass;
   data?: Array<any>
   children?: React.ReactNode;
