@@ -10,7 +10,7 @@ Ophelia Next is designed for NextJS projects. It aims to standardize the develop
 You can find examples inside `samples` folder.
 
 ### Basic Concepts before beginning
-First of all, we used to code `SSR` from beginning of our personal carier. So, after NextJS is released it became our first choice. But before Ophelia, we made lots of re-engenering, re-coding and moved codes from one project to another (with bugs also). After many many projects we decided to standardize our code over a SDK, framework, middleware (what ever you want to say). Ophelia born at that point.
+First of all, we used to code `SSR` from beginning of our personal career. So, after NextJS is released, it became our first choice. But before Ophelia, we made lots of re-engenering, re-coding and moved codes from one project to another (with bugs also). After many many projects we decided to standardize our code over a SDK, framework, middleware (what ever you want to say). Ophelia born at that point.
 Ophelia is coded by backend developers first, then frontend developers got in project. Because backend developers mostly manage logics inside single points to code less & manage easily. Frontend developers like flexibility. So when two teams work together, a better approach we had.
 
 ### Single Entry Point Logic

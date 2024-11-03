@@ -3,7 +3,7 @@ AppClient object is the base object of projects.
 We use AppClient from request handling to processing of the page.
 AppClient is created once at page life cycle and consumed by components top to bottom. Components share AppClient as prop with each other.
 
-### Table of properties?
+### Table of properties
 | Property name | Type | Description |
 |---|---|---|
 | Region | string | Holds region info for user. Code must be registered as region |
