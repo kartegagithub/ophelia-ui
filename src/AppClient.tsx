@@ -17,7 +17,7 @@ export default class AppClient {
   IsClientSide: boolean = false
   Context?: NextPageContext
   Theme?: AppTheme
-  DynamicSEO?: any = {}
+  DynamicSEO?: {Title?: string, Description?: string, Custom?: Array<{Name: string, Description: string}>} = {}
   Hydrate() {
 
   }
@@ -61,8 +61,8 @@ export default class AppClient {
     return UrlHandler.Current.Push(destination, this.Region, onSuccess);
   }
 
-  GetUrl(destination: string): string {
-    return UrlHandler.Current.Get(destination, this.Region) ?? "";
+  GetUrl(destination: string, routeData?: any): string {
+    return UrlHandler.Current.Get(destination, this.Region, routeData) ?? "";
   }
 
   constructor(){

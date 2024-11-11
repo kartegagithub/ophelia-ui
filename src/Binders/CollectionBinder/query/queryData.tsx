@@ -8,7 +8,7 @@ export default class QueryData {
   constructor() {
     this.model = new QueryDataModel();
   }
-  processQuery(columns: Array<TableColumnClass>, filters: any, sorter: QuerySorter) {
+  processQuery(columns: Array<TableColumnClass>, filters: any, sorter: QuerySorter, disabledFilters?: Array<string>) {
     //console.log(filters);
     var internalFilters = [];
     var internalSorters = [];
@@ -16,7 +16,7 @@ export default class QueryData {
       for (var key of Object.keys(filters)) {
         if (filters[key] && filters[key].length > 0) {
           const column = columns.find((x) => x.Filtering?.Name === key);
-          if (column && column.Filtering?.Name) {
+          if (column && column.Filtering?.Name && (!disabledFilters || disabledFilters.indexOf(key) == -1)) {
             var internalFilter = new QueryFilter();
             internalFilter.name = key;
             internalFilter.value = filters[key];

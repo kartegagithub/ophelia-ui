@@ -98,7 +98,9 @@ export default class EntityBinder<P> extends React.Component<
 
     return `/${this.Controller}/edit${this.Entity}/${id}`;
   };
-  OnAfterSave() {}
+  OnAfterSave(): {redirect: boolean, redirectURL?: string, } | undefined {
+    return { redirect: true}
+  }
   getBackUrl = () => {
     if (this.Options.BackURL) {
       return this.Options.BackURL;
@@ -273,13 +275,23 @@ export default class EntityBinder<P> extends React.Component<
           if (!result.hasFailed) {
             this.UploadFiles = [];
             this.setState({data: result.data});
-            this.OnAfterSave();
+            var saveResult = this.OnAfterSave();
+            var redirectURL: string | undefined = undefined;
+            if(saveResult && saveResult.redirect != undefined) redirect = saveResult.redirect;
+            if(saveResult && saveResult.redirectURL != undefined) redirectURL = saveResult.redirectURL;
+
             if (redirect && this.props.shownInParent !== true) {
-              Router.push(this.getBackUrl())
+              if(redirectURL)
+                Router.push(redirectURL)
+              else
+                Router.push(this.getBackUrl())
             }
             if(this.props.parent != null) this.props.parent.onChildAction("refreshData")
             else if(!redirect){
-              Router.push(this.getEditUrl(result.data.id))
+              if(redirectURL)
+                Router.push(redirectURL)
+              else
+                Router.push(this.getEditUrl(result.data.id))
             }
             raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
           } else {

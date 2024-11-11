@@ -6,6 +6,7 @@ export default class ServiceResult{
     error: Array<ServiceMessage> = []
     hasFailed: boolean = false
     messages: Array<ServiceMessage> = []
+    message?: any
     token: string = ""
     extraData: any
     performance: any

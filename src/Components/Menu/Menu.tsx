@@ -4,6 +4,7 @@ import MenuItem from "./MenuItem";
 import MenuItemClass from "./MenuItemClass";
 import { getAppTheme } from "../../AppTheme";
 import AppClient from "../../AppClient";
+import { isNullOrEmpty } from "../../Extensions";
 
 const Menu: React.FC<MenuProps> = React.memo(({ menu, AppClient, stateKey, id, searchKey, children, setMenuCollapsed, menuCollapsed, theme = undefined }) => {
   const Theme = getAppTheme({Menu: theme}).Menu;
@@ -28,9 +29,12 @@ const Menu: React.FC<MenuProps> = React.memo(({ menu, AppClient, stateKey, id, s
     }
   }
 
+  var className = Theme?.Class;
+  if(!isNullOrEmpty(menu.ClassName)) className = menu.ClassName;
+
   return (
     <div    
-      className={menu.ClassName ?? Theme?.Class} key={id} 
+      className={className} key={id} 
       style={{ scrollbarWidth: "none" , height: "calc(100% - 240px)"}}>
       {menu.Items?.map((item, i) => {
         item.Level = 1;

@@ -165,6 +165,7 @@ const FileInput: React.FC<
                     className="pr-1 cursor-pointer"
                     onClick={(e) => onPreviewClick(e, file)}
                   ></EyeIcon>
+                  {/* <img src={file.Base64Data} width={32} height={32}/> */}
                   {fileTypeWithButton ? (
                     <div
                       className={iconWrapperStyle}

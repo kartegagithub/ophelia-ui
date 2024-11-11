@@ -15,7 +15,7 @@ import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, remov
 import QuerySorter from "./query/querySorter";
 import QueryData from "./query/queryData";
 import { getAppTheme } from "../../AppTheme";
-import { getObjectValue, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
+import { getObjectValue, randomId, randomKey, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
 import Modal from "../../Components/Modal";
@@ -28,13 +28,15 @@ export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
   initialFilters?: any
+  manualFilters?: Array<string>
   data?: any
   AppClient: AppClient | undefined
   shownInParent?: boolean
   pageTitle?: string
   parent?: EntityBinder<{}> | CollectionBinder<{}>
+  viewId?: string
 }
-export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {dataIndex: number, path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting: boolean, importKey?: string}}> {
+export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {dataIndex: number, path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, manualFilter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting: boolean, importKey?: string}, viewId?: string}> {
 
   Config: Config = new Config();
   Options: BinderOptions = new BinderOptions();
@@ -118,12 +120,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   setInitData(firstLoad: boolean = false){
     var data: any = undefined;
     if(firstLoad) data = this.props.data 
-    var page = parseInt(getQueryParam("page", 1));
-    var pageSize = parseInt(getQueryParam("pageSize", 25));
-    var sortBy = getQueryParam("sortBy", "");
-    var sortDirection = getQueryParam("sortDirection", "");
-    var filters = queryParamsAsObject("Filters.", true)
-    var comparisons = queryParamsAsObject("Comp.", true)
+    var viewID: string = "";
+    if(!this.state?.viewId) viewID = this.props.shownInParent ? randomKey(4): "";
+    else viewID = this.state.viewId;
+
+    var page = parseInt(getQueryParam(viewID + "page", 1));
+    var pageSize = parseInt(getQueryParam(viewID + "pageSize", 25));
+    var sortBy = getQueryParam(viewID + "sortBy", "");
+    var sortDirection = getQueryParam(viewID + "sortDirection", "");
+    var filters = queryParamsAsObject(viewID + "Filters.", true)
+    var comparisons = queryParamsAsObject(viewID + "Comp.", true)
     var sortedColumn = this.Config?.Table?.Columns.find((column) => column.PropertyName === sortBy)
     if(sortedColumn){
       sortedColumn.IsSorted = true;
@@ -145,11 +151,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     })   
 
     if(!this.props.shownInParent){
-      this.setState({dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      this.setState({viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
     }
     else{
       setTimeout(() => {
-        this.setState({dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+        this.setState({viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
       }, 1000);
     }
   }
@@ -216,9 +222,19 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       try {
         var queryData = new QueryData()
         if(this.Config.Table?.Columns)
-          queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter)
+          queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter, this.props.manualFilters)
         
         var initialFilters = this.props.initialFilters ?? {};
+        if(this.state.filter && this.props.manualFilters && this.props.manualFilters.length > 0){
+          var manualFilters: any = {};
+          for (let index = 0; index < Object.keys(this.state.filter).length; index++) {
+            const key = Object.keys(this.state.filter)[index];
+            if(this.props.manualFilters.indexOf(key) > -1){
+              manualFilters[key] = this.state.filter[key];
+            }            
+          }
+          initialFilters = {...initialFilters, ...manualFilters};
+        }
         var postData = {
           Page: this.state.page,
           PageSize: this.state.pageSize,
@@ -362,14 +378,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
   }
   onPageChange(i: number){
-    Router.push("", replaceQueryParam("page", i.toString()), { shallow: true })
+    Router.push("", replaceQueryParam(this.state.viewId + "page", i.toString()), { shallow: true })
   }
   onPageSizeChange(i: number){
-    Router.push("", replaceQueryParam("pageSize", i.toString()), { shallow: true })
+    Router.push("", replaceQueryParam(this.state.viewId + "pageSize", i.toString()), { shallow: true })
   }
   onSortingChanged(column: TableColumnClass, direction: string){
     if(column.PropertyName){
-      Router.push("", replaceQueryParam("sortDirection", direction, replaceQueryParam("sortBy", column.PropertyName)), { shallow: true })
+      Router.push("", replaceQueryParam(this.state.viewId + "sortDirection", direction, replaceQueryParam(this.state.viewId + "sortBy", column.PropertyName)), { shallow: true })
     }
   }
   onFilteringChanged(filteredColumns: Array<TableColumnClass>){
@@ -380,12 +396,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
       if(column.Filtering?.Name){
         setObjectValue(filters, column.Filtering.Name, column.Filtering.Value)
-        url = replaceQueryParam("Filters." + column.Filtering.Name, column.Filtering.Value, url)
+        url = replaceQueryParam(this.state.viewId + "Filters." + column.Filtering.Name, column.Filtering.Value, url)
         if(column.IsFiltered === true) {
-          if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam("Comp." + column.Filtering.Name, column.Filtering.Comparison.toString(), url)
+          if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam(this.state.viewId + "Comp." + column.Filtering.Name, column.Filtering.Comparison.toString(), url)
         }
         else{
-          url = replaceQueryParam("Comp." + column.Filtering.Name, "", url)
+          url = replaceQueryParam(this.state.viewId + "Comp." + column.Filtering.Name, "", url)
         }
       }
     });
@@ -450,7 +466,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
           <div className="collection-binder">
             <div ref={this.RootElementRef}>
-              <Table refreshKey={this.state.dataIndex} allowFiltering={!this.isImporting()} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+              <Table refreshKey={this.state.dataIndex} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
             </div>
             {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
           </div>

@@ -8,7 +8,15 @@ import { randomId } from "./ReflectionExtensions";
 export function capitalizeFirstLetter(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
+export function getSeoDescription(seoTag: any, sliceLength: number) {
+  if (!seoTag?.description) return "";
 
+  // Strip HTML tags and get plain text
+  const plainText = seoTag.description.replace(/<[^>]*>/g, "");
+
+  // Limit to the first 150 characters
+  return plainText.slice(0, sliceLength);
+}
 export function shortenText(
   text: string,
   length: number,

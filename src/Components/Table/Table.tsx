@@ -29,7 +29,8 @@ const Table: React.FC<TableProps> = React.memo(({
   hierarchyPropertyName = undefined,
   hierarchyParentValue = undefined,
   allowFiltering = true,
-  allowSorting = true
+  allowSorting = true,
+  applyRowValidation = false
 }) => {
   var [selectedRow, setSelectedRow] = useState(-1)
   var [selectedCell, setSelectedCell] = useState([-1,-1])
@@ -134,10 +135,15 @@ const Table: React.FC<TableProps> = React.memo(({
   const showFilterModal = (column: TableColumnClass, columnIndex: number) => {
     var modalID = "filter-selection"
     var type = column.Filtering?.Type ??column.Type ?? "NONE"
+    if(type == "richtext") type = "text";
+    
+
     var comparisons = ComparisonSigns.filter((comp) => comp.types.indexOf(type) > -1).map((comp) => {
       return { text: comp.text ?? comp.sign, value: comp.comparison.toString()}
     });
     if(column.Filtering && !column.Filtering?.Comparison && comparisons.length > 0) column.Filtering.Comparison = parseInt(comparisons[0].value)
+
+
     return <Dropdown multipleSelection={true} visibilityCallback={(visible) => !visible && setSelectedColumnToFilter({}) } key={`${modalID}-dropdown-${column.PropertyName}`} visible={true} id={modalID} label="Filter to" theme={{Class: `${columnIndex > 0? "right-3": "left-3"} absolute p-3 bg-white border border-gainsboro rounded-lg shadow-sm z-10 min-w-[225px]`}} onSelectionChange={(options, button) => {
       if(button){
         if(button.id == 0){
@@ -157,7 +163,7 @@ const Table: React.FC<TableProps> = React.memo(({
       <InputField shownInDropdown={true} dropDownDefaultOpen={true} hideSelections={true} multipleSelection={true} labelVisible={false} valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"} displayProp={column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"} listener={{
         setFieldData: (name: string, value: any) => setColumnFilterValue(column, value),
         getFieldData: (field: any) => column.Filtering?.Value
-      }} text={column.HeaderText} type={column.Filtering?.Type ?? column.Type} enumSelectionType={column.Filtering?.EnumSelectionType} remoteDataSource={column.Filtering?.RemoteDataSource} name={column.Filtering?.Name ?? column.PropertyName} />
+      }} text={column.HeaderText} type={type} enumSelectionType={column.Filtering?.EnumSelectionType} remoteDataSource={column.Filtering?.RemoteDataSource} name={column.Filtering?.Name ?? column.PropertyName} />
     </Dropdown>
   }
 
@@ -198,9 +204,6 @@ const Table: React.FC<TableProps> = React.memo(({
   const hierarchycalDisplayEnabled = () => {
     return hierarchicalDisplay == true && !isNullOrEmpty(hierarchyPropertyName)
   }
-  const isHierarchyChecked = () => {
-    
-  }
   const renderRows = (rowsToRender?: Array<any>, additionalClassName?: string): React.ReactNode => {
     if(!data) return <></>;
     
@@ -226,7 +229,7 @@ const Table: React.FC<TableProps> = React.memo(({
       var selectedRowData: any = selectedRow > -1 ? data[selectedRow]: undefined
       var isSelected = selectedRow === row.viewOrderIndex || (selectedRowData && selectedRowData.viewOrderStr && row.viewOrderStr && selectedRowData.viewOrderStr.startsWith(row.viewOrderStr));
       return (<>
-        <tr key={`${row.viewOrderIndex}${refreshKey}`} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${!allowFiltering && row.isValid === false? "bg-red-400 text-white": ""} ${additionalClassName?? ""}`}>
+        <tr key={`${row.viewOrderIndex}${refreshKey}`} className={`${selectedRow === row.viewOrderIndex? Theme?.SelectedRowClass: Theme?.RowClass} ${applyRowValidation && row.isValid === false? "bg-red-400 text-white": ""} ${additionalClassName?? ""}`}>
           {hierarchycalDisplayEnabled() && 
             <td onClick={(e) => {
               if(selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1)
@@ -417,6 +420,7 @@ var tableProps:{
   hierarchyParentValue?: string | number
   allowFiltering?: boolean
   allowSorting?: boolean
+  applyRowValidation?: boolean
   listener?: {
     onCellClick?: Function;
     // onRowClick?: Function;

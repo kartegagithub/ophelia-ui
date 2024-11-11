@@ -160,17 +160,21 @@ export default class FilterboxInput<P> extends React.Component<P & SelectHTMLAtt
         if(i == parseInt(elem.ariaColIndex ?? "-1")) continue;
 
         const element = this.state.selectedOptions[i];
-        var tmpElem = document.querySelectorAll(`[aria-colindex='${i}']`)[0] as HTMLDivElement
-        if(tmpElem.parentNode == elem.parentNode){
-          if((tmpElem.getBoundingClientRect().left + tmpElem.getBoundingClientRect().width / 2) < e.clientX){
-            newOptions.push(element);
-          }
-          else {
-            if(!itemInjected){
-              newOptions.push(indexedItem)
-              itemInjected = true;
+        var tmpElems = document.querySelectorAll(`[aria-colindex='${i}']`)
+        for (let elemIndex = 0; elemIndex < tmpElems.length; elemIndex++) {
+          const tmpElem = tmpElems[elemIndex];
+          if(tmpElem.parentNode == elem.parentNode){
+            if((tmpElem.getBoundingClientRect().left + tmpElem.getBoundingClientRect().width / 2) < e.clientX){
+              newOptions.push(element);
             }
-            newOptions.push(element)
+            else {
+              if(!itemInjected){
+                newOptions.push(indexedItem)
+                itemInjected = true;
+              }
+              newOptions.push(element)
+            } 
+            break;
           } 
         }
       }

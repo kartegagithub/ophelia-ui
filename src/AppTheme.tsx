@@ -245,7 +245,7 @@ var AppThemeConfig: AppThemeType = {
     Class:
       "w-full text-[12px] text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-1",
     RowClass:
-      "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-paleSilver",
+      "border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-paleSilver",
     SelectedRowClass: "px-4 py-2 whitespace-nowrap bg-paleSilver",
     ColumnsRowClass: "",
     SelectedColumnClass:
