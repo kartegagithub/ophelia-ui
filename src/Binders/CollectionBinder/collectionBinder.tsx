@@ -201,7 +201,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient?.Translate(this.Config.Entity + "List");
   }
 
-  getData = async () => {
+  async getData () {
     //console.log("getdata", this.state)
     if(this.state?.importState && this.state.importState.isImporting && this.state.importState.data){
       const data = new serviceCollectionResult();
@@ -407,10 +407,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     });
     Router.push("", url, { shallow: true }) 
   }
-  getItemPropertyValue = (row: any, name: string, i18n: boolean = false) => {
+  getItemPropertyValue(row: any, name: string, i18n: boolean = false) {
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);
   }
-  renderCellValue = (row: any, column: TableColumnClass, value?: string) => {
+  renderCellValue(row: any, column: TableColumnClass, value?: string) {
     if(value){
       return <Link href={this.getLink(row)}>{value}</Link>
     }

@@ -606,8 +606,11 @@ const Table: React.FC<TableProps> = React.memo(
         );
       else value = getObjectValue(row, column.PropertyName);
 
-      value = removeHtml(value);
-      value = sanitizeHtml(value);
+      if(typeof value == "string"){
+        value = removeHtml(value);
+        value = sanitizeHtml(value);
+      }
+      
       if (
         column.Type == "date" ||
         column.Type == "datetime" ||

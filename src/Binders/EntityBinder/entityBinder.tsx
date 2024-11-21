@@ -93,7 +93,7 @@ export default class EntityBinder<P> extends React.Component<
     this.InputFields.push(field)
   }
   
-  getEditUrl = (id = 0) => {
+  getEditUrl(id = 0) {
     if (this.Options.EditURL) return this.Options.EditURL;
 
     return `/${this.Controller}/edit${this.Entity}/${id}`;
@@ -101,14 +101,14 @@ export default class EntityBinder<P> extends React.Component<
   OnAfterSave(): {redirect: boolean, redirectURL?: string, } | undefined {
     return { redirect: true}
   }
-  getBackUrl = () => {
+  getBackUrl() {
     if (this.Options.BackURL) {
       return this.Options.BackURL;
     } else {
       return `/${this.Controller}/${camelize(this.Entity)}List`;
     }
   };
-  getActionPath = () => {
+  getActionPath() {
     if (this.Options.ActionURL) {
       return this.Options.ActionURL;
     }
@@ -328,7 +328,7 @@ export default class EntityBinder<P> extends React.Component<
     this.setState({processing: false})
   }
 
-  getFieldData = (field: any) => {
+  getFieldData(field: any) {
     var data = this.EntityOperations.getFieldData(this.state.data, field, this.state.languageID)
     if(this.UploadFiles && this.UploadFiles.length > 0 && field.props.name.endsWith("Path")){
       var fileList: Array<FileData> = []
