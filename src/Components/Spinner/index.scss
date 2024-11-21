@@ -1,0 +1,9 @@
+.oph-spinner {
+  @apply text-center flex justify-center mb-10;
+  &-text {
+    @apply sr-only;
+  }
+  &-image {
+    @apply w-8 h-8 text-gray-400 animate-spin dark:text-gray-900 fill-indigo-700;
+  }
+}

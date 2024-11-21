@@ -1,0 +1,51 @@
+.oph-search {
+  @apply relative w-full;
+  &-image {
+    @apply absolute left-6 top-5 z-10;
+  }
+  &-righticon {
+    @apply flex gap-4 absolute right-6 top-5 z-10;
+    &-content {
+      @apply cursor-pointer;
+    }
+  }
+  &-input {
+    @apply h-16 bg-white border border-slate-200 text-slate-500 text-base rounded-2xl focus:outline-none block w-full p-2.5 pl-14 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400;
+  }
+  &-container {
+    @apply absolute w-full h-80 bg-white border-b border-x border-slate-200 rounded-b-2xl z-20;
+    &-scrollablearea {
+      @apply h-60 overflow-auto;
+    }
+    &-items {
+      @apply flex items-center justify-between mb-1 cursor-pointer hover:bg-gray-200;
+      &.focused {
+        @apply flex items-center justify-between p-2 mb-6 rounded-[18px] bg-gray-200;
+      }
+      &-icon {
+        @apply bg-slate-100 opacity-80 p-6 hover:bg-gray-200 cursor-pointer;
+      }
+      &-title {
+        @apply text-[12px] text-slate-800 group-hover:text-indigo-900 tracking-[.42px];
+      }
+      &-badge {
+        @apply w-8 h-6 bg-red-500 text-white text-center rounded-2xl;
+      }
+    }
+    &-footer {
+      @apply absolute flex items-center justify-between w-full py-5 bottom-0 border-t border-slate-100;
+      .content {
+        @apply flex items-center justify-center bg-gray-200 p-1 rounded;
+      }
+      &-left {
+        @apply flex gap-2 pl-6;
+      }
+      &-right {
+        @apply flex gap-2;
+      }
+      &-center {
+        @apply flex gap-2 pr-6;
+      }
+    }
+  }
+}

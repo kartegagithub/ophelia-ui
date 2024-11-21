@@ -1,0 +1,13 @@
+.oph-contentLoading {
+  @apply relative;
+
+  &-content {
+    @apply absolute w-full h-full align-middle mx-auto text-center z-40 flex flex-col justify-center;
+  }
+  &-partialOpac {
+    @apply opacity-50;
+  }
+  &-fullOpac {
+    @apply opacity-100;
+  }
+}

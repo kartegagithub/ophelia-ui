@@ -1,5 +1,4 @@
 import React, { InputHTMLAttributes } from "react";
-import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 
 export interface RangeInputProps
@@ -10,15 +9,13 @@ export interface RangeInputProps
 
 const RangeInput: React.FC<RangeInputProps> = ({
   labelType,
-  className,
   style,
   ...props
 }) => {
-  const appTheme = getAppTheme();
   return (
     <input
       type="range"
-      className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.range} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+      className={`oph-rangeInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       style={style}
       {...props}
     />

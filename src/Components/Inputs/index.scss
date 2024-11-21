@@ -1,0 +1,363 @@
+.agreementCheckbox {
+  @apply flex items-center gap-2.5;
+  &-input {
+    @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block py-2;
+  }
+}
+
+.oph-checkboxInput {
+  @apply w-full flex items-center gap-2;
+  &-input {
+    @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block py-2;
+  }
+  &-icon {
+    @apply absolute w-4 h-4 pointer-events-none hidden peer-checked:block mt-[1px] ml-0.5 outline-none;
+  }
+  &-label {
+    @apply text-xxs sm:text-sm;
+  }
+}
+
+.oph-checkboxSwitchbox {
+  @apply inline-flex items-center cursor-pointer;
+  &-input {
+    @apply sr-only;
+  }
+  &-switch {
+    @apply relative w-13 h-7 bg-[#AAD4EC] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-[100px] dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-400;
+  }
+  &-text {
+    @apply ms-3 text-sm font-medium text-gray-900 dark:text-gray-300;
+  }
+}
+
+.oph-codeInput {
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &-content {
+    @apply flex items-center pl-5 h-10 md:h-12 w-20 bg-blue-50 bg-opacity-30 border-r border-blue-300;
+    &.error {
+      @apply border-red-600;
+    }
+    &-text {
+      @apply text-sm/4 text-blue-50 font-medium my-auto;
+    }
+  }
+  &-input {
+    @apply pl-4 appearance-none block w-full focus:outline-none focus:ring-0;
+  }
+}
+
+.oph-colorInput {
+  @apply relative;
+  &-input {
+    @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+    &.floating {
+      @apply placeholder-transparent;
+    }
+    &.error {
+      @apply border-red-600;
+    }
+  }
+
+  &-colorBox {
+    @apply w-15 h-5 absolute bottom-2 border-gray-300 border-solid border-2 right-1;
+    &.useAlpha {
+      @apply right-5;
+    }
+  }
+  &-colorPicker {
+    @apply opacity-0 w-0 h-0 absolute right-1 bottom-2 border-gray-300 border-solid border-2;
+    &.useAlpha {
+      @apply right-5;
+    }
+  }
+  &-alpha {
+    &-choose {
+      @apply h-5 absolute pr-1 pl-1 right-0 bottom-2 cursor-pointer border-gray-300 border-solid border-2 flex items-center;
+    }
+    &-range {
+      @apply absolute right-1 bottom-[-1] w-full;
+    }
+  }
+}
+.oph-dateInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.error {
+    @apply border-red-600;
+  }
+  &.floating {
+    @apply placeholder-transparent;
+  }
+}
+.oph-dateTimeInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.error {
+    @apply border-red-600;
+  }
+  &.floating {
+    @apply placeholder-transparent;
+  }
+}
+.oph-emailInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full p-2;
+  &.error {
+    @apply border-red-600;
+  }
+  &.floating {
+    @apply placeholder-transparent;
+  }
+}
+.oph-fileInput {
+  @apply hidden;
+  &-file {
+    @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+    &-content {
+      @apply block cursor-pointer w-full;
+      &-right {
+        @apply flex items-center justify-between border-l-4 border-slate-400 py-1;
+        &.withButton {
+          @apply border-none;
+        }
+        &-label {
+          @apply ml-2;
+        }
+        &-icons {
+          @apply flex items-center;
+          &-eyeIcon {
+            @apply pr-1 cursor-pointer;
+          }
+          &-xIcon {
+            @apply cursor-pointer;
+          }
+        }
+      }
+    }
+  }
+}
+
+.oph-filterboxInput {
+  .oph-dropdown-options {
+    @apply h-50;
+  }
+  &-box {
+    @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none w-full py-2 flex gap-3;
+
+    &-icon {
+      @apply cursor-pointer absolute right-1 top-1;
+    }
+  }
+  &-display {
+    @apply relative flex gap-2 w-fit bg-gray-200 p-1;
+    &-icon {
+      @apply cursor-pointer;
+    }
+  }
+  &-empty {
+    @apply relative flex gap-2 w-fit;
+  }
+  &-dropdown {
+    @apply relative;
+
+    &-allowNew {
+      @apply p-2;
+
+      &-input{
+        @apply p-2 w-full
+      }
+    }
+    #filterBoxDropdownInner {
+      @apply bg-white shadow w-full dark:bg-gray-700 drop-shadow-none left-0 relative p-0 m-0 border-none mb-3;
+    }
+    #filterBoxDropdown {
+      @apply absolute top-0 left-0 z-10 bg-white shadow w-50 dark:bg-gray-700 transition delay-150 drop-shadow-none left-0;
+    }
+  }
+}
+.oph-monthInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-numberInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-passwordInput {
+  @apply relative;
+  &-input {
+    @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+    &.floating {
+      @apply placeholder-transparent;
+    }
+    &.error {
+      @apply border-red-600;
+    }
+  }
+  &-iconWrapper {
+    @apply absolute top-0 right-2 h-full flex items-center px-2;
+  }
+}
+
+.oph-phoneInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+
+.oph-rangeInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-textAreaInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-switchInput {
+  @apply flex flex-row justify-between;
+
+  &-left {
+    @apply flex flex-row items-center;
+  }
+
+  &-right {
+    @apply relative inline-block w-8 h-4 rounded-full cursor-pointer;
+  }
+}
+.oph-textAreaInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+
+.oph-textInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-timeInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-urlInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+.oph-weekInput {
+  @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.floating {
+    @apply placeholder-transparent;
+  }
+  &.error {
+    @apply border-red-600;
+  }
+}
+
+.oph-radioInput {
+  @apply w-full flex items-center gap-2;
+  &-input {
+    &.square {
+      @apply relative appearance-none shrink-0 w-5 h-5 border-2 border-blue-200 rounded-sm bg-white 
+      focus:outline-none focus:ring-offset-0 focus:ring-1 focus:ring-blue-100 
+      checked:bg-red-500 checked:border-0 
+      disabled:bg-red-400
+      max-h-[48px];
+      &-icon {
+        @apply absolute w-4 h-4 pointer-events-none hidden peer-checked:block stroke-white mt-[3px] ml-[2px] outline-none;
+      }
+    }
+    &.circle {
+      @apply hidden;
+    }
+  }
+  &-label {
+    @apply text-xxs sm:text-sm;
+    &-circle {
+      @apply flex items-center justify-center border-[3px]  rounded-full;
+      &.selected {
+        @apply border-[#2892E9] bg-[#2892E9];
+      }
+      &.unselected {
+        @apply border-[#BCDEFA] bg-white;
+      }
+      &-rounded {
+        @apply w-1.5 h-1.5 bg-white rounded-full;
+      }
+    }
+  }
+}
+
+.oph-selectInput {
+  @apply border-b bg-transparent border-slate-200 text-black text-sm focus:border-black outline-none block w-full py-2;
+  &.error {
+    @apply border-red-600;
+  }
+
+  &-switch {
+    @apply flex w-full justify-center relative;
+  }
+}
+
+.oph-selectboxWithSwitch {
+  @apply flex;
+  &-selectedItem {
+    @apply w-1/2 flex items-center justify-center text-sm py-2 transform transition-transform border-b border-b-zinc-600;
+  }
+  &-item {
+    @apply cursor-pointer w-1/2 flex items-center justify-center text-sm text-center py-2 border-b border-b-zinc-200;
+  }
+}
+
+.oph-toggleInput {
+  &-label {
+    &-text {
+      @apply ms-3 text-sm font-medium text-gray-900 dark:text-gray-300;
+    }
+
+    &-checkbox {
+      @apply sr-only;
+    }
+  }
+}

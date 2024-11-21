@@ -1,0 +1,12 @@
+.oph-accordion {
+  @apply w-full px-5 py-4 border border-gray-200;
+  &-summary {
+    @apply flex items-center justify-between cursor-pointer;
+  }
+  &-title {
+    @apply flex items-center justify-between font-bold;
+  }
+  &-content {
+    @apply pt-2.5 pr-5;
+  }
+}

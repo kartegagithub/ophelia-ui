@@ -1,6 +1,5 @@
 import React from "react";
 const Tab: React.FC<TabsProps> = ({
-  theme,
   visible,
   id,
   tabPaneClass,
@@ -32,7 +31,6 @@ var tabsProps: {
   active?: boolean;
   tabPaneClass?: string;
   children?: React.ReactNode;
-  theme?: TabsTheme;
   type?: "monochrome";
   onClick?: any;
 };

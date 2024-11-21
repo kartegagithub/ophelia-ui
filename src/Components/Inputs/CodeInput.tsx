@@ -13,13 +13,11 @@ export interface CodeInputProps
   codeText?: string;
   rightIcon?: React.JSX.Element | string | undefined | IconProps;
   rightIcon2?: React.JSX.Element | string | undefined | IconProps;
-  iconWrapperStyle?: string;
-  icon2WrapperStyle?: string;
   iconOnClick?: () => void;
+  id?: string;
 }
 
 const CodeInput: React.FC<CodeInputProps> = ({
-  className,
   dataOptions,
   list,
   labelType,
@@ -28,32 +26,39 @@ const CodeInput: React.FC<CodeInputProps> = ({
   codeText,
   rightIcon,
   rightIcon2,
-  iconWrapperStyle,
-  icon2WrapperStyle,
   iconOnClick,
+  id,
   ...props
 }) => {
-  const appTheme = getAppTheme();
   return (
     <>
       <DataList options={dataOptions} id={list} />
       <div
-        className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.withCode} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        id={id}
+        className={`oph-codeInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       >
         <div
-          className={`flex items-center pl-5 h-10 md:h-12 w-20 bg-sky bg-opacity-30 border-r ${props.errorClassName ? "border-azRed" : "border-pastelBlue"}`}
+          className={`oph-codeInput-content ${props.errorClassName && "error"}`}
         >
-          <p className="text-sm/4 text-azBlue font-medium my-auto">{codeText}</p>
+          <p className="oph-codeInput-content-text">{codeText}</p>
         </div>
 
         <input
           type={inputType}
-          className="pl-4 appearance-none focus:none block w-full peer focus:outline-none focus:ring-0"
+          className="oph-codeInput-input peer"
           {...props}
           style={style}
         />
-          {rightIcon && <button className={iconWrapperStyle} onClick={iconOnClick}>{getImageComponent(rightIcon)}</button> }
-      {rightIcon2 && <button className={icon2WrapperStyle} onClick={iconOnClick}>{getImageComponent(rightIcon2)}</button> }
+        {rightIcon && (
+          <button className="oph-codeInput-rightIcon" onClick={iconOnClick}>
+            {getImageComponent(rightIcon)}
+          </button>
+        )}
+        {rightIcon2 && (
+          <button className="oph-codeInput-rightIcon2" onClick={iconOnClick}>
+            {getImageComponent(rightIcon2)}
+          </button>
+        )}
       </div>
     </>
   );

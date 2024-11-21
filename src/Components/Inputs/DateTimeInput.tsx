@@ -3,26 +3,24 @@ import React, { InputHTMLAttributes } from "react";
 import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 
-export interface DateTimeInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface DateTimeInputProps
+  extends InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
+  id?: string;
 }
 
-const DateTimeInput: React.FC<DateTimeInputProps & AdditionalHtmlAttributes> = ({ 
-  className, 
-  labelType, 
-  value,
-  defaultValue,
-  style,
-  ...props }) => {
-  const appTheme = getAppTheme();
+const DateTimeInput: React.FC<
+  DateTimeInputProps & AdditionalHtmlAttributes
+> = ({ labelType, value, defaultValue, style, id, ...props }) => {
   var formattedValue = stringToDateInputValue(
     (defaultValue ?? value) as string,
     "YYYY-MM-DD HH:mm"
   );
   return (
     <input
+      id={id}
       type="datetime-local"
-      className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.datetime} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+      className={`oph-dateTimeInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       defaultValue={formattedValue}
       {...props}
       style={style}

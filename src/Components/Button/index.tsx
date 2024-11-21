@@ -1,4 +1,3 @@
-import { AppTheme, getAppTheme } from "../../AppTheme";
 import React, { ButtonHTMLAttributes } from "react";
 import RawHTML from "../RawHTML";
 import { getObjectValue } from "../../Extensions/ReflectionExtensions";
@@ -7,42 +6,42 @@ import { IconProps, getImageComponent } from "..";
 
 const Button: React.FC<
   ButtonHTMLAttributes<HTMLButtonElement> & {
+    id?: string;
     priority?: string;
     size?: string;
     background?: string;
     text?: string;
-    extraClass?: string;
-    spanClass?: string;
+    inlineStyle?: string;
     leftIcon?: React.JSX.Element | string | undefined | IconProps;
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
   }
 > = ({
+  id,
   text = undefined,
   leftIcon = undefined,
   rightIcon = undefined,
   background = "red",
   size = "medium",
   priority = "primary",
-  className,
-  extraClass = "", //className bozulmasın ama extrada ekleme yapayım propsu.
-  spanClass = "",  //buton içindeki RawHTML e müdahale etmek için
+  className = undefined,
+  inlineStyle = "",
   value = undefined,
   ...props
 }) => {
-  const Theme = getAppTheme();
-  className = className ?? (
-    trimSpaces(
-      `${getObjectValue(Theme.Buttons?.Priority, priority, "")} ${getObjectValue(Theme.Buttons?.Background, background, "")} ${getObjectValue(Theme.Buttons?.Size, size, "")}`
-    ) || Theme.Buttons?.Priority?.primary || ""
-  );
-
+  if (!className) {
+    className = trimSpaces(
+      `${getObjectValue(`${priority}`, priority, "")} ${getObjectValue(`${background}`, background, "")} ${getObjectValue(`${size}`, size, "")}`
+    );
+    if (!className) className = "oph-button-primary";
+  }
   return (
     <button
-      className={`${extraClass} group flex items-center justify-center w-full gap-2 font-medium ${className}`}
+      id={id}
+      className={`group oph-button ${className} ${inlineStyle}`}
       {...props}
     >
       {leftIcon && getImageComponent(leftIcon)}
-      <RawHTML html={text ?? value} className={spanClass} />
+      <RawHTML html={text ?? value} className="oph-button-raw" />
       {rightIcon && getImageComponent(rightIcon)}
     </button>
   );

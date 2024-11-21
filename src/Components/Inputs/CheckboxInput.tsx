@@ -7,30 +7,23 @@ const CheckboxInput: React.FC<
     switchbox?: boolean;
     onText?: string;
     offText?: string;
-    bodyClass?: string;
-    strokeColor?: string;
-    switchClassName?: string;
     label?: string;
-    labelClass?: string;
     onClick?: void;
+    id?: string;
   }
 > = ({
   onText = null,
   offText = null,
-  className = undefined,
   style = undefined,
-  strokeColor = undefined,
   switchbox = undefined,
   type = undefined,
   checked = undefined,
   defaultChecked = undefined,
-  bodyClass = undefined,
-  switchClassName = undefined,
   label = undefined,
-  labelClass = undefined,
   readOnly = undefined,
   onChange = undefined,
   onClick = undefined,
+  id,
   ...props
 }) => {
   const appTheme = getAppTheme();
@@ -47,12 +40,12 @@ const CheckboxInput: React.FC<
   };
   if (switchbox === true) {
     return (
-      <label className="inline-flex items-center cursor-pointer">
+      <label id={id} className="oph-checkboxSwitchbox">
         <input
-          className={`${className ? className : ""} sr-only peer`}
+          className="oph-checkboxSwitchbox-input peer"
           type="checkbox"
           name={props.name}
-          id={props.id}
+          id={id ? id + "-input" : ""}
           key={checkedValue ? "true" : "false"}
           onChange={(e) => onCheckedChange(e)}
           defaultChecked={checkedValue}
@@ -60,11 +53,9 @@ const CheckboxInput: React.FC<
           onClick={onClick}
           {...props}
         />
-        <div
-          className={`${switchClassName} relative w-13 h-7 bg-[#AAD4EC] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-[100px] peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-azBlue`}
-        ></div>
+        <div className="oph-checkboxSwitchbox-switch peer"></div>
         {!isNullOrEmpty(onText) && !isNullOrEmpty(offText) && (
-          <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+          <span className="oph-checkboxSwitchbox-text">
             {checkedValue && onText}
             {!checkedValue && offText}
           </span>
@@ -73,12 +64,12 @@ const CheckboxInput: React.FC<
     );
   } else {
     return (
-      <div className={bodyClass ?? "w-full flex items-center gap-2"}>
+      <div id={id} className="oph-checkboxInput">
         <input
-          className={`${className ? className : ""} ${getAppTheme().Inputs?.checkbox}`}
+          className="oph-checkboxInput-input"
           type="checkbox"
           name={props.name}
-          id={props.id}
+          id={id ? id + "-input" : ""}
           key={checkedValue ? "true" : "false"}
           onChange={(e) => onCheckedChange(e)}
           defaultChecked={checkedValue}
@@ -88,7 +79,7 @@ const CheckboxInput: React.FC<
           style={style}
         />
         <svg
-          className={`absolute w-4 h-4 pointer-events-none hidden peer-checked:block ${strokeColor ? strokeColor : "stroke-white"} mt-[1px] ml-0.5 outline-none`}
+          className="oph-checkboxInput-icon"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="none"
@@ -99,7 +90,7 @@ const CheckboxInput: React.FC<
         >
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
-        <label className={labelClass ?? "p4"} htmlFor={props.id}>
+        <label className="oph-checkboxInput-label" htmlFor={id}>
           {label}
         </label>
       </div>

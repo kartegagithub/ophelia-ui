@@ -1,38 +1,40 @@
-import { getAppTheme } from "../../AppTheme";
 import React from "react";
 import { getImageComponent } from "../Image/Extensions";
 import { IconProps } from "../Icon";
-const Spinner: React.FC<SpinnerProps> = ({ 
-  text = undefined, 
-  theme = undefined, 
-  image = undefined, 
-  visible = true
-}) => {  
-  if(!visible) return <></>
-  
-  const Theme = getAppTheme({Spinner: theme}).Spinner;
+const Spinner: React.FC<SpinnerProps> = ({
+  id,
+  text = undefined,
+  image = undefined,
+  className = undefined,
+  visible = true,
+}) => {
+  if (!visible) return <></>;
 
-  if(!image) image = Theme?.Image
+  if (!image)
+    image = {
+      name: "spinner",
+      size: 18,
+      className: "oph-spinner-image",
+    };
   return (
-    <div role="status" className={Theme?.Class}>
+    <div role="status" className={`oph-spinner ${className}`} id={id}>
       {image && getImageComponent(image)}
-      {text && <span className={theme?.TextClass}>{text}</span>}
+      {text && <span className="oph-spinner-text">{text}</span>}
     </div>
   );
-}
+};
 export default Spinner;
 
-var spinnerProps: { 
-  text?: string, 
-  visible?: boolean, 
-  theme?: SpinnerTheme 
-  image?: string | any | React.JSX.Element 
-}
-export type SpinnerProps = typeof spinnerProps
+var spinnerProps: {
+  id?: string;
+  text?: string;
+  visible?: boolean;
+  className?: string;
+  image?: string | any | React.JSX.Element;
+};
+export type SpinnerProps = typeof spinnerProps;
 
 var spinnerTheme: {
-  Class?: string,
-  TextClass?: string,
-  Image?: React.JSX.Element | string | undefined | IconProps,
-}
-export type SpinnerTheme = typeof spinnerTheme
+  Image?: React.JSX.Element | string | undefined | IconProps;
+};
+export type SpinnerTheme = typeof spinnerTheme;

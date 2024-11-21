@@ -1,5 +1,5 @@
 import { getAppTheme } from "../../AppTheme";
-import React, { InputHTMLAttributes, useEffect, useMemo, useRef } from "react";
+import React, { useRef } from "react";
 import { Editor } from '@tinymce/tinymce-react';
 
 interface BlobInfo {
@@ -12,6 +12,11 @@ interface BlobInfo {
   uri: () => string | undefined;
 }
 
+/**
+ * Project must import quill Template import "react-quill/dist/quill.snow.css"
+ * @param param0 
+ * @returns 
+ */
 const RichTextInput: React.FC<{ 
   id?: string, 
   className?: string, 
@@ -43,7 +48,7 @@ const RichTextInput: React.FC<{
   
   return (
     <>
-      <input onChange={(e) => onChange && onChange(e)} ref={InputRef} type="hidden" id={id} name={name}/>
+      <input onChange={(e) => onChange && onChange(e)} ref={InputRef} type="hidden" className="oph-richtext" id={id} name={name}/>
       <Editor
         tinymceScriptSrc={theme.RichTextEditor?.FileLocation}
         apiKey={theme.RichTextEditor?.APIKey}

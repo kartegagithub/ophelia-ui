@@ -4,6 +4,7 @@ import React, { ImgHTMLAttributes, useMemo } from "react";
 
 const Image: React.FC<
   ImgHTMLAttributes<HTMLImageElement> & {
+    id?: string;
     src?: string | StaticImport;
     alt?: string;
     width?: number | undefined;
@@ -12,11 +13,12 @@ const Image: React.FC<
     unoptimized?: boolean;
     defaultImage?: string
   }
-> = ({ src, alt, size = 0, defaultImage = "/assets/default-image.png", ...props }) => {
+> = ({ id, src, alt, size = 0, defaultImage = "/assets/default-image.png", ...props }) => {
   if (size > 0) (props.width = size), (props.height = size);
   const image = useMemo(() => {
     return (
       <NextImage
+        id={id ?? ""}
         src={src ?? ""}
         alt={alt ?? ""}
         {...props}

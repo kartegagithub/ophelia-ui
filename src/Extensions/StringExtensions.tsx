@@ -200,6 +200,9 @@ export function convertToDate(value?: string) {
   if (!value) return moment(new Date());
   var setting = getCurrentRegionSetting();
   moment.locale(setting?.Code.toLowerCase());
+  if(value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1 && (value.split(":").length == 2 || value.split(":").length == 3)){
+    value = "1/1/1970 " + value;
+  }
   return moment(value);
 }
 export function getFormattedDateString(
@@ -381,7 +384,7 @@ export function trimSpaces(str?: string, regex: RegExp = /^\s+|\s+$/g) {
 }
 
 export function trimChars(val?: string, c?: string): string {
-  if (!val) return "";
+  if (!val || !c || c == "") return val ?? "";
   var re = new RegExp("^[" + c + "]+|[" + c + "]+$", "g");
   return val.replace(re, "");
 }
@@ -760,4 +763,13 @@ export const createHtmlIndex = (
     }
   }
   return indexData;
+};
+
+export const cleanSlug = (text: any) => {
+  return text
+    ?.replace(/\s*-\s*/g, "-") // Boşlukları ve çevresindeki `-` işaretlerini tek `-` ile değiştir
+    ?.replace(/\s+/g, "-") // Kalan boşlukları `-` ile değiştir
+    ?.replace(/-+/g, "-") // Çift `--` gibi durumları tek `-` yap
+    ?.replace(/^-|-$/g, "") // Başta veya sonda kalan `-` işaretlerini temizle
+    ?.toLowerCase();
 };

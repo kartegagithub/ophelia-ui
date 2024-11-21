@@ -1,0 +1,56 @@
+@import "./Components/Accordion/index.scss";
+@import "./Components/AccordionGroup/index.scss";
+@import "./Components/Sidebar/index.scss";
+@import "./Components/Backdrop/index.scss";
+@import "./Components/Alert/index.scss";
+@import "./Components/Carousel/index.scss";
+@import "./Components/Indicator/index.scss";
+@import "./Components/Label/index.scss";
+@import "./Components/Notification/index.scss";
+@import "./Components/ContentLoading/index.scss";
+@import "./Components/Spinner/index.scss";
+@import "./Components/Grid/index.scss";
+@import "./Components/Drawer/index.scss";
+@import "./Components/Button/index.scss";
+@import "./Components/Navigation/index.scss";
+@import "./Components/Pagination/index.scss";
+@import "./Components/Panel/index.scss";
+@import "./Components/Footer/index.scss";
+@import "./Components/PopOver/index.scss";
+@import "./Components/IconRating/index.scss";
+@import "./Components/Searchbar/index.scss";
+@import "./Components/Toast/index.scss";
+@import "./Components/Menu/index.scss";
+@import "./Components/ShortcutList/index.scss";
+@import "./Components/Progress/index.scss";
+@import "./Components/RawHTML/index.scss";
+@import "./Components/Modal/index.scss";
+@import "./Components/SpeedDial/index.scss";
+@import "./Components/InputFields/index.scss";
+@import "./Components/Inputs/index.scss";
+@import "./Components/Dropdown/index.scss";
+@import "./Components/Tabs/index.scss";
+@import "./Components/Table/index.scss";
+@import "./Binders/index.scss";
+
+@layer base{
+    .text-xxs{
+        font-size: 10px;
+    }
+    .text-orange-500 {
+        --tw-text-opacity: 1;
+        color: rgb(249 115 22 / var(--tw-text-opacity));
+    }
+    .text-orange-700 {
+        --tw-text-opacity: 1;
+        color: rgb(194 65 12 / var(--tw-text-opacity));
+    }
+    .bg-orange-700 {
+        --tw-bg-opacity: 1;
+        background-color: rgb(194 65 12 / var(--tw-bg-opacity));
+    }
+    .text-orange-200 {
+        --tw-text-opacity: 1;
+        color: rgb(254 215 170 / var(--tw-text-opacity));
+    }
+}

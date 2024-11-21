@@ -1,0 +1,24 @@
+.oph-pagination {
+  @apply bg-white mb-12 p-5 flex flex-col xl:flex-row items-center justify-between gap-y-5;
+  &-title {
+    @apply text-slate-500 text-[14px] tracking-[.5px];
+  }
+  &-list {
+    @apply flex items-center gap-6;
+    &-item {
+      @apply flex items-center gap-2 text-[14px] text-slate-500;
+    }
+    &-items {
+      @apply flex gap-4;
+      &-selected {
+        @apply text-[14px] text-indigo-900 font-bold bg-gray-200 px-3 py-1.5 rounded-lg;
+      }
+    }
+  }
+  &-pagesize {
+    @apply flex items-center gap-6 text-[14px] text-slate-500 tracking-[.5px];
+    &-select {
+      @apply text-[14px] text-indigo-900 font-bold bg-gray-200 px-3 py-1.5 rounded-lg;
+    }
+  }
+}

@@ -6,15 +6,16 @@ import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
 export interface EmailInputProps extends InputHTMLAttributes<HTMLInputElement> {
   list?: string;
   labelType?: any;
+  id?: string;
 }
 
 const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
   dataOptions,
   list,
-  className,
   name,
   labelType,
   style,
+  id,
   ...props
 }) => {
   const appTheme = getAppTheme();
@@ -22,8 +23,9 @@ const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
     <>
       <DataList options={dataOptions} id={list} />
       <input
+        id={id}
         type="email"
-        className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.email} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        className={`oph-emailInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         {...props}
       />

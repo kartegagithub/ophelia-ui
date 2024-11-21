@@ -1,21 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getImageComponent } from "../Image/Extensions";
 import Indicator from "../Indicator";
 import Icon from "../Icon";
 import { CarouselTheme } from "./CarouselTheme";
 import { AppTheme, getAppTheme } from "../../AppTheme";
 
 const Carousel: React.FC<CarouselProps> = React.memo(
-  ({
-    id,
-    data,
-    visible,
-    selectedIndex,
-    children,
-    options,
-    arrow,
-    responsive = [],
-  }) => {
+  ({ id, data, visible, selectedIndex, options, arrow, responsive = [] }) => {
     const [slider, setSlider] = useState<Array<any>>(data || []);
     const [activeIndex, setActiveIndex] = useState<number>(selectedIndex ?? 0);
     const [firstShow, setFirstShow] = useState<boolean>(false);
@@ -40,13 +30,10 @@ const Carousel: React.FC<CarouselProps> = React.memo(
       iconSize = 40,
       arrowShow = false,
       arrowPosition = "right",
-      indicatorPosition = "",
       indicatorShow = false,
       classNameArrow = "",
-      containerClass = ""
     } = arrow ?? {};
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleAutoPlay = () => {
       if (autoplay) {
         if (timerRef.current !== null) clearInterval(timerRef.current);
@@ -54,7 +41,6 @@ const Carousel: React.FC<CarouselProps> = React.memo(
       }
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleLoop = () => {
       if (loop && activeIndex === slider.length - 1 && autoplay) {
         const timeout = setTimeout(() => {
@@ -90,7 +76,8 @@ const Carousel: React.FC<CarouselProps> = React.memo(
         color={iconColor}
         size={iconSize}
         className={`${iconClassName} ${
-          arrowPosition === "right" && "border-azBlack bg-white z-50 hover:border-black"
+          arrowPosition === "right" &&
+          "border-slate-900 bg-white z-50 hover:border-black"
         }`}
       />
     );
@@ -101,17 +88,19 @@ const Carousel: React.FC<CarouselProps> = React.memo(
         color={iconColor}
         size={iconSize}
         className={`${iconClassName} ${
-          arrowPosition === "right" && "border-azBlack bg-white z-50 hover:border-black"
+          arrowPosition === "right" &&
+          "border-slate-900 bg-white z-50 hover:border-black"
         }`}
       />
     );
 
     const getButtonClassName = (direction: string, classNameArrow: string) => {
-      if (arrowPosition === "normal" ) {
+      if (arrowPosition === "normal") {
         let buttonClassName = `${classNameArrow} `;
-        return buttonClassName ;
+        return buttonClassName;
       } else {
-        const classNames = direction === "right"
+        const classNames =
+          direction === "right"
             ? theme.Carousel?.RightButtonClass
             : theme.Carousel?.LeftButtonClass;
         let buttonClassName = classNames ?? "";
@@ -137,8 +126,8 @@ const Carousel: React.FC<CarouselProps> = React.memo(
           buttonClassName +=
             " " +
             (direction === "right"
-              ? "right-0 "+ theme.Carousel?.ArrowRightNext
-              : "left-0 "+theme.Carousel?.ArrowRightPrev);
+              ? "right-0 " + theme.Carousel?.ArrowRightNext
+              : "left-0 " + theme.Carousel?.ArrowRightPrev);
         }
         return buttonClassName;
       }
@@ -148,16 +137,16 @@ const Carousel: React.FC<CarouselProps> = React.memo(
       const handleResize = () => {
         const windowWidth = window.innerWidth;
         let newSlidesToShow = responsive[0].settings.slidesToShow; // Varsayılan slayt sayısı
-      
+
         for (let i = 0; i < responsive.length; i++) {
           const breakpoint = responsive[i].breakpoint;
           const settings = responsive[i].settings;
-      
+
           if (windowWidth >= breakpoint && settings.slidesToShow) {
             newSlidesToShow = settings.slidesToShow;
           }
         }
-      
+
         setSlidesToShow(newSlidesToShow);
       };
 
@@ -170,48 +159,51 @@ const Carousel: React.FC<CarouselProps> = React.memo(
     if (visible) return null;
 
     return (
-      <div className={`${theme.Carousel?.Class} ${containerClass} ${overflow && "100%"}`}>
-        <div className={`${theme.Carousel?.ClassAnimated} ${gap} flex xxs:overflow-hidden ${overflow && "md:overflow-visible"}`}>
+      <div className={`oph-carousel`} id={id}>
+        <div className={`oph-carousel-animated ${overflow && "overflow"}`}>
           {slider.map((item, index) => {
-            const isVisible = index >= activeIndex && index < activeIndex + slidesToShow;
-            const itemWidthPercentage = 100 / slidesToShow; 
+            const isVisible =
+              index >= activeIndex && index < activeIndex + slidesToShow;
+            const itemWidthPercentage = 100 / slidesToShow;
 
             return (
               <div
                 key={index}
                 className={`
-                  ${theme.Carousel?.ItemClass}
+                  oph-carousel-item 
                   ${isVisible ? "" : "hidden"}
                 `}
                 style={{
-                  flexBasis: `${overflow ? itemWidthPercentage: 100}%`,
-                  flexGrow: 0,
-                  flexShrink: 0,
-                  width: `${overflow ? itemWidthPercentage: 100}%`,
-                  gap: gap
+                  flexBasis: `${overflow ? itemWidthPercentage : 100}%`,
+                  width: `${overflow ? itemWidthPercentage : 100}%`,
                 }}
               >
-                {getImageComponent(item.image, {
-                  className: theme.Carousel?.ItemImageClass, 
-                })}
+                <Icon name={item.image} size={10} />
                 {item.component}
               </div>
             );
           })}
         </div>
-        {arrowShow &&  (
-          <button type="button" onClick={nextSlide} className={getButtonClassName("right", classNameArrow)}>
+        {arrowShow && (
+          <button
+            type="button"
+            onClick={nextSlide}
+            className={getButtonClassName("right", classNameArrow)}
+          >
             {iconLeft}
           </button>
         )}
         {arrowShow && !classNameArrow && (
-          <button type="button" onClick={prevSlide} className={getButtonClassName("left", classNameArrow)}>
+          <button
+            type="button"
+            onClick={prevSlide}
+            className={getButtonClassName("left", classNameArrow)}
+          >
             {firstShow ? iconRight : null}
           </button>
         )}
         {indicatorShow && (
           <Indicator
-            rootClassName={`${theme.Carousel?.IndicatorPositionDefault} ${indicatorPosition} ${theme.Carousel?.IndicatorClass}`}
             activeIndex={Math.floor(activeIndex / slidesToShow)}
             count={Math.ceil(slider.length / slidesToShow)}
             onChange={(i) => setActiveIndex(i * slidesToShow)}
@@ -228,7 +220,11 @@ export default Carousel;
 export type CarouselProps = {
   id?: string;
   visible?: boolean;
-  data?: Array<{ image?: string | React.JSX.Element; component?: React.JSX.Element; location?: string }>;
+  data?: Array<{
+    image?: string | React.JSX.Element;
+    component?: React.JSX.Element;
+    location?: string;
+  }>;
   selectedIndex?: number;
   children?: React.ReactNode;
   options?: {
@@ -261,6 +257,5 @@ export type CarouselProps = {
     indicatorShow?: boolean;
     iconClassName?: string;
     classNameArrow?: string;
-    containerClass?: string;
   };
 };

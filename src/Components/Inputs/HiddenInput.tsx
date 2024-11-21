@@ -1,12 +1,11 @@
 import React, { InputHTMLAttributes } from "react";
 
-export interface HiddenInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  // İhtiyacınıza göre ek prop'lar ekleyebilirsiniz
-}
+export interface HiddenInputProps
+  extends InputHTMLAttributes<HTMLInputElement> {}
 
 const HiddenInput: React.FC<HiddenInputProps> = (props) => {
   return (
-    <input type="hidden" {...props} />
+    <input id={props.id} type="hidden" className="oph-hiddenInput" {...props} />
   );
 };
 

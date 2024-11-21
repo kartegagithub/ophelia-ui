@@ -4,8 +4,6 @@ export default class MenuClass{
     Data?: any = undefined
     Items?: Array<MenuItemClass> = []
     Name?: string = undefined
-    ClassName?: string = undefined
-    SubMenuClassName?: string = undefined
     SearchInProgress?: boolean = false
     RTL?: boolean = false
     ItemClassConfig?: {className: string, selectedClassName: string}

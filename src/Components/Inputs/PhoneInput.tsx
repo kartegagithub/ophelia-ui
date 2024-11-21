@@ -1,9 +1,7 @@
 import React, { InputHTMLAttributes } from "react";
 import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
 import DataList from "./DataList";
-import { getAppTheme } from "../../AppTheme";
 import { maskHandler, pasteHandler } from "../../Extensions";
-
 export interface PhoneInputProps
   extends AdditionalHtmlAttributes,
     InputHTMLAttributes<HTMLInputElement> {
@@ -14,7 +12,6 @@ export interface PhoneInputProps
 const PhoneInput: React.FC<PhoneInputProps> = ({
   list,
   dataOptions,
-  className,
   labelType,
   mask,
   maskRule,
@@ -22,7 +19,6 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   defaultValue,
   ...props
 }) => {
-  const appTheme = getAppTheme();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Eğer Ctrl veya Cmd tuşu basılıysa (örneğin Ctrl+V), maskHandler çalışmasın
@@ -39,9 +35,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         onKeyDown={handleKeyDown}
         onPaste={(e) => pasteHandler(mask, e, props.onChange, maskRule)}
         type="tel"
-        className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.phone} ${
-          labelType && labelType === "floating" ? "placeholder-transparent" : ""
-        }`}
+        className={`oph-phoneInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         defaultValue={defaultValue}
         {...props}

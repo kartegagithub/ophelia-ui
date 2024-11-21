@@ -1,6 +1,6 @@
 {
   "name": "ophelia-next",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Ophelia UI NextJS Development Library",
   "author": "kartegagithub",
   "license": "MIT",
@@ -19,10 +19,11 @@
     "node": ">=18.17.1"
   },
   "scripts": {
-    "build": "rimraf dist && npm run build:esm && npm run build:cjs && tsc --build --clean",
+    "build": "rimraf dist && npm run build:esm && npm run build:cjs && npm run copyCss && tsc --build --clean",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "clean": "tsc --build --clean",
+    "copyCss": "copyfiles -u 1 src/**/*.scss dist/cjs && copyfiles -u 1 src/**/*.scss dist/esm",
     "prepare": "run-s build"
   },
   "peerDependencies": {

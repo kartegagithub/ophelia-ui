@@ -1,0 +1,23 @@
+.oph-entityBinders {
+  @apply bg-white p-4 shadow-lg;
+  &-label {
+    @apply absolute flex items-center justify-center left-0 top-0 h-full min-h-full w-full bg-gray-800 z-10 opacity-50 text-white;
+  }
+
+  .oph-accordion{
+    @apply mb-1 mt-1
+  }
+}
+#subBinderModal {
+  @apply fixed left-0 top-10 w-full overflow-y-auto overflow-x-hidden outline-none;
+}
+#subBinderDrawer {
+  @apply bg-white w-2/4 h-full overflow-y-scroll shadow-lg;
+}
+
+.oph-collectionBinders{
+  .oph-drawer {
+    @apply  bg-white w-2/4 h-full overflow-y-scroll shadow-lg
+  }
+  @apply bg-white p-2
+}

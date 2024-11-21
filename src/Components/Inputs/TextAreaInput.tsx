@@ -12,16 +12,14 @@ export interface TextAreaInputProps
 }
 
 const TextAreaInput: React.FC<TextAreaInputProps> = ({
-  className,
   labelType,
   rows,
   style,
+  onChange,
   trackHeight = false,
   maxTrackedHeight = 300,
-  onChange,
   ...props
 }) => {
-  const appTheme = getAppTheme();
   const inputRef = createRef<HTMLTextAreaElement>();
   const onValueChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     checkHeight();
@@ -45,7 +43,7 @@ const TextAreaInput: React.FC<TextAreaInputProps> = ({
       {...props}
       onChange={(e) => onValueChanged(e)}
       ref={inputRef}
-      className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.textarea} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+      className={`oph-textAreaInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       rows={rows}
       style={style}
     />

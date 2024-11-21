@@ -98,7 +98,7 @@ const Form: React.FC<{
     }
     //keepDataChanges = false;
     return (
-      <form action={action} target={target} method={method} onSubmit={(e) => onSubmitFn(e)} className={className} encType={encType}>
+      <form action={action} target={target} method={method} onSubmit={(e) => onSubmitFn(e)} className={`oph-form ${className}`} encType={encType}>
         {keepDataChanges === true && processChildren(children)}
         {keepDataChanges !== true && children}
       </form>

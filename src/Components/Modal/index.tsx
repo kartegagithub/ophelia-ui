@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Backdrop from "../Backdrop";
-import { getAppTheme } from "../../AppTheme";
 import { checkMouseInBoundByRef } from "../../Extensions/ComponentExtensions";
 import {
   registerDocumentKeyDown,
@@ -9,19 +8,14 @@ import {
 import Icon from "../Icon";
 const Modal: React.FC<{
   id?: string;
-  className?: string;
   defaultOpen?: boolean;
   title?: string | React.ReactNode;
   backdrop?: boolean;
   dismissText?: string;
   center?: boolean;
-  dismissButtonClassName?: string;
   showCloseButton?: boolean;
   dismissOnBackdropClick?: boolean;
-  maxWidth?: string;
-  bodyClassName?: string;
   draggable?: boolean;
-  containerCls?: string;
   buttons?: Array<{
     disabled?: boolean;
     className?: string;
@@ -34,8 +28,6 @@ const Modal: React.FC<{
   onCurrentValue?: Function | any;
   onBottomScroll?: Function;
 }> = ({
-  className = undefined,
-  dismissButtonClassName = undefined,
   dismissOnBackdropClick = true,
   id = undefined,
   defaultOpen = true,
@@ -43,17 +35,13 @@ const Modal: React.FC<{
   dismissText = undefined,
   onBottomScroll = undefined,
   onCurrentValue = undefined,
-  maxWidth = "800px",
-  showCloseButton = false,
-  containerCls = undefined,
-  bodyClassName = undefined,
+  showCloseButton = true,
   buttons = [],
   draggable = false,
   center = false,
   backdrop = true,
   children,
 }) => {
-  const theme = getAppTheme();
   const ModalRef = React.createRef<HTMLDivElement>();
   const ModalBodyRef = React.createRef<HTMLDivElement>();
   const [open, setOpen] = useState(false);
@@ -83,7 +71,7 @@ const Modal: React.FC<{
       if (currentY > 100) {
         // currentY 100 den büyükse kapatsın.(100den fazla bottom yaparsa)
         setOpen(false);
-        onCurrentValue(false);
+        onCurrentValue && onCurrentValue(false);
       }
       setCurrentY(0);
     }
@@ -130,20 +118,11 @@ const Modal: React.FC<{
 
   if (!open) return <></>;
 
-  if (!className) className = theme.Modal?.Class;
-  if (backdrop) className += " z-" + theme.Modal?.DefaultZIndex;
-  //console.log(buttons)
   return (
     <>
       <div
         id={id}
-        className={
-          className +
-          " " +
-          (open ? "" : "hidden") +
-          (center &&
-            "flex items-center justify-center h-screen overflow-y-hidden top-0")
-        }
+        className={`oph-modal ${center && "center"} ${!open && "hidden"}`}
         onClick={(e) => {
           checkMouseInBoundByRef(e, ModalRef, (inside) => {
             dismissOnBackdropClick && !inside
@@ -158,50 +137,49 @@ const Modal: React.FC<{
         onTouchMove={handleMouseMove}
         onTouchEnd={handleMouseUp}
       >
-        <div className={theme.Modal?.SubClass} style={{ maxWidth }}>
-          <div
-            className={containerCls + " " + theme.Modal?.ContainerClass}
-            ref={ModalRef}
-          >
+        <div className="oph-modal-subclass">
+          <div className="oph-modal-subclass-container" ref={ModalRef}>
             {showCloseButton && (
               <div
-                className="absolute right-5 top-4 z-30"
+                className="oph-modal-subclass-container-close"
                 onClick={(e: any) => {
                   closeModal(e);
-                  onCurrentValue(false);
+                  onCurrentValue && onCurrentValue(false);
                 }}
               >
                 <Icon
                   name="azClose"
                   color="#768892"
                   size={24}
-                  className="cursor-pointer"
+                  className="oph-modal-subclass-container-close-icon"
                 />
               </div>
             )}
             {draggable && (
               <div
-                className="flex sm:hidden justify-center items-center h-10 cursor-pointer group"
+                className="oph-modal-subclass-container-draggable group"
                 onMouseDown={handleMouseDown}
                 onTouchStart={handleMouseDown}
               >
-                <div className="w-12 h-1 bg-blue-200 group-hover:bg-blue-400 rounded-full"></div>
+                <div className="oph-modal-subclass-container-draggable-content"></div>
               </div>
             )}
             {title && (
-              <div className={theme.Modal?.HeaderClass}>
-                <h3 className={theme.Modal?.TitleClass}>{title}</h3>
+              <div className="oph-modal-subclass-container-header">
+                <h3 className="oph-modal-subclass-container-header-title">
+                  {title}
+                </h3>
               </div>
             )}
             <div
-              className={bodyClassName ?? theme.Modal?.BodyClass}
+              className="oph-modal-subclass-container-body"
               ref={ModalBodyRef}
               onScroll={(e) => onScrollModalBody(e)}
             >
               {children}
             </div>
             {buttons?.length >= 1 && (
-              <div className={theme.Modal?.FooterClass}>
+              <div className="oph-modal-subclass-container-footer">
                 {buttons?.map((item, i) => {
                   return (
                     <button
@@ -210,8 +188,10 @@ const Modal: React.FC<{
                       onClick={(e) => buttonClick(e, item)}
                       type={item.type ?? "button"}
                       className={
-                        (item.className ?? theme.Modal?.ButtonClass) +
-                        (item.disabled ? " disabled:opacity-50" : "")
+                        (item.className ??
+                          "oph-modal-subclass-container-footer-button") +
+                        (item.disabled &&
+                          "oph-modal-subclass-container-footer-buttonDisabled")
                       }
                     >
                       {item.text}
@@ -222,9 +202,7 @@ const Modal: React.FC<{
                   <button
                     data-modal-hide={id}
                     type="button"
-                    className={
-                      dismissButtonClassName ?? theme.Modal?.ButtonClass
-                    }
+                    className="oph-modal-subclass-container-footer-dismissButton"
                     onClick={(e) => {
                       closeModal(e);
                     }}
@@ -242,16 +220,3 @@ const Modal: React.FC<{
   );
 };
 export default Modal;
-
-var modalTheme: {
-  DefaultZIndex?: string | number;
-  Class?: string;
-  SubClass?: string;
-  ContainerClass?: string;
-  HeaderClass?: string;
-  BodyClass?: string;
-  FooterClass?: string;
-  TitleClass?: string;
-  ButtonClass?: string;
-};
-export type ModalTheme = typeof modalTheme;

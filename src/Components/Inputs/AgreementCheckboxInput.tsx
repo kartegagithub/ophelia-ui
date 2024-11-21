@@ -19,6 +19,7 @@ export default class AgreementCheckboxInput<P> extends React.Component<
         ref: HTMLInputElement | undefined | null
       ) => void;
       label?: React.ReactNode;
+      id?: string;
     },
   { showModal: boolean; checked: boolean; viewedAgreement: boolean }
 > {
@@ -83,14 +84,14 @@ export default class AgreementCheckboxInput<P> extends React.Component<
             onBottomScroll={() => this.setState({ viewedAgreement: true })}
             buttons={buttons}
             title={this.props.modalTitle}
-            className={this.props.modalClassName}
             dismissOnBackdropClick={false}
             defaultOpen={true}
+            onCurrentValue={() => {}}
           >
             <RawHTML html={this.props.agreementText} />
           </Modal>
         )}
-        <div className="flex items-center gap-2.5">
+        <div id={this.props.id} className="oph-agreementCheckbox">
           <input
             type="checkbox"
             ref={this.cbRef}
@@ -98,7 +99,7 @@ export default class AgreementCheckboxInput<P> extends React.Component<
             name={this.props.name}
             id={this.props.id}
             checked={this.state.checked}
-            className={this.props.className ?? getAppTheme().Inputs?.checkbox}
+            className={`${this.props.className} "oph-agreementCheckbox-input"`}
             style={this.props.style}
           />
           {this.props.label && (

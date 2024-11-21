@@ -1,0 +1,30 @@
+.oph-button {
+  @apply flex items-center justify-center w-full gap-2 font-medium;
+  &.secondary {
+    @apply border;
+  }
+  &.outline {
+    @apply px-3 py-2 bg-transparent rounded-md border border-red-600 !text-red-600 hover:bg-red-600 hover:!text-white text-sm font-semibold transition duration-300;
+  }
+  &.small {
+    @apply py-[7px] px-3 text-xs sm:text-sm rounded-md;
+  }
+  &.medium {
+    @apply py-3 sm:py-[15px] px-5 sm:px-6 text-sm sm:text-base rounded-lg;
+  }
+  &.red {
+    @apply bg-red-600 text-white hover:shadow-primary;
+  }
+  &.white {
+    @apply bg-white hover:bg-lightSky text-black hover:text-red-600 border-[#FFFF80];
+  }
+  &.stroke {
+    @apply bg-transparent border-pastelBlue hover:border-blue-600 text-black hover:text-sky;
+  }
+  &.sky {
+    @apply bg-sky text-black hover:text-sky;
+  }
+  &.none {
+    @apply text-black hover:text-blue-50;
+  }
+}

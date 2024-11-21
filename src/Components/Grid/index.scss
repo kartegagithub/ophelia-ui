@@ -1,0 +1,23 @@
+.grid-container {
+  @apply relative overflow-x-auto;
+}
+
+.grid-content {
+  @apply grid w-full gap-4;
+}
+
+.grid-row {
+  @apply flex items-center w-full;
+}
+
+.grid-column {
+  @apply flex flex-col;
+}
+
+.grid-top-scroll {
+  @apply absolute top-0 left-0 right-0 z-10 overflow-x-scroll scrollbar-none;
+}
+
+.grid-scrollbar {
+  @apply scrollbar-none;
+}

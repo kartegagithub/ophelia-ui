@@ -1,9 +1,8 @@
 import { loopInRange } from "../../Extensions/ArrayExtensions";
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import Select from "../Inputs/SelectInput";
 import Label from "../Label";
-import { getAppTheme } from "../../AppTheme";
 import { formatString } from "../../Extensions/StringExtensions";
 import { getImageComponent } from "../Image/Extensions";
 const Pagination: React.FC<PaginationProps> = ({
@@ -20,12 +19,9 @@ const Pagination: React.FC<PaginationProps> = ({
   visible = true,
   page = 1,
   pageSizes = [25, 50, 100],
-  children,
-  theme = undefined
+  id,
 }) => {
   if (visible === false || datacount <= 0 || totalDatacount <= 0) return <></>;
-
-  const Theme = getAppTheme({Pagination: theme}).Pagination;
 
   const onPageChange = (e: any, i: number) => {
     e.preventDefault();
@@ -48,61 +44,79 @@ const Pagination: React.FC<PaginationProps> = ({
   var linkedPageCount = Math.ceil(totalDatacount / pageSize);
   var startIndex = 1;
   var endIndex = linkedPageCount;
-  var visiblePagecount = 3
-  if(linkedPageCount >= visiblePagecount){
-    var endIndex = page + 3 > linkedPageCount ? linkedPageCount: page + 3;
-    var startIndex = endIndex - visiblePagecount
-    if(startIndex <= 0){
-      startIndex = 1
+  var visiblePagecount = 3;
+  if (linkedPageCount >= visiblePagecount) {
+    var endIndex = page + 3 > linkedPageCount ? linkedPageCount : page + 3;
+    var startIndex = endIndex - visiblePagecount;
+    if (startIndex <= 0) {
+      startIndex = 1;
       endIndex = visiblePagecount;
     }
   }
   return (
-    <div className={Theme?.RootClass}>
-      {pagesTitle && <span className={Theme?.PagesTitleClass}>
-        <strong className="text-blueZodiac">{formatString(pagesTitle, `${(page - 1) * pageSize + datacount}`, `${ totalDatacount}`)}</strong>
-      </span>}
-      <div className="flex items-center gap-6">
-        {startIndex >  1 && 
+    <div id={id} className="oph-pagination">
+      {pagesTitle && (
+        <span className="oph-pagination-title">
+          <strong className="text-indigo-900">
+            {formatString(
+              pagesTitle,
+              `${(page - 1) * pageSize + datacount}`,
+              `${totalDatacount}`
+            )}
+          </strong>
+        </span>
+      )}
+      <div className="oph-pagination-list">
+        {startIndex > 1 && (
           <Link
             href={getPageLink(1)}
             onClick={(e) => onPageChange(e, 1)}
-            className={Theme?.PageListItemClass}
+            className="oph-pagination-list-item"
           >
-            {getImageComponent( {name: "arrow-left", color: "#75819E", fill: "none", size: 16})}
+            {getImageComponent({
+              name: "arrow-left",
+              color: "#75819E",
+              fill: "none",
+              size: 16,
+            })}
             <span>{prevText}</span>
           </Link>
-        }
-      <ul className={Theme?.PageListClass}>
-        {loopInRange(startIndex, endIndex, (i) => {
-          return (
-            <Link
-              href={getPageLink(i)}
-              onClick={(e) => onPageChange(e, i)}
-              aria-current={page === i? "page": undefined}
-              className={(page === i ? Theme?.PageListItemSelectedClass : Theme?.PageListItemClass)}
-            >
-              {i}
-            </Link>
-          );
-        })}
-      </ul>
-        {endIndex < linkedPageCount && 
+        )}
+        <ul className="oph-pagination-list-items">
+          {loopInRange(startIndex, endIndex, (i) => {
+            return (
+              <Link
+                href={getPageLink(i)}
+                onClick={(e) => onPageChange(e, i)}
+                aria-current={page === i ? "page" : undefined}
+                className={`oph-pagination-list-items${page === i ? "-selected" : ""}`}
+              >
+                {i}
+              </Link>
+            );
+          })}
+        </ul>
+        {endIndex < linkedPageCount && (
           <Link
             href={getPageLink(linkedPageCount)}
             onClick={(e) => onPageChange(e, linkedPageCount)}
-            className={Theme?.PageListItemClass}
+            className={"oph-pagination-list-item"}
           >
             <span>{nextText}</span>
-            {getImageComponent( {name: "arrow-right", color: "#75819E", fill: "none", size: 16})}
+            {getImageComponent({
+              name: "arrow-right",
+              color: "#75819E",
+              fill: "none",
+              size: 16,
+            })}
           </Link>
-        }
+        )}
       </div>
       {pageSizes && pageSizes.length > 0 && (
-        <div className={Theme?.PageSizeSelectionRootClass}>
+        <div className="oph-pagination-pagesize">
           {pageSizeSelectionText && <Label value={pageSizeSelectionText} />}
           <Select
-            className={Theme?.PageSizeSelectionClass}
+            className="oph-pagination-pagesize-select"
             id="pagesize"
             name="pagesize"
             value={pageSize.toString()}
@@ -118,7 +132,7 @@ const Pagination: React.FC<PaginationProps> = ({
 };
 export default Pagination;
 
-var paginationProps : {
+var paginationProps: {
   totalDatacount: number;
   datacount: number;
   page: number;
@@ -133,17 +147,6 @@ var paginationProps : {
   onChange?: Function;
   onPageSizeChange?: Function;
   children?: React.ReactNode;
-  theme?: PaginationTheme
-}
-export type PaginationProps = typeof paginationProps
-
-var paginationTheme: {
-  RootClass?: string,
-  PageListClass?: string,
-  PageListItemClass?: string,
-  PageListItemSelectedClass?: string,
-  PageSizeSelectionRootClass?: string,
-  PageSizeSelectionClass?: string,
-  PagesTitleClass?: string
-}
-export type PaginationTheme = typeof paginationTheme
+  id?: string;
+};
+export type PaginationProps = typeof paginationProps;

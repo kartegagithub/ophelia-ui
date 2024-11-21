@@ -1,4 +1,3 @@
-import { getAppTheme } from "../../AppTheme";
 import React, { useEffect, useState } from "react";
 import { getImageComponent } from "../Image/Extensions";
 import {
@@ -14,7 +13,6 @@ import {
   unregisterDocumentMouseDown,
 } from "../../Extensions/DocumentExtension";
 import { getObjectValue, setObjectValue } from "../../Extensions";
-import Button from "../Button";
 import Navigation from "../Navigation";
 import Backdrop from "../Backdrop";
 import { useRouter } from "next/router";
@@ -26,6 +24,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   searchPlaceholder = "Search",
   onSearch = undefined,
   onSelectionChange = undefined,
+  className = undefined,
   children = undefined,
   options = [],
   buttons = [],
@@ -39,23 +38,19 @@ const Dropdown: React.FC<DropdownProps> = ({
   valueProp = "value",
   selectedItemDisplayProp = undefined,
   selectedItemValueProp = undefined,
-  contentTopClass = undefined,
   label = "",
   backdrop = false,
-  theme = undefined,
   handleOutboundClick = true,
   visibilityCallback = undefined,
   refreshSearchList = false,
-  listHeight = undefined,
   alwaysOpen = false,
-  ...props
+
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
-  const Theme = getAppTheme({ Dropdown: theme }).Dropdown;
   const SearchRef = React.createRef<HTMLInputElement>();
   var Timer: any;
   const RootRef = React.createRef<HTMLDivElement>();
@@ -226,13 +221,11 @@ const Dropdown: React.FC<DropdownProps> = ({
     <>
       {button && (
         <Navigation
-          className={button.className ?? getAppTheme().Buttons?.primary}
           id={`${id}_button`}
           data-testid={`${id}_button`}
           onClick={(e) => handleMainButtonClick(e, button)}
           text={button.text}
           leftIcon={button.leftIcon}
-          rawClass={button.rawClass}
           rightIcon={button.rightIcon}
           size={button.size ?? "small"}
           onMouseOver={() => {
@@ -248,16 +241,12 @@ const Dropdown: React.FC<DropdownProps> = ({
       <div
         id={id}
         key={id}
-        className={`${Theme?.Class} ${positionClass || "left-0"} ${
-          open
-            ? "opacity-100 max-h-[800px]"
-            : "opacity-0 max-h-0 overflow-hidden"
-        } ${contentTopClass}`}
+        className={`oph-dropdown ${className} ${positionClass || "left"} ${open ? "open" : ""} `}
         ref={RootRef}
       >
         {enableSearch && (
-          <div className="p-6">
-            <div className="relative">
+          <div className="oph-dropdown-search">
+            <div className="oph-dropdown-search-container">
               <input
                 onKeyUp={(e) => {
                   setPage(1);
@@ -265,26 +254,22 @@ const Dropdown: React.FC<DropdownProps> = ({
                 }}
                 type="text"
                 ref={SearchRef}
-                className="bg-transparent border border-pastelBlue rounded-lg p-4 text-black text-sm appearance-none focus:border-darkSky block w-full peer focus:outline-none focus:ring-0"
+                className="oph-dropdown-search-container-searchInput"
                 placeholder={searchPlaceholder}
               />
-              <div className="absolute inset-y-0 rtl:inset-r-0 end-4 flex items-center">
+              <div className="oph-dropdown-search-container-content">
                 <Icon name="azSearch" color="#0D222E" size={24} />
               </div>
             </div>
           </div>
         )}
-        {label && (
-          <p className="text-manatee text-[10px] font-normal mb-1.5">{label}</p>
-        )}
+        {label && <p className="oph-dropdown-label">{label}</p>}
 
         {filteredOptions && filteredOptions.length > 0 && (
           <ul
             ref={ListRef}
             onScroll={(e) => onListScrolled(e)}
-            className={`${Theme?.ContentClass} ${listHeight} ${
-              open ? "opacity-100" : "opacity-0 max-h-0"
-            }`}
+            className={`oph-dropdown-options ${open ? "" : "open"}`}
             aria-labelledby="dropdownSearchButton"
           >
             {filteredOptions.map((option, i) => {
@@ -306,7 +291,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                   >
                     <div
                       id={`${id}_option_${i}`}
-                      className={Theme?.ItemClass}
+                      className={"oph-dropdown-options-item"}
                       onClick={(e) => onOptionSelectionChanged(e, option)}
                     >
                       {iconProp &&
@@ -320,16 +305,11 @@ const Dropdown: React.FC<DropdownProps> = ({
                           type={multipleSelection ? "checkbox" : "radio"}
                           value={getObjectValue(option, valueProp)}
                           checked={checked}
-                          className={
-                            multipleSelection
-                              ? Theme?.CheckboxClass ??
-                                getAppTheme().Inputs?.checkbox
-                              : Theme?.RadioClass ?? getAppTheme().Inputs?.radio?.square
-                          }
+                          className={multipleSelection ? "checkbox" : "radio"}
                         />
                       )}
                       {!optionTemplateFn && (
-                        <label className={Theme?.ItemLabelClass}>
+                        <label className={"oph-dropdown-options-item-label"}>
                           {getObjectValue(option, displayProp)}
                         </label>
                       )}
@@ -343,14 +323,9 @@ const Dropdown: React.FC<DropdownProps> = ({
         )}
         {children}
         {buttons && buttons.length > 0 && (
-          <div className={Theme?.ButtonContainerClass}>
+          <div className={"oph-dropdown-footerbutton"}>
             {buttons.map((button, i) => (
-              <a
-                key={i}
-                href="#"
-                onClick={(e) => onButtonClick(e, button)}
-                className={button.className ?? Theme?.ButtonClass}
-              >
+              <a key={i} href="#" onClick={(e) => onButtonClick(e, button)}>
                 {button.icon && getImageComponent(button.icon)}
                 {button.text}
               </a>
@@ -370,7 +345,7 @@ var dropdownProps: {
   enableSearch?: boolean;
   searchPlaceholder?: string;
   multipleSelection?: boolean;
-  positionClass?: string;
+  positionClass?: "left" | "right" | "top" | "bottom" | "custom";
   contentTopClass?: string;
   button?: {
     id?: string;
@@ -380,7 +355,6 @@ var dropdownProps: {
     leftIcon?: IconProps | string | React.JSX.Element;
     rightIcon?: IconProps | string | React.JSX.Element;
     size?: string;
-    rawClass?: string;
     btnChildren?: React.JSX.Element;
   };
   newBtn?: React.JSX.Element;
@@ -415,7 +389,7 @@ var dropdownProps: {
   urlProp?: string;
   iconProp?: string;
   label?: string;
-  theme?: DropdownTheme;
+  className?: string;
   handleOutboundClick?: boolean;
   visibilityCallback?: (open: boolean) => void;
   refreshSearchList?: boolean;
@@ -423,21 +397,3 @@ var dropdownProps: {
   alwaysOpen?: boolean;
 };
 export type DropdownProps = typeof dropdownProps;
-
-var dropdownTheme: {
-  Class?: string;
-  ClassWhenInner?: string;
-  ButtonContainerClass?: string;
-  contentBasicText?: string;
-  selectbox?: string;
-  ButtonClass?: string;
-  ContentClass?: string;
-  SuccessClass?: string;
-  ItemClass?: string;
-  CheckboxClass?: string;
-  RadioClass?: string;
-  ItemLabelClass?: string;
-  SearchIcon?: React.JSX.Element | string | undefined | IconProps;
-};
-
-export type DropdownTheme = typeof dropdownTheme;

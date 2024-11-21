@@ -8,15 +8,11 @@ const Alert: React.FC<AlertProps> = ({
   visible = true,
   children = undefined,
   text = undefined,
-  iconProps = undefined,
   type = "info",
   theme = undefined,
   image = undefined,
-  style = undefined,
-  textStyle = undefined,
 }) => {
   const Theme = getAppTheme({ Alert: theme }).Alert;
-  const className = (Theme?.Types as any)[type] ?? Theme?.Class;
 
   if (!image) {
     if (type == "success") image = Theme?.SuccessImage;
@@ -28,12 +24,12 @@ const Alert: React.FC<AlertProps> = ({
   return (
     <>
       {visible && (
-        <div id={id} className={className} style={style}>
+        <div id={id} className={`oph-alert ${type}`}>
           {image && (
-            <div className={Theme?.ImageClass}>{getImageComponent(image)}</div>
+            <div className="oph-alert-image">{getImageComponent(image)}</div>
           )}
           {text && (
-            <div className={Theme?.TextClass} style={textStyle}>
+            <div className="oph-alert-text">
               <RawHTML html={text} />
             </div>
           )}
@@ -60,10 +56,6 @@ var alertProps: {
 export type AlertProps = typeof alertProps;
 
 var alertTheme: {
-  Class?: string;
-  TextClass?: string;
-  Types?: { info?: string; warning?: string; error?: string; success?: string };
-  ImageClass?: string;
   InfoImage?: React.JSX.Element | string | undefined | IconProps;
   SuccessImage?: React.JSX.Element | string | undefined | IconProps;
   ErrorImage?: React.JSX.Element | string | undefined | IconProps;

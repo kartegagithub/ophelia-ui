@@ -1,0 +1,50 @@
+.oph-sidebar {
+  @apply max-md:hidden;
+  &.open {
+    @apply h-full min-w-[300px] bg-indigo-900 px-5 pt-9 pb-6 text-[12px];
+  }
+  &.collapsed {
+    @apply h-full w-[64px] bg-indigo-900 px-5 pt-11 pb-6;
+  }
+  &.mobile {
+    @apply max-md:block;
+  }
+  &-linksContainer {
+    @apply flex items-center justify-between mb-10;
+    &-link {
+      @apply flex items-center gap-2.5;
+      &-title {
+        @apply text-white text-3xl;
+      }
+    }
+  }
+}
+
+.oph-sidebarSearch {
+  @apply mb-9;
+
+  &-label {
+    @apply relative;
+    &-searchIcon {
+      @apply absolute inset-y-0 left-0 flex items-center;
+
+      &.collapsed {
+        @apply bg-indigo-900 w-12 h-12 flex items-center justify-center rounded-xl -ml-3 cursor-text;
+      }
+    }
+    &-input {
+      @apply flex p-3 w-full bg-indigo-900 text-white font-semibold text-[12px] border-indigo-700 tracking-[.42px] focus:outline-none focus:border-white pl-8 border-b;
+
+      &.collapsed {
+        @apply border-none;
+      }
+    }
+    &-right {
+      @apply absolute inset-y-0 right-0 flex items-center;
+    }
+  }
+}
+
+.oph-sidebar-mobileSwitchButton {
+  @apply flex pl-6 pt-9 md:hidden;
+}

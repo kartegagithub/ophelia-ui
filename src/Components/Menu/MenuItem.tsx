@@ -1,9 +1,8 @@
-import React, { MouseEventHandler, useState } from "react";
+import React, { useState } from "react";
 import MenuItemClass from "./MenuItemClass";
 import MenuClass from "./MenuClass";
 import Link from "next/link";
 import { getImageComponent } from "../Image/Extensions";
-import { MenuTheme } from "./Menu";
 import AppClient from "../../AppClient";
 
 const MenuItem: React.FC<MenuItemProps> = React.memo(
@@ -17,19 +16,20 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     menuCollapsed,
     listener,
     children,
-    theme = undefined,
-    AppClient = undefined
+    AppClient = undefined,
   }) => {
     selected = selected && item.Selected;
     const [collapsed, setCollapsed] = useState(selected);
 
     const onClick = (e: any) => {
-      if(item.Location) {item.Selected = true; return true;}
-      else {
+      if (item.Location) {
+        item.Selected = true;
+        return true;
+      } else {
         e.preventDefault();
-        if(!item.Selected) listener?.onSelect([item]);
+        if (!item.Selected) listener?.onSelect([item]);
         else listener?.onUnselect([item]);
-        setCollapsed(item.Selected)
+        setCollapsed(item.Selected);
         return false;
       }
     };
@@ -39,7 +39,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
         listener?.onSelect([item].concat(subItems));
       },
       onUnselect: (subItems: Array<MenuItemClass>) => {
-        subItems.forEach((item) => item.Selected = false)
+        subItems.forEach((item) => (item.Selected = false));
       },
       onRightIconClick: (subItem: MenuItemClass) => {},
       onLeftIconClick: (subItem: MenuItemClass) => {},
@@ -53,8 +53,9 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
       return <></>;
 
     if (item.Component) {
-      var component  = item.Component;
-      if(typeof component == "function") component = component(menuCollapsed === true, menu)
+      var component = item.Component;
+      if (typeof component == "function")
+        component = component(menuCollapsed === true, menu);
       return (
         <div
           key={id}
@@ -75,10 +76,16 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
       { className: item.IconClassName },
       selected
     );
-    if(item.SubItems && item.SubItems?.length > 0 && !item.RightIcon){
+    if (item.SubItems && item.SubItems?.length > 0 && !item.RightIcon) {
       RightIconComponent = getImageComponent(
-        item.RightIcon ?? {name: "arrow-down", color: selected ? "#fff" : "#A6A5E3", fill: "none", size: 16},
-        { className: item.IconClassName },
+        item.RightIcon ?? {
+          name: "arrow-down",
+          fill: "none",
+          size: 16,
+        },
+        {
+          className: `oph-menu-item-link-content-icon ${selected && "selected"}`,
+        },
         selected
       );
     }
@@ -100,40 +107,48 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
       );
     });
 
-    var className = "flex items-center justify-between py-4 text-lavenderBlue hover:text-white";
-    if (selected && item.Level && theme?.Levels?.Selected) {
-      var tmpClassName = (theme?.Levels?.Selected as any)[item.Level.toString()];
-      if (tmpClassName) className = tmpClassName;
-    }
+    var className = "oph-menu-item-link";
 
-    if(menuCollapsed){
-      return <div className="mb-5 cursor-pointer" onClick={() => { setMenuCollapsed && setMenuCollapsed(false); listener?.onSelect([item]);}}>
-        {LeftIconComponent}
-      </div>
+    if (selected && item.Level)
+      className = `oph-menu-item-link selected${item.Level}`;
+
+    if (menuCollapsed) {
+      return (
+        <div
+          className="oph-menu-collapsed"
+          onClick={() => {
+            setMenuCollapsed && setMenuCollapsed(false);
+            listener?.onSelect([item]);
+          }}
+        >
+          {LeftIconComponent}
+        </div>
+      );
     }
     return (
       <div
-            key={id}
-            className={item.ClassName || menu.ItemClassConfig?.className}
-            data-rtl={item.RTL || menu.RTL}
-          >
-            <Link
-              key="item-link"
-              className={className}
-              href={item.Location ?? "#"}
-              onClick={onClick}
-            >
-              <div className="flex items-center gap-3">
-                <div>{LeftIconComponent}</div>
-                {AppClient? AppClient?.Translate(item.Text): item.Text}
-              </div>
-              {RightIconComponent}
-            </Link>
-            {collapsed && selected && subMenuItems && (
-              <div className={`${menu.SubMenuClassName}`}>{subMenuItems}</div>
-            )}
-            {children}
+        id={id}
+        key={id}
+        className="oph-menu-item"
+        data-rtl={item.RTL || menu.RTL}
+      >
+        <Link
+          key="item-link"
+          className={className}
+          href={item.Location ?? "#"}
+          onClick={onClick}
+        >
+          <div className="oph-menu-item-link-content">
+            <div>{LeftIconComponent}</div>
+            {AppClient ? AppClient?.Translate(item.Text) : item.Text}
           </div>
+          {RightIconComponent}
+        </Link>
+        {collapsed && selected && subMenuItems && (
+          <div className="oph-menu-item-submenu">{subMenuItems}</div>
+        )}
+        {children}
+      </div>
     );
   }
 );
@@ -150,13 +165,12 @@ var menuItemProps: {
   menuCollapsed?: boolean;
   children?: React.ReactNode;
   selected?: boolean;
-  AppClient?: AppClient
+  AppClient?: AppClient;
   listener?: {
     onSelect: Function;
     onUnselect: Function;
     onRightIconClick: Function;
     onLeftIconClick: Function;
   };
-  theme?: MenuTheme
-}
-export type MenuItemProps = typeof menuItemProps
+};
+export type MenuItemProps = typeof menuItemProps;

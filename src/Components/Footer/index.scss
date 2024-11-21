@@ -1,0 +1,21 @@
+.oph-footer {
+  @apply container relative bg-white p-20 text-black border-t shadow-inner;
+  &-layout {
+    @apply container grid grid-cols-3 gap-4 grid-flow-row;
+    &-logoInfo {
+      @apply row-start-1 gap-4;
+    }
+    &-menu {
+      @apply flex flex-row gap-4 justify-between;
+      &-item {
+        @apply grid grid-cols-1;
+      }
+    }
+    &-links {
+      @apply gap-4 flex-col;
+      &-social {
+        @apply grid grid-cols-2;
+      }
+    }
+  }
+}

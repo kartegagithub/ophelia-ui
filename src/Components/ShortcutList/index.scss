@@ -1,0 +1,21 @@
+.oph-shortcutlist {
+  @apply mt-14 container;
+  &-title {
+    @apply text-indigo-900 text-[14px] font-bold mb-5;
+  }
+  &-items {
+    @apply flex items-center flex-wrap gap-10;
+  }
+  &-item {
+    @apply flex flex-col items-center gap-5 relative;
+    &-badge {
+      @apply absolute -right-1 -top-1 w-8 h-6 bg-red-500 text-white text-center rounded-2xl z-10;
+    }
+    &-icon {
+      @apply bg-slate-100 opacity-80 p-6 rounded-[18px] hover:bg-gray-200 cursor-pointer;
+    }
+    &-title {
+      @apply text-[12px] text-slate-800 group-hover:text-indigo-900 tracking-[.42px] max-w-[100px] truncate overflow-hidden whitespace-nowrap;
+    }
+  }
+}

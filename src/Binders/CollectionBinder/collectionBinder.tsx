@@ -437,7 +437,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(this.props.initialFilters && data.id == 0) data = {...data, ...this.props.initialFilters}
     //console.log(this.state.clickedRowIndex)
     if(this.Config.ChildBinderContainer == "modal"){
-      return <Modal className={this.Theme.Binders?.SubBinderModal?.Class} key={this.state.clickedRowIndex} dismissOnBackdropClick={false} defaultOpen={true}>
+      return <Modal key={this.state.clickedRowIndex} dismissOnBackdropClick={false} defaultOpen={true}>
         {this.renderEntityBinder(data)}
       </Modal>
     }
@@ -461,18 +461,20 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setMetaTags(stateData)
       this.OnBeforeRender();
       return <>
-        <ContentLoading appClient={this.props.AppClient} loading={this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed}>
-          {this.renderHeader()}
-          {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
-          <div className="collection-binder">
-            <div ref={this.RootElementRef}>
-              <Table refreshKey={this.state.dataIndex} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+        <div className="oph-collectionBinders">
+          <ContentLoading appClient={this.props.AppClient} loading={this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed}>
+            {this.renderHeader()}
+            {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
+            <div className="oph-collectionBinders">
+              <div ref={this.RootElementRef}>
+                <Table refreshKey={this.state.dataIndex} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+              </div>
+              {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
             </div>
-            {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
-          </div>
-          {this.renderChildAction()}
-          {this.renderFooter()}
-        </ContentLoading>
+            {this.renderChildAction()}
+            {this.renderFooter()}
+          </ContentLoading>
+        </div>
       </>
     } catch (error) {
       console.error(error);

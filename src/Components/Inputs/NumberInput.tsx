@@ -15,6 +15,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
   list,
   labelType,
   style,
+  id,
   ...props
 }) => {
   const appTheme = getAppTheme();
@@ -22,8 +23,9 @@ const NumberInput: React.FC<NumberInputProps> = ({
     <>
       <DataList options={dataOptions} id={list} />
       <input
+        id={id}
         type="number"
-        className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.numeric} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        className={`oph-numberInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         {...props}
         style={style}
       />

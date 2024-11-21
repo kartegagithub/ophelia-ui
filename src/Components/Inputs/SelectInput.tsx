@@ -1,6 +1,5 @@
 import { AdditionalHtmlAttributes } from "../../Enums";
-import { getAppTheme } from "../../AppTheme";
-import React, { SelectHTMLAttributes, useEffect, useState } from "react";
+import React, { SelectHTMLAttributes, useState } from "react";
 
 const SelectInput: React.FC<
   SelectHTMLAttributes<HTMLSelectElement> &
@@ -24,7 +23,6 @@ const SelectInput: React.FC<
 }) => {
   const [selectedItem, setSelectedItem] = useState(-1);
   const HiddenRef = React.createRef<HTMLInputElement>();
-  //console.log('pureProps :>> ', pureProps);
 
   const getOptions = () => {
     var _options: Array<SelectInputOption> = [];
@@ -75,10 +73,7 @@ const SelectInput: React.FC<
   const _options = getOptions();
 
   if (switchbox === true) {
-    className =
-      className ??
-      getAppTheme().Inputs?.selectboxWithSwitch?.Class ??
-      "flex w-full justify-center relative";
+    className = "oph-selectInput-switch";
     var selectedIndex = selectedItem;
     if (selectedIndex == -1) selectedIndex = getSelectedValueIndex(_options);
     var selectedValue = "";
@@ -86,11 +81,7 @@ const SelectInput: React.FC<
       selectedValue = _options[selectedIndex].value;
     return (
       <>
-        <div
-          className={
-            className ?? getAppTheme().Inputs?.selectboxWithSwitch?.Class
-          }
-        >
+        <div className="oph-selectboxWithSwitch">
           <input
             ref={HiddenRef}
             type="hidden"
@@ -101,20 +92,11 @@ const SelectInput: React.FC<
           {_options &&
             _options.map((item, i) => {
               var selected = i == selectedIndex;
-              var itemClass =
-                item.className ??
-                getAppTheme().Inputs?.selectboxWithSwitch?.ItemClass ??
-                "cursor-pointer w-1/2 flex items-center justify-center text-sm text-center py-2 border-b border-b-zinc-200";
-              var selectedItemClass =
-                item.selectedClassName ??
-                getAppTheme().Inputs?.selectboxWithSwitch?.SelectedItemClass ??
-                "w-1/2 flex items-center justify-center text-sm py-2 transform transition-transform border-b border-b-zinc-600";
-
               return (
                 <label
                   onClick={(e) => onSwitchValueChange(e, item.value, i)}
                   key={i}
-                  className={`${selected ? selectedItemClass : itemClass}`}
+                  className={`${selected ? "oph-selectboxWithSwitch-selectedItem" : "oph-selectboxWithSwitch-item"}`}
                 >
                   {item.text}
                 </label>
@@ -131,7 +113,7 @@ const SelectInput: React.FC<
           value={value}
           defaultValue={defaultValue}
           {...pureProps}
-          className={`custom-select ${className ?? getAppTheme().Inputs?.selectbox} ${pureProps?.errorClassName}`}
+          className={`oph-selectInput peer ${className} ${pureProps.errorClassName ? "error" : ""}`}
           style={style}
         >
           {placeholder && <option>{placeholder}</option>}

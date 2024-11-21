@@ -1,0 +1,42 @@
+.oph-drawer {
+  @apply fixed;
+  &-swipe {
+    @apply absolute;
+  }
+  &-swipeButton {
+    @apply text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800;
+  }
+  &.backdrop {
+    @apply z-40;
+  }
+  &.fullWidth {
+    @apply w-full overflow;
+  }
+  &.left {
+    @apply left-0;
+  }
+  &.right {
+    @apply right-0;
+  }
+  &.center {
+    @apply mx-auto;
+  }
+  &.top-left {
+    @apply top-0 left-0;
+  }
+  &.top-right {
+    @apply top-0 right-0;
+  }
+  &.top-center {
+    @apply top-0 mx-auto;
+  }
+  &.bottom-center {
+    @apply bottom-0 mx-auto;
+  }
+  &.bottom-left {
+    @apply bottom-0 left-0;
+  }
+  &.bottom-right {
+    @apply bottom-0 right-0;
+  }
+}

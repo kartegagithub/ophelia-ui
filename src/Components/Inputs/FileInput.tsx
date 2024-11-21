@@ -1,5 +1,4 @@
 import FileData, { convertToFileData } from "../../Models/FileData";
-import { getAppTheme } from "../../AppTheme";
 import React, { InputHTMLAttributes, useEffect, useState } from "react";
 import { EyeIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import {
@@ -21,11 +20,8 @@ const FileInput: React.FC<
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
     leftIcon?: React.JSX.Element | string | undefined | IconProps;
     iconText?: string;
-    bodyClassName?: string;
-    iconWrapperStyle?: string;
-    withEyeCls?: string;
-    placeholderStyle?: string;
     fileTypeWithButton?: boolean;
+    id?: string;
   }
 > = ({
   onChange = undefined,
@@ -35,20 +31,15 @@ const FileInput: React.FC<
   previewSize = "Original",
   sizeKey = "size",
   type = undefined,
-  className = undefined,
-  bodyClassName = undefined,
-  iconWrapperStyle = undefined,
-  placeholderStyle = undefined,
-  withEyeCls = undefined,
   iconText = undefined,
   languageID = undefined,
   rightIcon = undefined,
   leftIcon = undefined,
   fileTypeWithButton = false,
+  id,
   ...props
 }) => {
   const [selectedFiles, setSelectedFiles] = useState(new Array<FileData>());
-  const [showPreview, setShowPreview] = useState(true);
   const FileRef: React.RefObject<HTMLInputElement> =
     React.createRef<HTMLInputElement>();
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +53,6 @@ const FileInput: React.FC<
           setSelectedFiles(arr);
         });
       }
-      setShowPreview(true);
     } else setSelectedFiles([]);
   };
   useEffect(() => {
@@ -127,7 +117,6 @@ const FileInput: React.FC<
       removeFileFromFileList(FileRef.current, file.FileName);
       setSelectedFiles(arr);
     }
-    setShowPreview(false);
     var event: any = {
       currentTarget: FileRef.current,
       target: FileRef.current,
@@ -141,34 +130,37 @@ const FileInput: React.FC<
     FileRef.current?.click();
   };
   const renderSelectedFiles = () => {
-    if (selectedFiles && selectedFiles.length > 0 && showPreview) {
+    if (selectedFiles && selectedFiles.length > 0) {
       return (
-        <div className="block cursor-pointer w-full ">
+        <div className="oph-fileInput-file-content" id={id}>
           {selectedFiles.map((file, i) => {
             return (
               <div
                 key={i}
-                className={`flex items-center justify-between py-1`}
-                // className={`flex items-center justify-between ${fileTypeWithButton ? "border-none" : "border-l-4"} border-slate-400 py-1`}
+                className={`oph-fileInput-file-content-right ${fileTypeWithButton ? "withButton" : ""}`}
               >
-                <label onClick={(e) => onUploadClick(e)} className="ml-2">
+                <label
+                  onClick={(e) => onUploadClick(e)}
+                  className="oph-fileInput-file-content-right-label"
+                >
                   {fileTypeWithButton ? (
-                    <div className={placeholderStyle}>{placeholder}</div>
+                    <div className="oph-fileInput-file-content-right-label-placeholder">
+                      {placeholder}
+                    </div>
                   ) : (
                     file.FileName
                   )}
                 </label>
-                <div className={`flex items-center ${withEyeCls ?? withEyeCls}`}>
+                <div className="oph-fileInput-file-content-right-icons">
                   <EyeIcon
                     width={18}
                     height={18}
-                    className="pr-1 cursor-pointer"
+                    className="oph-fileInput-file-content-right-eye-eyeIcon"
                     onClick={(e) => onPreviewClick(e, file)}
                   ></EyeIcon>
-                  {/* <img src={file.Base64Data} width={32} height={32}/> */}
                   {fileTypeWithButton ? (
                     <div
-                      className={iconWrapperStyle}
+                      className="oph-fileInput-file-content-right-eye-fileButton"
                       onClick={(e: any) => onUploadClick(e)}
                     >
                       {iconText} {getImageComponent(rightIcon)}
@@ -177,7 +169,7 @@ const FileInput: React.FC<
                     <XMarkIcon
                       width={18}
                       height={18}
-                      className="cursor-pointer"
+                      className="oph-fileInput-file-content-right-eye-xIcon"
                       onClick={(e) => onRemoveClick(e, file)}
                     ></XMarkIcon>
                   )}
@@ -189,13 +181,9 @@ const FileInput: React.FC<
       );
     }
     return (
-      <div
-        onClick={(e) => onUploadClick(e)}
-        className={`${bodyClassName ?? "flex items-center justify-between w-full"} cursor-pointer`}
-      >
-        <div className={placeholderStyle}>{placeholder}</div>
-
-        <div className={iconWrapperStyle}>
+      <div onClick={(e) => onUploadClick(e)} className="oph-fileInput-noFile">
+        <div className="oph-fileInput-noFile-placeholder">{placeholder}</div>
+        <div className="oph-fileInput-noFile-iconWrapper">
           {leftIcon && getImageComponent(leftIcon)}
           {iconText}
           {rightIcon && getImageComponent(rightIcon)}
@@ -208,14 +196,12 @@ const FileInput: React.FC<
     <>
       <input
         type="file"
-        style={{ display: "none" }}
+        className="oph-fileInput"
         onChange={(e) => onFileChange(e)}
         {...props}
         ref={FileRef}
       />
-      <div className={className ?? getAppTheme().Inputs?.file}>
-        {renderSelectedFiles()}
-      </div>
+      <div className="oph-fileInput-file">{renderSelectedFiles()}</div>
     </>
   );
 };

@@ -1,35 +1,79 @@
-import { getAppTheme } from "../../AppTheme";
 import React, { useState } from "react";
 import { getImageComponent } from "../Image/Extensions";
 import { loopInRange } from "../../Extensions/ArrayExtensions";
 import { formatString } from "../../Extensions/StringExtensions";
 import { IconProps } from "../Icon";
-const IconRating: React.FC<{ text?: string, count?: number, value?: number, visible?: boolean, className?: string, textClassName?: string, image?: string | React.JSX.Element, filledImage?: string | React.JSX.Element, onClick?: ((index: number) => void) }> = ({ text = undefined, className = undefined, image = undefined, visible = true, count = 5, value = 0, filledImage = undefined, textClassName = undefined, onClick = undefined}) => {  
-  const [hoverIndex, setHoverIndex] = useState(-1)
+const IconRating: React.FC<{
+  id?: string;
+  text?: string;
+  count?: number;
+  value?: number;
+  visible?: boolean;
+  className?: string;
+  textClassName?: string;
+  image?: string | React.JSX.Element;
+  filledImage?: string | React.JSX.Element;
+  onClick?: (index: number) => void;
+}> = ({
+  text = undefined,
+  className = undefined,
+  image = undefined,
+  visible = true,
+  count = 5,
+  value = 0,
+  filledImage = undefined,
+  textClassName = undefined,
+  onClick = undefined,
+  id,
+}) => {
+  const [hoverIndex, setHoverIndex] = useState(-1);
 
-  if(!visible) return <></>
-  
-  const theme = getAppTheme();
+  if (!visible) return <></>;
+
   return (
-    <div role="status" className={className ?? theme.IconRating?.Class} onMouseOut={() => setHoverIndex(-1)}>
-      {loopInRange(1, count, (i) => 
-        {
-          return <div onMouseOver={() => setHoverIndex(i)} onClick={() => onClick && onClick(i)}>
-            {(i <= (hoverIndex > -1? hoverIndex: value)) && getImageComponent(image ?? theme.IconRating?.FilledIcon)}
-            {(i > (hoverIndex > -1? hoverIndex: value)) && getImageComponent(filledImage ?? theme.IconRating?.Icon)}
+    <div
+      id={id}
+      role="status"
+      className={`oph-iconRating ${className}`}
+      onMouseOut={() => setHoverIndex(-1)}
+    >
+      {loopInRange(1, count, (i) => {
+        return (
+          <div
+            onMouseOver={() => setHoverIndex(i)}
+            onClick={() => onClick && onClick(i)}
+          >
+            {i <= (hoverIndex > -1 ? hoverIndex : value) &&
+              getImageComponent(
+                image ?? {
+                  name: "star",
+                  className: "oph-iconRating-filledIcon",
+                  size: 12,
+                }
+              )}
+            {i > (hoverIndex > -1 ? hoverIndex : value) &&
+              getImageComponent(
+                filledImage ?? {
+                  name: "star",
+                  className: "oph-iconRating-icon",
+                  size: 12,
+                }
+              )}
           </div>
-        }
+        );
+      })}
+      {text && (
+        <p className={textClassName ?? "oph-iconRating-text"}>
+          {formatString(text, value.toString(), count.toString())}
+        </p>
       )}
-      {text && <p className={textClassName ?? theme.IconRating?.TextClass}>{formatString(text, value.toString(), count.toString())}</p>}
     </div>
   );
-}
+};
 export default IconRating;
 
 var iconRatingTheme: {
-  Class?: string,
-  TextClass?: string,
-  Icon?: React.JSX.Element | string | undefined | IconProps,
-  FilledIcon?: React.JSX.Element | string | undefined | IconProps,
-}
-export type IconRatingTheme = typeof iconRatingTheme
+  Icon?: React.JSX.Element | string | undefined | IconProps;
+  FilledIcon?: React.JSX.Element | string | undefined | IconProps;
+};
+export type IconRatingTheme = typeof iconRatingTheme;

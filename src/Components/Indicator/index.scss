@@ -1,0 +1,15 @@
+.oph-indicator {
+  @apply flex items-center justify-center;
+  &-selected {
+    @apply w-4 h-4 bg-red-600 rounded-full;
+    &-icon {
+      @apply flex w-2 h-2 me-1 bg-white rounded-full;
+    }
+  }
+  &-unselected {
+    @apply flex items-center text-sm font-medium text-gray-900 dark:text-white;
+    &-icon {
+      @apply flex w-2 h-2 bg-white opacity-50 rounded-full;
+    }
+  }
+}

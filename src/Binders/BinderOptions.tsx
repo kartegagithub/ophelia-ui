@@ -19,7 +19,6 @@ export default class BinderOptions {
   PageTitleVisibility?: boolean = true
   ExportTypes?: Array<ExportOption> = [
     {extension: "xls", name: "Excel", icon:{name: "excel", fill: "#5B6782"}},
-    {extension: "pdf", name: "PDF", icon: {name: "pdf", color: "#000", fill: "#5B6782"}}
   ];
   ExportMode?: "remote" | "screenshot" | "custom" = "screenshot";
   ExportCallback?: ((option: ExportOption) => Promise<ArrayBuffer>)

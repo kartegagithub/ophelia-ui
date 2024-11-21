@@ -1,9 +1,9 @@
 import React, { InputHTMLAttributes, useState } from "react";
-import { getAppTheme } from "../../AppTheme";
 import { AdditionalHtmlAttributes } from "../../Enums";
 import Icon from "../Icon";
 
-export interface PasswordInputProps extends AdditionalHtmlAttributes,
+export interface PasswordInputProps
+  extends AdditionalHtmlAttributes,
     InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
 }
@@ -13,22 +13,22 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   labelType,
   style,
   defaultValue,
+  id,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const appTheme = getAppTheme();
 
   return (
-    <div className="relative">
+    <div id={id} className="oph-passwordInput">
       <input
         type={showPassword ? "text" : "password"}
-        className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.password} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+        className={`oph-passwordInput-input ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         defaultValue={defaultValue}
         {...props}
       />
       <div
-        className="absolute top-0 right-2 h-full flex items-center px-2"
+        className="oph-passwordInput-iconWrapper"
         onClick={() => setShowPassword(!showPassword)}
       >
         <Icon

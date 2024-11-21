@@ -5,25 +5,26 @@ import React, { InputHTMLAttributes } from "react";
 
 export interface DateInputProps extends InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
+  id?: string;
 }
 
 const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
-  className,
   labelType,
   value,
   defaultValue,
   style,
+  id,
   ...props
 }) => {
-  const appTheme = getAppTheme();
   var formattedValue = stringToDateInputValue(
     (defaultValue ?? value) as string,
     "YYYY-MM-DD"
   );
   return (
     <input
+      id={id}
       type="date"
-      className={`${props.errorClassName} ${className ?? appTheme?.Inputs?.date} ${labelType && labelType === "floating" ? "placeholder-transparent" : ""}`}
+      className={`oph-dateInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       defaultValue={formattedValue}
       {...props}
       style={style}

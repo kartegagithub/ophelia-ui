@@ -1,12 +1,13 @@
 import Router from "next/router";
-import { clone, randomId, trimChars } from "../Extensions";
+import { randomId, trimChars } from "../Extensions";
 
 export class UrlHandlerClass{
     Initialized: boolean = false
+    LastRegisterDate?: number
     RouteData: any = {};
     ReverseRouteData: any = {};
     OnRouteNotFound?: (path: string) => Promise<undefined | Array<RouteItem>>;
-    LanguageKeys: Array<{key: string, lang: string | number}> = []
+    LanguageKeys: Array<{key: string, lang: string}> = []
     DefaultLanguage?: string = undefined
     InstanceID: string
     
@@ -23,9 +24,13 @@ export class UrlHandlerClass{
     Destroy(){
         this.DefaultLanguage = "";
         this.LanguageKeys = [];
-        this.RouteData = {};
+        this.ResetRoutes();
     }
-    Init(languageKeys: Array<{key: string, lang: string | number}>, defaultLan: string){
+    ResetRoutes(){
+        this.RouteData = {};
+        this.ReverseRouteData = {};
+    }
+    Init(languageKeys: Array<{key: string, lang: string}>, defaultLan: string){
         if(!this.Initialized){
             this.LanguageKeys = languageKeys;
             this.DefaultLanguage = defaultLan;
@@ -56,20 +61,23 @@ export class UrlHandlerClass{
                 if(this.DefaultLanguage)
                     source = source.replace("/" + this.DefaultLanguage, "");
 
-                if(routeData){ // url pattern, parametrized url
-                    var keys = Object.keys(routeData)
-                    keys.forEach(key => {
-                        source = source.replaceAll(`:${key}`, routeData[key])
-                    });
-                }
-                return source;
+                destination = source;
             }
 
         }
+
+        if(routeData){ // url pattern, parametrized url
+            var keys = Object.keys(routeData)
+            keys.forEach(key => {
+                destination = destination?.replaceAll(`:${key}`, routeData[key])
+            });
+        }
         return destination;
     }
-
-    async FindRoute(path: string, triggerNotFound: boolean = true, userLang: string | undefined = undefined, search: string | undefined = undefined): Promise<RouteItem | undefined>{
+    Log(...args: any){
+        //console.log(args);
+    }
+    async FindRoute(path: string, triggerNotFound: boolean = true, userLang: string | undefined = undefined, search: string | undefined = undefined, preventLoop: boolean = false): Promise<RouteItem | undefined>{
         if(!path) return;
 
         try {
@@ -81,7 +89,7 @@ export class UrlHandlerClass{
             path = trimChars(path.toLocaleLowerCase(), "/");
 
             var item: RouteItem | undefined = this.ReverseRouteData[path] as RouteItem;
-            //console.log("item: " + path + search + " - " + userLang + " - " + item?.destination + " - " + item?.language)
+            this.Log("item: " + path + search + " - " + userLang + " - " + item?.destination + " - " + item?.language)
             //console.log(JSON.stringify(this.RouteData))
 
             if(!item && triggerNotFound){
@@ -92,78 +100,106 @@ export class UrlHandlerClass{
                 }
                 item = await this.FindRoute(path, false);
             }
-            if(!item || (userLang && userLang != item.language)){
+
+            // If user language is different, redirect to language specific urls
+            if(userLang && (!item || (userLang != item.language))){
                 var keys = Object.keys(this.ReverseRouteData);
                 var rewrite = false;
                 for (let index = 0; index < keys.length; index++) {
                     const key = keys[index];
                     var tmpItem: RouteItem = this.ReverseRouteData[key];
-                    if(tmpItem.destination.toLocaleLowerCase() == path && tmpItem.language == userLang){
-                        //console.log("Redirecting: " + path + " => " + tmpItem.source + search)
-                        item = { permanent: false, destination: tmpItem.source, source: "/" + path};;
-                        break;
+                    if(tmpItem.language == userLang){
+                        if(tmpItem.destination.toLocaleLowerCase() == path){
+                            this.Log("Redirecting-1: " + path + " => " + JSON.stringify(tmpItem))
+                            item = { permanent: false, destination: tmpItem.source, source: path, language: tmpItem.language};;
+                            break;
+                        }
+                        else if(tmpItem.plainSource == path && tmpItem.plainDestination){
+                            this.Log("Rewrited-1: " + path + " => " + JSON.stringify(tmpItem))
+                            rewrite = true;
+                            item = { destination: tmpItem.plainDestination, source: path, language: tmpItem.language};;
+                            break;
+                        }
                     }
-                    else if(tmpItem.plainSource == path && tmpItem.language == userLang && tmpItem.plainDestination){
-                        //console.log("Rewrited: " + path + " => " + tmpItem.plainDestination)
-                        rewrite = true;
-                        item = { destination: tmpItem.plainDestination, source: "/" + path};;
-                        break;
-                    }
-                    else if(tmpItem.plainSource == path && tmpItem.language !== userLang && userLang && tmpItem.plainDestination){
+                    else if(tmpItem.plainSource == path && tmpItem.plainDestination){
+                        // Language is different, redirect to related page
                         var rewriteItem = this.RouteData[tmpItem.destination][userLang]
                         if(rewriteItem && rewriteItem.plainSource){
-                            item = { destination: rewriteItem.plainSource, source: "/" + path};;
+                            this.Log("Redirecting-2: " + path + " => " + JSON.stringify(rewriteItem))
+                            item = { permanent: false, destination: rewriteItem.source, source: path, language: rewriteItem.language};;
                             break;
                         }
                     }
                 }
-                if(item && userLang && userLang != item.language && !rewrite){
-                    item = { permanent: false, destination: item.destination, source: "/" + path};
+                if(item && userLang != item.language && !rewrite){
+                    this.Log("Redirecting-3: " + path + " => " + JSON.stringify(item))
+                    var looping = false;
+                    if(!preventLoop){
+                        var routedItem = await this.FindRoute(item.destination, false, userLang, "", true)
+                        this.Log("Checking loop: " + path + " => " + item.destination + " => " + JSON.stringify(routedItem))
+                        if(routedItem && trimChars(routedItem.destination, "/") == path){
+                            looping = true;
+                            this.Log("Loop detected");
+                        }
+                    }
+                    if(looping) item = undefined;
+                    else item = { permanent: false, destination: item.destination, source: path, language: item.language};
                 }
             }
-            if(item && item.destination.toLocaleLowerCase() == path) return undefined;
-            if(item && item.destination == this.DefaultLanguage){
-                return undefined;
+            
+            if(item){
+                this.Log("Formatting: " + JSON.stringify(item))
+                item = {source: "/" + trimChars(item.source, "/"), destination: "/" + trimChars(item.destination, "/") + (search ?? ""), permanent: item.permanent};
+                this.Log("Formatted: " + JSON.stringify(item))
             }
-
-            if(item) return {source: "/" + path, destination: "/" + item.destination + search, permanent: item.permanent};
         } catch (error) {
             console.error(error);
         }
-        return undefined;
+        if(item && (item.destination == this.DefaultLanguage || item.source == item.destination)){
+            this.Log("Route reset-1: " + path + " => " + JSON.stringify(item))
+            item = undefined;
+        }
+        if(item && item.destination.toLocaleLowerCase() == path){
+            this.Log("Route reset-2: " + path + " => " + JSON.stringify(item))
+            item = undefined;
+        };
+        this.Log("Routing: " + JSON.stringify(item))
+        return item;
     }
 
     Register(item: RouteItem | undefined){
         if(!item) return;
-        if(!item.source && !item.fromURL) return;
-
-        if(!item.source && item.fromURL) item.source = item.fromURL;
-        if(!item.destination && item.toURL) item.destination = item.toURL;
-        if(item.code == 301) item.permanent = true;
-        if(item.code == 302) item.permanent = false;
+        if(!item.source) return;
 
         item.source = trimChars(item.source.toLocaleLowerCase(), "/");
         if(item.source.indexOf("?") > -1)
             item.plainSource = item.source.substring(0, item.source.indexOf("?"))
+        else item.plainSource = item.source
 
         item.destination = trimChars(item.destination, "/");
         if(item.destination.indexOf("?") > -1)
             item.plainDestination = item.destination.substring(0, item.destination.indexOf("?"))
+        else item.plainDestination = item.destination;
 
-        item.language = this.DefaultLanguage;
-        for (let index = 0; index < this.LanguageKeys.length; index++) {
-            const element = this.LanguageKeys[index];
-            if(item.source.startsWith(element.key) || trimChars(item.source, "/").startsWith(trimChars(element.key, "/"))){
-                item.language = element.lang.toString().toLowerCase();
-                break;
+        if(!item.language){
+            item.language = this.DefaultLanguage
+            for (let index = 0; index < this.LanguageKeys.length; index++) {
+                const element = this.LanguageKeys[index];
+                if(item.source.startsWith(element.key) || item.source.startsWith(element.lang)){
+                    item.language = element.lang.toLowerCase();
+                    break;
+                }
             }
         }
-        this.ReverseRouteData[item.source] = item;
+        else item.language = item.language?.toLowerCase();
+
+        var simpleItem = {plainSource: item.plainSource, plainDestination: item.plainDestination, source: item.source, destination: item.destination, language: item.language, permanent: item.permanent}
+        this.ReverseRouteData[item.source] = simpleItem;
 
         var destination = item.destination.toLocaleLowerCase();
         if(!this.RouteData[destination])
             this.RouteData[destination] = {};
-        this.RouteData[destination][item.language ?? this.DefaultLanguage ?? "default"] = item;
+        this.RouteData[destination][item.language ?? this.DefaultLanguage ?? "default"] = simpleItem
     }
 
     RegisterItems(items: undefined | Array<RouteItem>){
@@ -180,11 +216,8 @@ export class RouteItem {
     destination: string = ""
     plainSource?: string = ""
     plainDestination?: string = ""
-    fromURL?: string
-    toURL?: string
     permanent?: boolean
-    code?: number
-    language?: number | string | undefined
+    language?: string | undefined
 }
 
 const UrlHandler: { Current: UrlHandlerClass } = {

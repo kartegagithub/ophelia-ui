@@ -1,0 +1,15 @@
+.oph-accordionGroup {
+  @apply flex flex-col gap-3;
+  &-detail {
+    @apply w-full px-5 py-4 border border-blue-900;
+  }
+  &-summary {
+    @apply flex items-center justify-between cursor-pointer;
+  }
+  &-title {
+    @apply flex items-center justify-between font-bold;
+  }
+  &-content {
+    @apply pt-2.5 pr-5;
+  }
+}

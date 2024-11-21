@@ -1,0 +1,9 @@
+.oph-panel {
+  @apply bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700;
+  &-header {
+    @apply flex flex-1 items-center justify-between border-b border-gray-300 px-3 py-4 md:py-5;
+    &-text {
+      @apply flex flex-1 items-center justify-between;
+    }
+  }
+}

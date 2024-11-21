@@ -1,0 +1,88 @@
+.oph-table-scroller {
+  @apply scrollbar-thumb-gray-300 scrollbar-thin rounded-lg w-full overflow-x-auto bg-gray-200;
+
+  &-bar {
+    @apply h-[0.5px];
+  }
+}
+
+.oph-table-container {
+  @apply relative min-h-[250px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300;
+}
+
+.oph-table {
+  @apply w-full text-[12px] text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-1;
+
+  &-header {
+    @apply bg-gray-50;
+  }
+
+  &-columns {
+    &-column {
+      @apply relative px-4 py-2 whitespace-nowrap border-r border-r-zinc-300;
+
+      &.selected {
+        @apply px-4 py-2 whitespace-nowrap border-r border-r-zinc-300;
+      }
+
+      &.sticky-col {
+        @apply sticky;
+      }
+
+      &-rootComponent {
+        @apply relative sm:flex sm:flex-1 sm:justify-between items-center gap-6;
+      }
+
+      &-buttons {
+        @apply sm:flex gap-2;
+      }
+    }
+  }
+
+  &-body {
+    &-row {
+      @apply border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100;
+
+      &.selected {
+        @apply px-4 py-2 whitespace-nowrap bg-gray-100;
+      }
+
+      &.inValid {
+        @apply bg-red-400 text-white;
+      }
+    }
+
+    &-cell {
+      @apply relative px-4 py-2 whitespace-nowrap border-r;
+
+      &.selected {
+        @apply px-4 py-2 whitespace-nowrap border-r;
+      }
+
+      &.sticky-cell {
+        @apply sticky;
+      }
+
+      &.boolean,
+      &.datetime,
+      &.month,
+      &.phone,
+      &.time,
+      &.week {
+        @apply text-right;
+      }
+
+      &.password {
+        @apply hidden;
+      }
+    }
+  }
+
+    .oph-dropdown {
+        @apply absolute p-3 bg-white border border-gray-200 rounded-lg shadow-sm z-10 min-w-[225px] left-3;
+
+    &:nth-child(1) {
+      @apply right-3;
+    }
+  }
+}

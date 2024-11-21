@@ -1,0 +1,39 @@
+.oph-popover {
+  @apply relative;
+  &-container {
+    @apply inline-block;
+    &-trigger {
+      @apply block;
+    }
+    &-content {
+      @apply absolute z-10 bg-white border border-gray-500 shadow-lg;
+      &.top {
+        @apply bottom-full;
+        &-left {
+          @apply right-full;
+        }
+        &-right {
+          @apply left-full;
+        }
+        &-center {
+          @apply right-1/2 left-1/2;
+        }
+      }
+      &.bottom-left {
+        @apply -translate-x-full mb-2;
+      }
+      &.bottom-right {
+        @apply translate-x-full right-0 mb-2;
+      }
+      &.bottom-center {
+        @apply left-1/2 transform -translate-x-1/2 mb-2;
+      }
+      &.right {
+        @apply bottom-1/2 translate-x-full right-0 ml-2;
+      }
+      &.left {
+        @apply bottom-1/2 -translate-x-full left-0 mr-2;
+      }
+    }
+  }
+}

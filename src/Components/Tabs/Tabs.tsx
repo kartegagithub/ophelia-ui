@@ -1,7 +1,6 @@
 import React, { Children, ReactNode, useEffect, useState, useRef } from "react";
 import { deepMap } from "../../Extensions/ReflectionExtensions";
-import Tab, { TabsTheme } from "./Tab";
-import { getAppTheme } from "../../AppTheme";
+import Tab from "./Tab";
 import { useScrollInlineDynamically } from "../../Extensions";
 import { useRouter } from "next/router";
 
@@ -9,7 +8,6 @@ const Tabs: React.FC<{
   id?: string;
   children?: React.ReactNode;
   tabPosition?: string | any;
-  theme?: TabsTheme;
   type?: string;
   InlineRootClass?: string;
   InlineTabHeaderClass?: string;
@@ -17,16 +15,14 @@ const Tabs: React.FC<{
   defaultSelected?: string;
 }> = ({
   id,
-  theme,
   children,
-  type = "monochrome",
-  InlineRootClass,
-  InlineTabHeaderClass,
-  InlineTabContentClass,
+  type = "",
+  InlineRootClass = "",
+  InlineTabHeaderClass = "",
+  InlineTabContentClass = "",
   defaultSelected,
 }) => {
-  const Theme = getAppTheme({ Tabs: theme }).Tabs;
-  const [selectedTab, setSelectedTab] = useState("0");
+  const [selectedTab, setSelectedTab] = useState(defaultSelected || "0");
   const tabHeaderRef = useRef<HTMLUListElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -96,60 +92,12 @@ const Tabs: React.FC<{
   }, [isDragging]);
 
   var tabs: Array<any> = deepMap(children, ["Tab"]);
-  var typeTheme = (Theme?.Types as any)[type];
-
-  var {
-    TabHeaderButtonClass = Theme?.TabHeaderButtonClass,
-    TabHeaderClass = Theme?.TabHeaderClass,
-    RootClass = Theme?.RootClass,
-    TabPaneClass = Theme?.TabPaneClass,
-    TabContentClass = Theme?.TabContentClass,
-    SelectedTabHeaderButtonClass = Theme?.SelectedTabHeaderButtonClass,
-    SelectedTabHeaderButtonContainerClass = Theme?.SelectedTabHeaderButtonContainerClass,
-    TabHeaderButtonContainerClass = Theme?.TabHeaderButtonContainerClass,
-  } = Theme || {};
-
-  if (typeTheme) {
-    if (typeof typeTheme === "string") {
-      TabHeaderButtonClass =
-        TabHeaderClass =
-        RootClass =
-        TabPaneClass =
-        TabContentClass =
-        TabHeaderButtonContainerClass =
-          typeTheme;
-    } else {
-      TabHeaderButtonClass = typeTheme.className ?? TabHeaderButtonClass;
-      TabHeaderClass = typeTheme.TabHeaderClass ?? TabHeaderClass;
-      RootClass = typeTheme.RootClass ?? RootClass;
-      TabPaneClass = typeTheme.TabPaneClass ?? TabPaneClass;
-      TabHeaderButtonContainerClass =
-        typeTheme.TabHeaderButtonContainerClass ??
-        TabHeaderButtonContainerClass;
-      TabContentClass = typeTheme.TabContentClass ?? TabContentClass;
-    }
-
-    if (typeTheme.selected) {
-      SelectedTabHeaderButtonClass =
-        typeTheme.selected ?? SelectedTabHeaderButtonClass;
-    }
-
-    if (typeTheme.SelectedTabHeaderButtonContainerClass) {
-      SelectedTabHeaderButtonContainerClass =
-        typeTheme.SelectedTabHeaderButtonContainerClass ??
-        SelectedTabHeaderButtonContainerClass;
-    }
-  }
 
   tabs = Children.map(tabs, (item: any, i) => {
     var isSelected;
-    if (defaultSelected) {
-      isSelected = item.props.id === defaultSelected;
-    } else {
-      isSelected =
-        ((!selectedTab || selectedTab == "0") && item.props.active === true) ||
-        item.props.id === selectedTab;
-    }
+    isSelected =
+      ((!selectedTab || selectedTab == "0") && item.props.active === true) ||
+      item.props.id === selectedTab;
 
     return React.cloneElement(item, {
       active: isSelected,
@@ -163,13 +111,13 @@ const Tabs: React.FC<{
 
   return (
     <div
-      className={`${RootClass} ${InlineRootClass}`}
+      className={`oph-tabs ${type} ${InlineRootClass}`}
       key={id}
       ref={scrollContainerRef}
     >
       {tabs.length > 1 && (
         <ul
-          className={`${TabHeaderClass} ${InlineTabHeaderClass} scrollable-tabs`}
+          className={`oph-tabs-header ${InlineTabHeaderClass} scrollable-tabs`}
           key="nav-tabs"
           ref={tabHeaderRef}
           onTouchStart={handleTouchStart}
@@ -182,11 +130,7 @@ const Tabs: React.FC<{
               var selected = tab.props.active || tabs.length == 1;
               return (
                 <li
-                  className={
-                    selected && SelectedTabHeaderButtonContainerClass
-                      ? SelectedTabHeaderButtonContainerClass
-                      : TabHeaderButtonContainerClass
-                  }
+                  className={`oph-tabs-header-buttonContainer ${selected ? "selected" : ""}`}
                   role="presentation"
                   key={i}
                   onClick={() => {
@@ -195,11 +139,7 @@ const Tabs: React.FC<{
                   ref={activeLinkRef}
                 >
                   <button
-                    className={
-                      selected
-                        ? SelectedTabHeaderButtonClass
-                        : TabHeaderButtonClass
-                    }
+                    className={`oph-tabs-header-button ${selected ? "selected" : ""}`}
                     key={tab.props?.id + "-tab"}
                     id={tab.props?.id + "-tab"}
                     data-tabs-target={"#" + tab.props?.id}
@@ -216,14 +156,13 @@ const Tabs: React.FC<{
             })}
         </ul>
       )}
-      <div className={`${TabContentClass} ${InlineTabContentClass}`} >
+      <div className={`oph-tabs-content ${InlineTabContentClass}`}>
         {tabs.map((tab: any, i) => {
           var selected = tab.props.active || tabs.length == 1;
           var otherProps = (({ active, ...others }) => others)(tab.props);
           return (
             <Tab
-              theme={Theme}
-              tabPaneClass={TabPaneClass}
+              tabPaneClass={`oph-tabs-tabPane  ${selected ? "selected" : ""}`}
               key={i}
               active={selected}
               {...otherProps}

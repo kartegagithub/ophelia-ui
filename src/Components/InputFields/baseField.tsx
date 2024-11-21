@@ -1,22 +1,18 @@
-import { AppTheme, getAppTheme } from "../../AppTheme";
 import {
   convertToDate,
-  getFormattedDateString,
   isNullOrEmpty,
-  isValidDate,
   parseFloatIfCan,
   validateRange,
   validateEmail,
-  formatString,
 } from "../../Extensions/StringExtensions";
 import React, { SyntheticEvent } from "react";
-import { InputFieldsTheme } from "./InputFieldsTheme";
 import RawHTML from "../RawHTML";
 import { convertToBool, randomId } from "../../Extensions/ReflectionExtensions";
 import InputValidationRule from "./InputValidationRule";
 import { FileData } from "../../Models";
 export default class BaseField<P> extends React.Component<
   P & {
+    id: string;
     name: string;
     valueName?: string;
     languageKey?: string | number;
@@ -34,11 +30,11 @@ export default class BaseField<P> extends React.Component<
     multipleSelection?: boolean;
     i18n?: boolean;
     required?: boolean;
-    theme?: InputFieldsTheme;
     onChange?: Function;
     visible?: boolean | Function;
     rules?: InputValidationRule | Array<InputValidationRule>;
     rootStyle?: any;
+    errorMessageText: string;
   },
   {
     hasValidationError: boolean;
@@ -46,8 +42,6 @@ export default class BaseField<P> extends React.Component<
     messageDisplayFn: Function | undefined;
   }
 > {
-  Theme?: InputFieldsTheme = getAppTheme({ InputFields: this.props.theme })
-    .InputFields;
   Visibility: boolean = true;
   ID: string = randomId();
   constructor(props: any) {
@@ -82,25 +76,25 @@ export default class BaseField<P> extends React.Component<
   getVisibility = () => this.Visibility;
   render(): React.ReactNode {
     if (!this.checkVisibility()) return <></>;
-
     return (
-      <div className={this.Theme?.RootClass} style={this.props.rootStyle}>
+      <div id={this.props.id} className="oph-inputField">
         <div
-          className={`field-input relative ${
-            (!this.props.labelType || this.props.labelType == "seperated") &&
-            "flex flex-col-reverse"
-          } ${this.state.hasValidationError ? "has-error" : ""}`}
+          className={`oph-inputField-field ${
+            !this.props.labelType || this.props.labelType == "seperated"
+              ? "seperated"
+              : ""
+          } ${this.state.hasValidationError ? "error" : ""}`}
         >
           {this.renderInput()}
           {this.props.labelVisible != false && this.props.text && (
             <label
               htmlFor={this.props.name}
-              className={`${
+              className={`oph-inputField-field-label ${
                 this.props.labelType == "floatingFixed"
-                  ? getAppTheme().Inputs?.floatingFixedLabel
+                  ? "floatingFixed"
                   : this.props.labelType == "floating"
-                    ? getAppTheme().Inputs?.inputLabel
-                    : getAppTheme().Inputs?.seperatedLabel
+                    ? "inputLabel"
+                    : "seperatedLabel"
               }`}
             >
               <RawHTML
@@ -115,7 +109,7 @@ export default class BaseField<P> extends React.Component<
         {!this.props.errorDisplayFn &&
           !this.state.messageDisplayFn &&
           this.state.hasValidationError && (
-            <span className={this.Theme?.ErrorMessageClass}>
+            <span className="oph-inputField-errorMessage">
               {this.state.message}
             </span>
           )}
@@ -161,7 +155,7 @@ export default class BaseField<P> extends React.Component<
         this.props.type === "boolean"
       ) {
         var tmpValue = target.checked
-          ? (isNullOrEmpty(value) ? 1 : value) ?? 1
+          ? ((isNullOrEmpty(value) ? 1 : value) ?? 1)
           : undefined;
         if (parentData && (parentData as any).hasOwnProperty(this.props.name)) {
           if (typeof parentData[this.props.name] == "boolean")
@@ -266,7 +260,13 @@ export default class BaseField<P> extends React.Component<
         isValid = rule.rule(val, this.props.listener?.getData());
         if (rule.ruleSatisfaction) rule.ruleSatisfaction(0, isValid);
       }
-      if (isValid && this.props.required === true && this.props.type === "filterbox" && this.props.multipleSelection == true) isValid = val && val.length > 0;
+      if (
+        isValid &&
+        this.props.required === true &&
+        this.props.type === "filterbox" &&
+        this.props.multipleSelection == true
+      )
+        isValid = val && val.length > 0;
       if (isValid && this.props.type === "email") isValid = validateEmail(val);
       if (isValid && (rule.max || rule.min)) {
         if (
@@ -303,7 +303,7 @@ export default class BaseField<P> extends React.Component<
       }
     }
 
-    if (!msg) msg = "FieldIsRequired";
+    if (!msg) msg = this.props.errorMessageText;
     if (this.props.listener && this.props.listener.translate)
       msg = this.props.listener.translate(msg);
 
@@ -351,6 +351,7 @@ export default class BaseField<P> extends React.Component<
       onChange,
       value,
       rootStyle,
+      errorMessageText = "FieldIsRequired",
       ...others
     }) => others)(this.props);
     var checked = this.props.checked ?? false;
@@ -375,7 +376,7 @@ export default class BaseField<P> extends React.Component<
         id: otherProps.name,
         key: `${this.props.languageKey}_${this.props.name}`,
         errorClassName: this.state.hasValidationError
-          ? this.Theme?.InputErrorClass
+          ? "oph-inputField-inputError"
           : undefined,
         defaultValue: value,
         value: undefined,

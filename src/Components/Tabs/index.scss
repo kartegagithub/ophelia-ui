@@ -1,0 +1,49 @@
+.oph-tabs {
+    @apply flex flex-col gap-4 bg-white text-sm font-medium text-gray-500;
+
+    &-header {
+        @apply flex items-center p-2 text-sm text-gray-500;
+
+        &-buttonContainer {
+            @apply me-4;
+        }
+
+        &-button {
+            @apply p-2 border-b-2 rounded-t-lg text-indigo-900;
+
+            &.selected {
+                @apply p-2 border-b-2 border-indigo-900 rounded-t-lg text-indigo-900;
+            }
+        }
+    }
+
+    &-content {
+        @apply text-gray-500 rounded-lg w-full;
+    }
+
+    &-tabPane {
+        @apply p-4 rounded-lg;
+    }
+
+    &.vertical {
+        @apply flex-row;
+
+        .oph-tabs {
+            &-header {
+                @apply flex-col gap-4;
+
+                &-buttonContainer {
+                    @apply w-full border-r-2;
+
+                    &.selected {
+                        @apply border-indigo-900;
+                    }
+                }
+
+                &-button {
+                    @apply rounded-none border-none;
+                }
+            }
+        }
+    }
+}

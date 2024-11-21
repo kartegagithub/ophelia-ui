@@ -439,8 +439,8 @@ export default class EntityBinder<P> extends React.Component<
     return (<>
         <ContentLoading appClient={this.props.AppClient} loading={this.state.processing || (this.state.loadingState != LoadingState.Failed && this.state.loadingState != LoadingState.Loaded)}>
           {this.renderHeader()}
-          <div className="entity-binder bg-white p-4 shadow-lg" key="entity-binder" ref={this.RootElementRef}>
-            {this.state.processing === true && <div className="absolute flex items-center justify-center left-0 top-0 h-full min-h-full w-full bg-gray-800 z-10 opacity-50 text-white">
+          <div className="oph-entityBinders" key="entity-binder" ref={this.RootElementRef}>
+            {this.state.processing === true && <div className="oph-entityBinders-label">
               <label>{this.props.AppClient?.Translate("ProcessingPleaseWait")}</label>
             </div>}
             {this.state.messages?.map((item: any, index: number) => (
