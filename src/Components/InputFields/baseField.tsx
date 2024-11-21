@@ -24,6 +24,7 @@ export default class BaseField<P> extends React.Component<
     labelType?: "seperated" | "floatingFixed" | "floating";
     errorClassName?: string;
     errorDisplayFn?: (name: string, msg?: string) => React.JSX.Element;
+    validateCallback?: (isValid: boolean, value: any) => boolean;
     format?: string;
     listener?: any;
     type?: string;
@@ -324,6 +325,9 @@ export default class BaseField<P> extends React.Component<
     }
 
     if (!isValid != this.state.hasValidationError) {
+      if(this.props.validateCallback){
+        isValid = this.props.validateCallback(isValid, val)
+      }
       this.setState({
         hasValidationError: !isValid,
         message: isValid ? undefined : msg,
