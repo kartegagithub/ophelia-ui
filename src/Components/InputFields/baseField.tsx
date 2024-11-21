@@ -34,7 +34,7 @@ export default class BaseField<P> extends React.Component<
     visible?: boolean | Function;
     rules?: InputValidationRule | Array<InputValidationRule>;
     rootStyle?: any;
-    errorMessageText: string;
+    errorMessageText?: string;
   },
   {
     hasValidationError: boolean;
@@ -267,7 +267,9 @@ export default class BaseField<P> extends React.Component<
         this.props.multipleSelection == true
       )
         isValid = val && val.length > 0;
-      if (isValid && this.props.type === "email") isValid = validateEmail(val);
+      if (isValid && val && this.props.type === "email"){
+        isValid = validateEmail(val);
+      }
       if (isValid && (rule.max || rule.min)) {
         if (
           this.props.type === "date" ||
@@ -303,7 +305,7 @@ export default class BaseField<P> extends React.Component<
       }
     }
 
-    if (!msg) msg = this.props.errorMessageText;
+    if (!msg) msg = this.props.errorMessageText ?? "FieldIsRequired";
     if (this.props.listener && this.props.listener.translate)
       msg = this.props.listener.translate(msg);
 

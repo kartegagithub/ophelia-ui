@@ -16,6 +16,7 @@ const Modal: React.FC<{
   showCloseButton?: boolean;
   dismissOnBackdropClick?: boolean;
   draggable?: boolean;
+  className?: string;
   buttons?: Array<{
     disabled?: boolean;
     className?: string;
@@ -40,6 +41,7 @@ const Modal: React.FC<{
   draggable = false,
   center = false,
   backdrop = true,
+  className = undefined,
   children,
 }) => {
   const ModalRef = React.createRef<HTMLDivElement>();
@@ -122,7 +124,7 @@ const Modal: React.FC<{
     <>
       <div
         id={id}
-        className={`oph-modal ${center && "center"} ${!open && "hidden"}`}
+        className={`oph-modal ${className} ${center && "center"} ${!open && "hidden"}`}
         onClick={(e) => {
           checkMouseInBoundByRef(e, ModalRef, (inside) => {
             dismissOnBackdropClick && !inside

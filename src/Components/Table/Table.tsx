@@ -46,7 +46,8 @@ const Table: React.FC<TableProps> = React.memo(
     hierarchyParentValue = undefined,
     allowFiltering = true,
     allowSorting = true,
-    applyRowValidation = false
+    applyRowValidation = false,
+    className = undefined,
   }) => {
     var [selectedRow, setSelectedRow] = useState(-1);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
@@ -606,11 +607,8 @@ const Table: React.FC<TableProps> = React.memo(
         );
       else value = getObjectValue(row, column.PropertyName);
 
-      if(typeof value == "string"){
-        value = removeHtml(value);
-        value = sanitizeHtml(value);
-      }
-      
+      value = removeHtml(value);
+      value = sanitizeHtml(value);
       if (
         column.Type == "date" ||
         column.Type == "datetime" ||
@@ -713,7 +711,7 @@ const Table: React.FC<TableProps> = React.memo(
 
     try {
       return (
-        <div id={id}>
+        <div id={id} className={`oph-table-container ${className}`}>
           <div
             className="oph-table-scroller"
             ref={topScrollRef}
@@ -726,7 +724,7 @@ const Table: React.FC<TableProps> = React.memo(
             ref={containerRef}
             onScroll={() => onTableScroll()}
           >
-            <table className="oph-table" border={1}>
+            <table className={`oph-table`} border={1}>
               <thead className="oph-table-header">{renderColumns()}</thead>
               <tbody className="oph-table-body">{renderRows()}</tbody>
             </table>
@@ -754,6 +752,7 @@ var tableProps: {
   data?: Array<any>;
   children?: React.ReactNode;
   appClient?: AppClient;
+  className?: string
   theme?: TableTheme;
   adjustHeight?: boolean;
   hierarchicalDisplay?: boolean;
