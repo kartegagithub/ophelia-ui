@@ -1,26 +1,38 @@
 import { useEffect, useRef } from "react";
-import { insertToIndex } from "./ArrayExtensions";
 import { maskText } from "./StringExtensions";
 
-export const checkMouseInBoundByRef = (e: React.MouseEvent<any>, ref: React.RefObject<any>, callback: (result: boolean) => void) => {
-    if(!ref || !callback || !e) callback(false);
-    checkMouseInBound(e, ref.current, callback)
+export const checkMouseInBoundByRef = (
+  e: React.MouseEvent<any>,
+  ref: React.RefObject<any>,
+  callback: (result: boolean) => void
+) => {
+  if (!ref || !callback || !e) callback(false);
+  checkMouseInBound(e, ref.current, callback);
 };
 
-export const checkMouseInBound = (e: React.MouseEvent<any> | MouseEvent, ref: HTMLElement | undefined | null, callback: (result: boolean) => void) => {
-    if(!callback || !e) callback(false);
-    if(!ref) return callback(false);
+export const checkMouseInBound = (
+  e: React.MouseEvent<any> | MouseEvent,
+  ref: HTMLElement | undefined | null,
+  callback: (result: boolean) => void
+) => {
+  if (!callback || !e) callback(false);
+  if (!ref) return callback(false);
 
-    const eleBounds = ref.getBoundingClientRect();
-    if(!eleBounds) callback(false);
+  const eleBounds = ref.getBoundingClientRect();
+  if (!eleBounds) callback(false);
 
-    let inBound = false;
-    if (e.clientX >= eleBounds.left && e.clientX <= eleBounds.right && e.clientY >= eleBounds.top && e.clientY <= eleBounds.bottom) {
-      inBound = true;
-    } else {
-      inBound = false;
-    }
-    callback(inBound)
+  let inBound = false;
+  if (
+    e.clientX >= eleBounds.left &&
+    e.clientX <= eleBounds.right &&
+    e.clientY >= eleBounds.top &&
+    e.clientY <= eleBounds.bottom
+  ) {
+    inBound = true;
+  } else {
+    inBound = false;
+  }
+  callback(inBound);
 };
 
 export const maskHandler = (
@@ -30,21 +42,44 @@ export const maskHandler = (
   rules?: Array<string | Function>
 ) => {
   if (mask && e) {
-    if (e.key.length > 1 && e.key !== " ") return;
-    else {
-      const value = e.currentTarget.value;
-      let newValue;
-      newValue = `${value.slice(0, e.currentTarget.selectionStart as number)}${e.key}${value.slice(e.currentTarget.selectionStart as number)}`;
-      const tmpValue = maskText(newValue, mask, undefined, rules);
-      e.preventDefault();
-      e.currentTarget.value = tmpValue;
-      onChange &&
-        onChange({
-          currentTarget: e.currentTarget,
-          target: e.target,
-          bubbles: true,
-        });
+    // Eğer Ctrl veya Cmd tuşu basılıysa (örneğin Ctrl+V), maskHandler çalışmasın
+    if (e.ctrlKey || e.metaKey || (e.key.length > 1 && e.key !== " ")) {
+      return;
     }
+
+    const input = e.currentTarget;
+    const value = input.value;
+
+    // Seçili metin var mı kontrol et
+    const selectionStart = input.selectionStart ?? 0;
+    const selectionEnd = input.selectionEnd ?? 0;
+
+    let newValue;
+
+    if (selectionStart !== selectionEnd) {
+      // Eğer seçim varsa, seçili kısmı silip yeni harfi ekle
+      newValue = `${value.slice(0, selectionStart)}${e.key}${value.slice(
+        selectionEnd
+      )}`;
+    } else {
+      // Eğer seçim yoksa imlecin olduğu yere ekle
+      newValue = `${value.slice(0, selectionStart)}${e.key}${value.slice(
+        selectionStart
+      )}`;
+    }
+
+    // Maskeli yeni değeri oluştur
+    const tmpValue = maskText(newValue, mask, undefined, rules);
+
+    e.preventDefault();
+    input.value = tmpValue;
+
+    onChange &&
+      onChange({
+        currentTarget: input,
+        target: e.target,
+        bubbles: true,
+      });
   }
 };
 
@@ -60,7 +95,10 @@ export const pasteHandler = (
     const currentValue = e.currentTarget.value;
     const selectionStart = e.currentTarget.selectionStart ?? 0;
     const selectionEnd = e.currentTarget.selectionEnd ?? 0;
-    const newValue = `${currentValue.slice(0, selectionStart)}${pastedText}${currentValue.slice(selectionEnd)}`;
+    const newValue = `${currentValue.slice(
+      0,
+      selectionStart
+    )}${pastedText}${currentValue.slice(selectionEnd)}`;
     const tmpValue = maskText(newValue, mask, undefined, rules);
     e.currentTarget.value = tmpValue;
     onChange &&
@@ -83,8 +121,9 @@ export const useScrollInlineDynamically = (pathname: string) => {
       const containerWidth = scrollContainer.clientWidth;
       const linkWidth = activeLink.clientWidth;
 
-      const scrollTo = activeLinkOffsetLeft - containerWidth / 2 + linkWidth / 2;
-      scrollContainer.scrollTo({ left: scrollTo, behavior: 'smooth' });
+      const scrollTo =
+        activeLinkOffsetLeft - containerWidth / 2 + linkWidth / 2;
+      scrollContainer.scrollTo({ left: scrollTo, behavior: "smooth" });
     }
   }, [pathname]);
 

@@ -16,13 +16,13 @@
     @apply bg-red-600 text-white hover:shadow-primary;
   }
   &.white {
-    @apply bg-white hover:bg-lightSky text-black hover:text-red-600 border-[#FFFF80];
+    @apply bg-white hover:bg-blue-50 text-black hover:text-red-600 border-[#FFFF80];
   }
   &.stroke {
-    @apply bg-transparent border-pastelBlue hover:border-blue-600 text-black hover:text-sky;
+    @apply bg-transparent border-blue-200 hover:border-blue-600 text-black hover:text-blue-50;
   }
   &.sky {
-    @apply bg-sky text-black hover:text-sky;
+    @apply bg-blue-50 text-black hover:text-blue-50;
   }
   &.none {
     @apply text-black hover:text-blue-50;

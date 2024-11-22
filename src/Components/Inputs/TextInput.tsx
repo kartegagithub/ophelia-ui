@@ -37,7 +37,7 @@ const TextInput: React.FC<TextInputProps> = ({
       <input
         type="text"
         onKeyDown={(e) => maskHandler(mask, e, props.onChange, maskRule)}
-        className={`oph-textInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-textInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         {...props}
         style={style}
         onChange={props.onChange}

@@ -196,7 +196,7 @@ const FileInput: React.FC<
     <>
       <input
         type="file"
-        className="oph-fileInput"
+        className="oph-fileInput peer"
         onChange={(e) => onFileChange(e)}
         {...props}
         ref={FileRef}

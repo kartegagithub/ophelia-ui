@@ -66,7 +66,7 @@ const CheckboxInput: React.FC<
     return (
       <div id={id} className="oph-checkboxInput">
         <input
-          className="oph-checkboxInput-input"
+          className="oph-checkboxInput-input peer"
           type="checkbox"
           name={props.name}
           id={id ? id + "-input" : ""}

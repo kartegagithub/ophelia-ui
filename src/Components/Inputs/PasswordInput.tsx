@@ -22,7 +22,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
     <div id={id} className="oph-passwordInput">
       <input
         type={showPassword ? "text" : "password"}
-        className={`oph-passwordInput-input ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-passwordInput-input peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         defaultValue={defaultValue}
         {...props}

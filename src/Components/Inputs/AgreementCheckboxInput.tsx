@@ -99,7 +99,7 @@ export default class AgreementCheckboxInput<P> extends React.Component<
             name={this.props.name}
             id={this.props.id}
             checked={this.state.checked}
-            className={`${this.props.className} "oph-agreementCheckbox-input"`}
+            className={`${this.props.className} oph-agreementCheckbox-input`}
             style={this.props.style}
           />
           {this.props.label && (

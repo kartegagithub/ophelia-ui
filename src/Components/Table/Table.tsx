@@ -410,11 +410,17 @@ const Table: React.FC<TableProps> = React.memo(
             selectedRowData.viewOrderStr &&
             row.viewOrderStr &&
             selectedRowData.viewOrderStr.startsWith(row.viewOrderStr));
+        listener?.getItemPropertyValue
+
+        var rowProps: {className?: string} = {};
+        if(listener && listener.getRowProps) rowProps = listener?.getRowProps(row, index);
+        var {className, ...otherProps} = rowProps
         return (
           <>
             <tr
               key={`${row.viewOrderIndex}${refreshKey}`}
-              className={`oph-table-body-row ${selectedRow === row.viewOrderIndex ? "selected" : ""} ${applyRowValidation && row.isValid === false ? "inValid" : ""} ${additionalClassName ?? ""}`}
+              className={`oph-table-body-row ${className} ${selectedRow === row.viewOrderIndex ? "selected" : ""} ${applyRowValidation && row.isValid === false ? "inValid" : ""} ${additionalClassName ?? ""}`}
+              {...otherProps}
             >
               {hierarchycalDisplayEnabled() && (
                 <td
@@ -648,9 +654,9 @@ const Table: React.FC<TableProps> = React.memo(
           />
         );
       }
-      var className = column.Type ? column.Type : "";
-      className =
-        className +
+      var predefinedClassName = column.Type ? column.Type : "";
+      predefinedClassName =
+      predefinedClassName +
         " " +
         (selectedCell[0] == rowIndex && selectedCell[1] == columnIndex
           ? "selected"
@@ -663,14 +669,19 @@ const Table: React.FC<TableProps> = React.memo(
         value.length > column.MaxTextLength
       )
         value = value.toString().substring(0, column.MaxTextLength);
+
+      var cellProps: {className?: string} = {};
+      if(listener && listener.getCellProps) cellProps = listener?.getCellProps(row, column, rowIndex, columnIndex);
+      var {className, ...otherProps} = cellProps
       return (
         <td
           onMouseOver={() =>
             onMouseOverCell(row, column, rowIndex, columnIndex)
           }
           onMouseOut={() => onMouseOutCell(row, column, rowIndex, columnIndex)}
-          className={`oph-table-body-cell ${className} col-${columnIndex} ${column.Freeze ? "sticky-cell" : ""}`}
+          className={`oph-table-body-cell ${className} ${predefinedClassName} col-${columnIndex} ${column.Freeze ? "sticky-cell" : ""}`}
           onClick={(e) => onCellClick(e, row, column, rowIndex, columnIndex)}
+          {...otherProps}
         >
           {renderCellValue(row, column, value, rowIndex, columnIndex)}
         </td>
@@ -771,6 +782,8 @@ var tableProps: {
     onCellValueChanged?: Function;
     onCellValueChanging?: Function;
     getItemPropertyValue?: Function;
+    getRowProps?: Function;
+    getCellProps?: Function;
   };
 };
 export type TableProps = typeof tableProps;

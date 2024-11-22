@@ -21,7 +21,7 @@ const URLInput: React.FC<URLInputProps> = ({
       <DataList options={dataOptions} id={list} />
       <input
         type="url"
-        className={`oph-urlInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-urlInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         {...props}
       />

@@ -25,7 +25,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
       <input
         id={id}
         type="number"
-        className={`oph-numberInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-numberInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         {...props}
         style={style}
       />

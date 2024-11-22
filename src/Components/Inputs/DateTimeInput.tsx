@@ -20,7 +20,7 @@ const DateTimeInput: React.FC<
     <input
       id={id}
       type="datetime-local"
-      className={`oph-dateTimeInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-dateTimeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       defaultValue={formattedValue}
       {...props}
       style={style}

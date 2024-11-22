@@ -16,7 +16,7 @@ const WeekInput: React.FC<WeekInputProps> = ({
   return (
     <input
       type="week"
-      className={`oph-weekInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-weekInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       style={style}
       {...props}
     />

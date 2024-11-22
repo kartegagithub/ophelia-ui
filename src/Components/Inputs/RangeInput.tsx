@@ -15,7 +15,7 @@ const RangeInput: React.FC<RangeInputProps> = ({
   return (
     <input
       type="range"
-      className={`oph-rangeInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-rangeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       style={style}
       {...props}
     />

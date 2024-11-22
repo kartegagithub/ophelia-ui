@@ -35,7 +35,7 @@ const CodeInput: React.FC<CodeInputProps> = ({
       <DataList options={dataOptions} id={list} />
       <div
         id={id}
-        className={`oph-codeInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-codeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       >
         <div
           className={`oph-codeInput-content ${props.errorClassName && "error"}`}

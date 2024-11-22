@@ -410,7 +410,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   getItemPropertyValue(row: any, name: string, i18n: boolean = false) {
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);
   }
-  renderCellValue(row: any, column: TableColumnClass, value?: string) {
+  getRowProps(row: any, index: number){
+    return {className: undefined}
+  }
+  getCellProps(row: any, index: number, rowIndex?: number, columnIndex?: number){
+    return {className: undefined}
+  }
+  renderCellValue(row: any, column: TableColumnClass, value?: string, rowIndex?: number, columnIndex?: number) {
     if(value){
       return <Link href={this.getLink(row)}>{value}</Link>
     }

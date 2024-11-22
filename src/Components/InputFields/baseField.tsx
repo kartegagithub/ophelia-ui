@@ -25,6 +25,7 @@ export default class BaseField<P> extends React.Component<
     errorClassName?: string;
     errorDisplayFn?: (name: string, msg?: string) => React.JSX.Element;
     validateCallback?: (isValid: boolean, value: any) => boolean;
+    setDataCallback?: (value: any) => any | undefined;
     format?: string;
     listener?: any;
     type?: string;
@@ -195,6 +196,12 @@ export default class BaseField<P> extends React.Component<
         this.props.listener?.setFileDeleted(deletedFile);
       }
       if (this.props.listener?.setFieldData) {
+        if(this.props.setDataCallback){
+          var tmpVal = this.props.setDataCallback(value)
+          if(tmpVal != undefined && tmpVal != null){
+            value = tmpVal;
+          }
+        }
         this.props.listener?.setFieldData(
           this.props.valueName ?? this.props.name,
           value,

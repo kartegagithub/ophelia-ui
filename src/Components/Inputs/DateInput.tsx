@@ -24,7 +24,7 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
     <input
       id={id}
       type="date"
-      className={`oph-dateInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-dateInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       defaultValue={formattedValue}
       {...props}
       style={style}

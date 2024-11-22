@@ -36,9 +36,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
         id={props.id}
         name={props.name}
         value={props.value}
-        className={`
-          oph-radioInput-input ${shape}
-          `}
+        className={`peer oph-radioInput-input ${shape}`}
         style={style}
         {...props}
       />

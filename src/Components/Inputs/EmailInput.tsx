@@ -25,7 +25,7 @@ const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
       <input
         id={id}
         type="email"
-        className={`oph-emailInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-emailInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         {...props}
       />
