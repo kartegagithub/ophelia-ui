@@ -24,6 +24,8 @@ import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import { EntityOperations } from "../EntityOperations";
 import Drawer from "../../Components/Drawer";
 import ContentLoading from "../../Components/ContentLoading";
+import ImportModal from "../../Components/Modal/ImportModal";
+import { FileData } from "../../Models";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -36,7 +38,7 @@ export class CollectionBinderProps{
   parent?: EntityBinder<{}> | CollectionBinder<{}>
   viewId?: string
 }
-export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {dataIndex: number, path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, manualFilter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting: boolean, importKey?: string}, viewId?: string}> {
+export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {dataIndex: number, path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, manualFilter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting?: boolean, importKey?: string, importRequested?: boolean}, viewId?: string}> {
 
   Config: Config = new Config();
   Options: BinderOptions = new BinderOptions();
@@ -287,7 +289,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
 
   async onExportButtonClicked(option: ExportOption){
     if(this.RootElementRef.current){
-      if(this.Options.ExportMode == "screenshot"){
+      if(this.Options.Export?.Mode == "screenshot"){
         if(option.extension == "xls"){
           var xlsExporter = new ExcelExporter();
           xlsExporter.FileName = this.getExportFileName() + "." + option.extension;
@@ -295,8 +297,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           xlsExporter.Export();
         }
       }
-      else if(this.Options.ExportMode == "remote" && this.Options.ExportCallback){
-        var dataArray = await this.Options.ExportCallback(option);
+      else if(this.Options.Export?.Mode == "remote" && this.Options.Export?.Callback){
+        var dataArray = await this.Options.Export.Callback(option);
         if(dataArray){
           var type = resolveMimeType(option.extension);
           if(typeof type == "string"){
@@ -336,6 +338,33 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else if(key == "Reload"){
       this.setState({loadingState: LoadingState.Waiting})
     }
+    else if(key == "Import"){
+      this.setState({importState: { importRequested: true}})
+    }
+    else if(key == "ApproveImport"){
+        await this.approveImport();
+        this.setImportState(false)
+    }
+    else if(key == "RejectImport"){
+        this.rejectImport();
+        this.setImportState(false)
+    }
+  }
+  isImporting(){
+    return this.state && this.state.importState && this.state.importState.isImporting
+  }
+  setImportState(isImporting: boolean, importKey?: string, data?: any){
+    if(isImporting) this.setState({importState: { isImporting: true, importKey, data }, loadingState: LoadingState.Waiting})
+    else this.setState({importState: {isImporting: false, importRequested: false, importKey: undefined, data: undefined}, loadingState: LoadingState.Waiting})
+  }
+  async approveImport(): Promise<any>{ 
+    
+  }
+  async rejectImport(): Promise<any>{
+      
+  }
+  async uploadFiles(data: any, files: Array<FileData>){
+ 
   }
   onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false){
     if(!name) return;
@@ -428,13 +457,6 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   renderFooter(){
     return <></>
   }
-  isImporting(){
-    return this.state && this.state.importState && this.state.importState.isImporting
-  }
-  setImportState(isImporting: boolean, importKey?: string, data?: any){
-    if(isImporting) this.setState({importState: { isImporting: true, importKey, data }, loadingState: LoadingState.Waiting})
-    else this.setState({importState: {isImporting: false, importKey: undefined, data: undefined}, loadingState: LoadingState.Waiting})
-  }
   renderChildBinder(){
     var data: any = {id: 0};
     if(this.state.clickedRowIndex >= 0) {
@@ -453,6 +475,19 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       </Drawer>
     }
     return <></>
+  }
+  renderImportPanel(children?: React.ReactNode){
+    return <ImportModal 
+            title={this.props.AppClient?.Translate("UploadFile")}
+            fileName="FilePath" 
+            AppClient={this.props.AppClient} 
+            onSubmit={(data, files) => this.uploadFiles(data, files)}
+            onVisibilityChange={(val) => this.setImportState(false)}
+            sampleFilePath={this.Options.Import?.SampleFile}
+            message={this.Options.Import?.Message}
+            >
+              {children}
+            </ImportModal>
   }
   renderChildAction(){
     return <></>
@@ -481,6 +516,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             {this.renderFooter()}
           </ContentLoading>
         </div>
+        {this.state.importState?.importRequested && this.renderImportPanel()}
       </>
     } catch (error) {
       console.error(error);

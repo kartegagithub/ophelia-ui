@@ -773,3 +773,18 @@ export const cleanSlug = (text: any) => {
     ?.replace(/^-|-$/g, "") // Başta veya sonda kalan `-` işaretlerini temizle
     ?.toLowerCase();
 };
+
+export const isImageFile = (fileName?: string): boolean => {
+  if(!fileName || fileName.indexOf(".") == -1) return false;
+  var imgExtensions = ["gif", "png", "jpg", "jpeg", "bmp", "webp"];
+  var extension = fileName.substring(fileName.indexOf("."), fileName.length).replaceAll(".", "").toLocaleLowerCase();
+  return imgExtensions.indexOf(extension) > -1;
+}
+
+export const hexToRgb = (hex: string): string => {
+  const sanitizedHex = hex.replace("#", "");
+  const r = parseInt(sanitizedHex.substring(0, 2), 16);
+  const g = parseInt(sanitizedHex.substring(2, 4), 16);
+  const b = parseInt(sanitizedHex.substring(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+};

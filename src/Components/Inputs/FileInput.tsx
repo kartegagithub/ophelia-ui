@@ -5,6 +5,7 @@ import {
   clone,
   findInArray,
   getFileName,
+  isImageFile,
   removeAtIndex,
   removeFileFromFileList,
   selectDefaultValues,
@@ -152,12 +153,12 @@ const FileInput: React.FC<
                   )}
                 </label>
                 <div className="oph-fileInput-file-content-right-icons">
-                  <EyeIcon
+                  {isImageFile(file.FileName) && <EyeIcon
                     width={18}
                     height={18}
                     className="oph-fileInput-file-content-right-eye-eyeIcon"
                     onClick={(e) => onPreviewClick(e, file)}
-                  ></EyeIcon>
+                  ></EyeIcon>}
                   {fileTypeWithButton ? (
                     <div
                       className="oph-fileInput-file-content-right-eye-fileButton"

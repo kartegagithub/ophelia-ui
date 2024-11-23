@@ -190,8 +190,7 @@ const Modal: React.FC<{
                       onClick={(e) => buttonClick(e, item)}
                       type={item.type ?? "button"}
                       className={
-                        (item.className ??
-                          "oph-modal-subclass-container-footer-button") +
+                        (item.className + " " + "oph-modal-subclass-container-footer-button") + " " +
                         (item.disabled &&
                           "oph-modal-subclass-container-footer-buttonDisabled")
                       }

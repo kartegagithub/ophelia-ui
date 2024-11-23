@@ -1,3 +1,5 @@
+import { FileData } from "../Models";
+
 export default class BinderOptions {
   PageTitle?: string = undefined;
   NewURL?: string = undefined;
@@ -8,6 +10,7 @@ export default class BinderOptions {
   AllowBack?: boolean = true;
   AllowNew?: boolean = true;
   AllowExport?: boolean = true;
+  AllowImport?: boolean = false;
   AllowSave?: boolean = true;
   AllowRefresh?: boolean = true;
   AllowDelete?: boolean = true;
@@ -16,13 +19,28 @@ export default class BinderOptions {
   DrawViewLinkInsteadOfEdit?: boolean = false;
   UpdateContent?: string = undefined;
   Visible?: boolean = true;
-  PageTitleVisibility?: boolean = true
-  ExportTypes?: Array<ExportOption> = [
-    {extension: "xls", name: "Excel", icon:{name: "excel", fill: "#5B6782"}},
-  ];
-  ExportMode?: "remote" | "screenshot" | "custom" = "screenshot";
-  ExportCallback?: ((option: ExportOption) => Promise<ArrayBuffer>)
+  PageTitleVisibility?: boolean = true;
+  Export?: {
+    Types?: Array<ExportOption>;
+    Mode?: "remote" | "screenshot" | "custom";
+    Callback?: (option: ExportOption) => Promise<ArrayBuffer>;
+  } = {
+    Types: [
+      {
+        extension: "xls",
+        name: "Excel",
+        icon: { name: "excel", fill: "#5B6782" },
+      },
+    ],
+    Mode: "screenshot",
+  };
+  Import?: {
+    FileTypes?: string;
+    Message?: string | React.JSX.Element;
+    SampleFile?: string | React.JSX.Element;
+    Callback?: (file: FileData) => Promise<ArrayBuffer>;
+  } = { FileTypes: "*.xlsx,*.csv" };
 }
 
-var exportType: {extension?: string, name?: string, icon?: string | any}
-export type ExportOption = typeof exportType
+var exportType: { extension?: string; name?: string; icon?: string | any };
+export type ExportOption = typeof exportType;

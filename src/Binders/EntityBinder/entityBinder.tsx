@@ -182,7 +182,7 @@ export default class EntityBinder<P> extends React.Component<
   }
   async onExportButtonClicked(option: ExportOption){
     if(this.RootElementRef.current){
-      if(this.Options.ExportMode == "screenshot"){
+      if(this.Options.Export?.Mode == "screenshot"){
         if(option.extension == "xls"){
           var xlsExporter = new ExcelExporter();
           xlsExporter.FileName = this.getExportFileName() + "." + option.extension;
@@ -190,8 +190,8 @@ export default class EntityBinder<P> extends React.Component<
           xlsExporter.Export();
         }
       }
-      else if(this.Options.ExportMode == "remote" && this.Options.ExportCallback){
-        var dataArray = await this.Options.ExportCallback(option);
+      else if(this.Options.Export?.Mode == "remote" && this.Options.Export?.Callback){
+        var dataArray = await this.Options.Export.Callback(option);
         if(dataArray){
           var type = resolveMimeType(option.extension);
           if(typeof type == "string"){
