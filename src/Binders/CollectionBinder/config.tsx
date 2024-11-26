@@ -10,6 +10,7 @@ export default class Config {
   Table?: TableClass = new TableClass()
   RowSelection?: string = "";
   RowClickOption?: "navigate" | "showEntityBinder" | undefined = undefined;
+  NewEntityMethod?: "Default" | "Row" = "Default";
   ChildBinderContainer?: "modal" | "drawer" = "drawer";
   HideSelectAll?: boolean = false
   HierarchicalDisplay?: boolean = false

@@ -12,8 +12,10 @@ export default class BinderOptions {
   AllowExport?: boolean = true;
   AllowImport?: boolean = false;
   AllowSave?: boolean = true;
+  AllowSettings?: boolean = true;
   AllowRefresh?: boolean = true;
   AllowDelete?: boolean = true;
+  AllowCopyAndSave?: boolean = false;
   IsNewEntity?: boolean = false;
   AllowEdit?: boolean = true;
   DrawViewLinkInsteadOfEdit?: boolean = false;

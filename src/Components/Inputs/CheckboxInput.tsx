@@ -90,7 +90,7 @@ const CheckboxInput: React.FC<
         >
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
-        <label className="oph-checkboxInput-label" htmlFor={id}>
+        <label className="oph-checkboxInput-label" htmlFor={id + "-input"}>
           {label}
         </label>
       </div>

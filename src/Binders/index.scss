@@ -17,7 +17,40 @@
 
 .oph-collectionBinders{
   .oph-drawer {
-    @apply  bg-white w-2/4 h-full overflow-y-scroll shadow-lg
+    @apply  bg-white w-2/4 h-full overflow-y-scroll shadow-lg;
   }
-  @apply bg-white p-2
+  @apply bg-white p-2;
+  
+  &-settings{
+    @apply p-4;
+
+    &-title{
+      @apply flex;
+
+      &-back-button{
+        @apply cursor-pointer;
+      }
+    }
+    &-columns{
+      @apply mt-4;
+
+      &-column{
+        @apply flex w-full justify-between mb-2;
+
+        &-left{
+          @apply flex;
+          &-move{
+            @apply cursor-move mr-2;
+          }
+        }
+      }
+    }
+    &-buttons{
+      @apply flex;
+
+      &-button{
+        @apply w-4;
+      }
+    }
+  }
 }

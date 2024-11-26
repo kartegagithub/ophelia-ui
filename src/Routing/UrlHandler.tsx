@@ -46,6 +46,8 @@ export class UrlHandlerClass{
 
     Get(destination: string | undefined, lang: number | string | undefined, routeData?: any){
         if(!destination) return "";
+        if(destination.toLowerCase().startsWith("http:") || destination.toLowerCase().startsWith("https:")) return destination;
+        
         if(!this.RouteData || Object.keys(this.RouteData).length == 0){
             console.log("URL Mapping: Routes not registered: " + this.InstanceID);
             return destination;
@@ -72,7 +74,7 @@ export class UrlHandlerClass{
                 destination = destination?.replaceAll(`:${key}`, routeData[key])
             });
         }
-        return destination;
+        return `/${trimChars(destination, '/')}`;
     }
     Log(...args: any){
         //console.log(args);

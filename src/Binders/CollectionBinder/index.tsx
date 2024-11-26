@@ -1,9 +1,11 @@
-import CollectionBinder, { CollectionBinderProps } from "./collectionBinder"
-import Config from "./config"
-import QueryData from "./query/queryData"
-import QueryDataModel from "./query/queryDataModel"
-import QueryFilter from "./query/queryFilter"
-import QuerySorter from "./query/querySorter"
-
-export default CollectionBinder
-export { CollectionBinderProps, Config, QueryData, QueryDataModel, QueryFilter, QuerySorter }
+export {default as CollectionBinder} from "./collectionBinder"
+export * from "./collectionBinder"
+export {default as Config} from "./config"
+export {default as QueryData} from "./query/queryData"
+export {default as QueryDataModel} from "./query/queryDataModel"
+export {default as QueryFilter} from "./query/queryFilter"
+export * from "./query/queryFilter"
+export {default as QuerySorter} from "./query/querySorter"
+export { default as PersistentColumnConfig } from "./layout/persistentColumnConfig"
+export { default as PersistentConfig } from "./layout/persistentConfig"
+export * from "./layout/persistentConfig"

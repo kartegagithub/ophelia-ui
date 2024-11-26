@@ -48,6 +48,7 @@ const Table: React.FC<TableProps> = React.memo(
     allowSorting = true,
     applyRowValidation = false,
     className = undefined,
+    focusForNewRow = undefined
   }) => {
     var [selectedRow, setSelectedRow] = useState(-1);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
@@ -138,8 +139,28 @@ const Table: React.FC<TableProps> = React.memo(
     useEffect(() => {
       recalculateHeight();
     }, [selectedColumnToFilter]);
+
     useEffect(() => {
       onTableScroll();
+      if (data && focusForNewRow == true){
+        var rowIndex: number = 0;
+        var columnIndex: number = 0;
+        var newRow = data.find((item, i) => 
+        {
+          if(item.isNewRow == true) rowIndex = i;
+          return item.isNewRow == true
+        });
+
+        if(newRow){
+          var firstEditableColumn = table?.Columns.find((col, i) => {
+            if(col.AllowEditingOnNewRow != false) columnIndex = i
+            return col.AllowEditingOnNewRow != false
+          });
+          if(firstEditableColumn){
+            onCellClick(undefined, newRow, firstEditableColumn, rowIndex, columnIndex)
+          }
+        }
+      }
     }, []);
 
     if (!table) return <div></div>;
@@ -373,6 +394,7 @@ const Table: React.FC<TableProps> = React.memo(
         hierarchicalDisplay == true && !isNullOrEmpty(hierarchyPropertyName)
       );
     };
+    
     const renderRows = (
       rowsToRender?: Array<any>,
       additionalClassName?: string
@@ -469,8 +491,11 @@ const Table: React.FC<TableProps> = React.memo(
       });
     };
 
+    const canEditCell = (row: any, column: TableColumnClass) => {
+      return (column.AllowEditing == true && (!row.isNewRow || column.AllowEditingOnNewRow !== false)) || (row.isNewRow == true && column.AllowEditingOnNewRow !== false)
+    }
     const onCellClick = (
-      e: React.MouseEvent<HTMLTableCellElement>,
+      e: React.MouseEvent<HTMLTableCellElement> | undefined,
       row: any,
       column: TableColumnClass | undefined,
       rowIndex: number,
@@ -481,23 +506,41 @@ const Table: React.FC<TableProps> = React.memo(
       setSelectedCell([rowIndex, columnIndex]);
       setSelectedColumn(columnIndex);
       setSelectedRow(rowIndex);
+
+      setTimeout(() => {
+        var fieldName = column?.Filtering?.Name ?? column?.PropertyName;
+        var elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} input`);
+        if(!elems || elems.length == 0) elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} select`);
+        if(!elems || elems.length == 0) elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} textarea`);
+        if(!elems || elems.length == 0) return;
+
+        var elemToFocus = elems[0];
+        if(elemToFocus){
+          (elemToFocus as any).focus();
+          elemToFocus.dispatchEvent(new Event('focus', { bubbles: false, cancelable: false }))
+        }
+      }, 150);
       return true;
     };
     const cellEditableControlKeyUp = (
       e: any,
       row: any,
-      column: TableColumnClass
+      column: TableColumnClass,
+      rowIndex: number, 
+      columnIndex: number
     ) => {
       if (e) {
         if (e.key == "Escape") {
           setSelectedCell([-1, -1]);
+          if (listener && listener.onCellValueCancelled)
+            listener.onCellValueCancelled(row, column, rowIndex, columnIndex);
         } else if (e.key == "Enter") {
           setSelectedCell([-1, -1]);
           if (listener && listener.onCellValueChanged)
-            listener.onCellValueChanged(row, column);
+            listener.onCellValueChanged(row, column, rowIndex, columnIndex, e.key);
         }
       } else if (listener && listener.onCellValueChanged)
-        listener.onCellValueChanged(row, column);
+        listener.onCellValueChanged(row, column, rowIndex, columnIndex, e.key);
     };
     const cellValueChanging = (
       row: any,
@@ -518,15 +561,18 @@ const Table: React.FC<TableProps> = React.memo(
     ) => {
       if (listener && listener.renderCellValue)
         value = listener.renderCellValue(row, column, value);
+
       if (
-        column.AllowEditing == true &&
+        canEditCell(row, column) &&
         selectedCell &&
-        selectedCell[0] == rowIndex &&
-        selectedCell[1] == columnIndex
+        ((selectedCell[0] == rowIndex &&
+        selectedCell[1] == columnIndex) || row.isNewRow == true)
       ) {
+        var fieldName = column.Filtering?.Name ?? column.PropertyName;
         return (
           <InputField
-            onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column)}
+            id={`${fieldName}${rowIndex}`}
+            onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column, rowIndex, columnIndex)}
             labelVisible={false}
             valuevisible={column.Filtering?.Value}
             valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
@@ -542,7 +588,7 @@ const Table: React.FC<TableProps> = React.memo(
                   column.I18n
                 );
                 if (column.Type == "selectbox" || column.Type == "enum")
-                  cellEditableControlKeyUp(undefined, row, column);
+                  cellEditableControlKeyUp(undefined, row, column, rowIndex, columnIndex);
               },
               getFieldData: (field: any) => {
                 if (listener?.getItemPropertyValue)
@@ -558,12 +604,12 @@ const Table: React.FC<TableProps> = React.memo(
             type={column.Filtering?.Type ?? column.Type}
             enumSelectionType={column.Filtering?.EnumSelectionType}
             remoteDataSource={column.Filtering?.RemoteDataSource}
-            name={column.Filtering?.Name ?? column.PropertyName}
+            name={fieldName}
             translateFn={(key: string) => appClient?.Translate(key) ?? key}
           />
         );
       } else if (
-        column.AllowEditing == true &&
+        canEditCell(row, column) &&
         hoveredCell &&
         hoveredCell[0] == rowIndex &&
         hoveredCell[1] == columnIndex
@@ -613,8 +659,10 @@ const Table: React.FC<TableProps> = React.memo(
         );
       else value = getObjectValue(row, column.PropertyName);
 
-      value = removeHtml(value);
-      value = sanitizeHtml(value);
+      if(typeof value == "string"){
+        value = removeHtml(value);
+        value = sanitizeHtml(value);
+      }
       if (
         column.Type == "date" ||
         column.Type == "datetime" ||
@@ -737,7 +785,9 @@ const Table: React.FC<TableProps> = React.memo(
           >
             <table className={`oph-table`} border={1}>
               <thead className="oph-table-header">{renderColumns()}</thead>
-              <tbody className="oph-table-body">{renderRows()}</tbody>
+              <tbody className="oph-table-body">
+                {renderRows()}
+              </tbody>
             </table>
           </div>
         </div>
@@ -773,6 +823,7 @@ var tableProps: {
   allowSorting?: boolean;
   applyRowValidation?: boolean;
   refreshKey?: string | number| undefined;
+  focusForNewRow?: boolean
   listener?: {
     onCellClick?: Function;
     // onRowClick?: Function;
@@ -780,6 +831,7 @@ var tableProps: {
     onSortingChanged?: Function;
     onFilteringChanged?: Function;
     onCellValueChanged?: Function;
+    onCellValueCancelled?: Function;
     onCellValueChanging?: Function;
     getItemPropertyValue?: Function;
     getRowProps?: Function;

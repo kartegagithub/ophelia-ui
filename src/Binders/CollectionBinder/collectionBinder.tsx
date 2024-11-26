@@ -11,11 +11,11 @@ import ServiceMessage from "../../Service/serviceMessage";
 import Pluralize from 'pluralize';
 import Pagination from "../../Components/Pagination";
 import Router from "next/router";
-import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString, camelize } from "../../Extensions/StringExtensions";
+import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString, clone } from "../../Extensions/StringExtensions";
 import QuerySorter from "./query/querySorter";
 import QueryData from "./query/queryData";
 import { getAppTheme } from "../../AppTheme";
-import { getObjectValue, randomId, randomKey, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
+import { randomKey, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
 import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
 import { ExcelExporter } from "../../Exporters/ExcelExporter";
 import Modal from "../../Components/Modal";
@@ -26,6 +26,10 @@ import Drawer from "../../Components/Drawer";
 import ContentLoading from "../../Components/ContentLoading";
 import ImportModal from "../../Components/Modal/ImportModal";
 import { FileData } from "../../Models";
+import PersistentConfig from "./layout/persistentConfig";
+import PersistentColumnConfig from "./layout/persistentColumnConfig";
+import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
+import { Bars3Icon } from "@heroicons/react/24/solid";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -38,7 +42,32 @@ export class CollectionBinderProps{
   parent?: EntityBinder<{}> | CollectionBinder<{}>
   viewId?: string
 }
-export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {dataIndex: number, path: string, initialized: boolean, clickedRowIndex: number, loadingState: LoadingState, totalDatacount: number, page: number, pageSize: number, filter: any, manualFilter: any, sorter: QuerySorter, data: any, messages: Array<ServiceMessage>, languageID: number, childState: any, importState: {data?: any, isImporting?: boolean, importKey?: string, importRequested?: boolean}, viewId?: string}> {
+export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {
+  dataIndex: number, 
+  path: string, 
+  initialized: boolean, 
+  clickedRowIndex: number, 
+  loadingState: LoadingState, 
+  totalDatacount: number, 
+  page: number, 
+  pageSize: number, 
+  filter: any, 
+  manualFilter: any, 
+  sorter: QuerySorter, 
+  data: any, 
+  messages: Array<ServiceMessage>, 
+  languageID: number, 
+  childState: any, 
+  viewId?: string,
+  persistentSettings?: PersistentConfig,
+  showingSettingsModal?: boolean,
+  rerenderKey?: any,
+  importState: {
+    data?: any, 
+    isImporting?: boolean, 
+    importKey?: string, 
+    importRequested?: boolean
+  }}> {
 
   Config: Config = new Config();
   Options: BinderOptions = new BinderOptions();
@@ -119,7 +148,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     this.Init();
   }
 
-  setInitData(firstLoad: boolean = false){
+  async setInitData(firstLoad: boolean = false){
     var data: any = undefined;
     if(firstLoad) data = this.props.data 
     var viewID: string = "";
@@ -160,15 +189,47 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.setState({viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
       }, 1000);
     }
-  }
 
+    if(!this.state?.persistentSettings){
+      var path = Router.asPath;
+      if(path.indexOf("?") > 1) path = path.substring(0, path.indexOf("?")).replace("?", "");
+      
+      var persistentSettings = await this.GetPersistentSetting(path, this.Config.DataSourcePath);
+      if(!persistentSettings) persistentSettings = { PageURL: path, BinderName: this.Config.DataSourcePath, Columns: []};
+      if(!persistentSettings.Columns) persistentSettings.Columns = [];
+      if(!persistentSettings.PageURL) persistentSettings.PageURL = path;
+      if(!persistentSettings.PageURL) persistentSettings.BinderName = this.Config.DataSourcePath;
+      this.setState({persistentSettings: persistentSettings});
+      this.ApplySettings(persistentSettings);
+    }
+  }
+  ApplySettings(persistentSettings: PersistentConfig){
+    if(persistentSettings.Columns && persistentSettings.Columns.length > 0 && this.Config.Table?.Columns){
+      persistentSettings.Columns.forEach((item) =>{
+        var column = this.Config.Table?.Columns.find((col) => col.PropertyName == item.Name);
+        if(column){
+          if(item.Width) column.Width = item.Width;
+          if(item.SortOrder) column.SortOrder = item.SortOrder;
+          if(typeof column.Visible == "boolean") column.Visible = item.Visible != false? true : false;
+          else if(column.Visible != undefined && column.Visible()) column.Visible = item.Visible;
+          else column.Visible = true;
+          item.Text = column.HeaderText;
+          console.log(column.PropertyName, column.Visible)
+        }
+      });
+
+      this.Config.Table.Columns = this.Config.Table.Columns.sort((a,b) => (a.SortOrder ?? 0) - (b.SortOrder ?? 0))
+    }
+  }
+  async GetPersistentSetting(pageURL: string, binderName?: string): Promise<PersistentConfig | undefined> {
+    return undefined;
+  }
   componentDidUpdate(prevProps: any, prevState: any){
     try {
       //console.log("Reiniting binder", prevState, this.state)
       if(!this.state) return;
       if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
-        this.setInitData()
-        this.onAfterSetData();
+        this.setInitData().then(() => this.onAfterSetData());
       }
       else if(this.state.loadingState === LoadingState.Waiting){
         // console.log("loading binder data")
@@ -330,25 +391,53 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   };
   async onButtonClicked(key: string){
     if(key == "AddNew"){
-      if(this.Config.RowClickOption == "showEntityBinder")
-        this.setState({clickedRowIndex: -1})
-      else
-        Router.push(this.getLink({id: 0}))
+      if(this.Options.AllowNew != false){
+        if(this.Config.NewEntityMethod == "Default"){
+          if(this.Config.RowClickOption == "showEntityBinder")
+            this.setState({clickedRowIndex: -1})
+          else
+            Router.push(this.getLink({id: 0}))
+        }
+        else{
+          this.AddNewRow();
+        }
+      }
     }
     else if(key == "Reload"){
-      this.setState({loadingState: LoadingState.Waiting})
+      if(this.Options.AllowRefresh != false)
+        this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
+    }
+    else if(key == "Settings"){
+      if(this.Options.AllowSettings != false)
+        this.setState({showingSettingsModal: true})
     }
     else if(key == "Import"){
-      this.setState({importState: { importRequested: true}})
+      if(this.Options.AllowImport == true)
+        this.setState({importState: { importRequested: true}})
     }
     else if(key == "ApproveImport"){
+      if(this.Options.AllowImport == true){
         await this.approveImport();
         this.setImportState(false)
+      }
     }
     else if(key == "RejectImport"){
+      if(this.Options.AllowImport == true){
         this.rejectImport();
         this.setImportState(false)
+      }
     }
+  }
+  AddNewRow(list?: Array<any>){
+    var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
+    if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
+    if(!list) list = this.state.data;
+    var newData = clone(list) as Array<any>
+    newData.push(newRow)
+    this.setState({data: newData, clickedRowIndex: newData.length - 1, rerenderKey: randomKey(5)});
+  }
+  OnNewRowAdded(data: any){
+    return data;
   }
   isImporting(){
     return this.state && this.state.importState && this.state.importState.isImporting
@@ -370,22 +459,51 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!name) return;
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
   }
-  onCellValueChanged(row: any, column: TableColumnClass){
-    this.SaveEntity(row)
+  onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
+    if(row.isNewRow == true && key != "Enter") return;
+    this.SaveEntity(row, rowIndex)
   }
-  async SaveEntity(data: any){
+  onCellValueCancelled(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
+    if(row.isNewRow == true && confirm(this.props.AppClient?.Translate("AreYouSureToRemoveRow"))){
+      var newData = clone(this.state.data) as Array<any>;
+      newData.splice(rowIndex, 1);
+      this.setState({clickedRowIndex: -2, data: newData, rerenderKey: randomKey(5)});
+    }
+  }
+  private async SaveSettings(): Promise<PersistentConfig | undefined>{
+    if(!this.state.persistentSettings) return undefined;
+
+    var data = await this.OnSaveSettings(this.state.persistentSettings);
+    if(data) this.ApplySettings(data)
+    this.setState({showingSettingsModal: false, rerenderKey: randomKey(5)});
+    return undefined;
+  }
+  async OnSaveSettings(settingsData: PersistentConfig): Promise<PersistentConfig | undefined>{
+    return undefined;
+  }
+  async SaveEntity(data: any, rowIndex: number){
     try {
+      raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
       var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
       if (!result.hasFailed) {
+        var newData = clone(this.state.data) as Array<any>;
+        newData.splice(rowIndex, 1, result.data);
+        this.AddNewRow(newData);
         raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
       } else {
+        data.isValid = false;
+        this.setState({rerenderKey: randomKey(5)})
         raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
       }
     } catch (error) {}
-}
-  onCellClick(e: React.MouseEvent<HTMLTableCellElement>, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
+    return;
+  }
+  async onCellClick(e: React.MouseEvent<HTMLTableCellElement> | undefined, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
+    if(!this.isImporting() && this.state.clickedRowIndex > 0 && this.state.data[this.state.clickedRowIndex].isNewRow == true && this.state.clickedRowIndex != rowIndex){
+      await this.SaveEntity(this.state.data[this.state.clickedRowIndex], this.state.clickedRowIndex);
+    }
     if(column.AllowEditing != true && this.Config.RowClickOption == "showEntityBinder" && !this.isImporting()){
-      e.preventDefault();
+      e?.preventDefault();
       this.setState({clickedRowIndex: rowIndex})
     }
   }
@@ -462,6 +580,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(this.state.clickedRowIndex >= 0) {
       data = this.state.data[this.state.clickedRowIndex];
     }
+    if(data && data.isNewRow == true) return <></>;
+
     if(this.props.initialFilters && data.id == 0) data = {...data, ...this.props.initialFilters}
     //console.log(this.state.clickedRowIndex)
     if(this.Config.ChildBinderContainer == "modal"){
@@ -470,7 +590,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       </Modal>
     }
     else if(this.Config.ChildBinderContainer == "drawer"){
-      return <Drawer key={this.state.clickedRowIndex} className="bg-white w-2/4 h-full overflow-y-scroll shadow-lg" backdrop={true} swipe={false} fullWidth={false} position="top-right" visible={true}>
+      return <Drawer key={this.state.clickedRowIndex} className="oph-collectionBinders-child-binder" backdrop={true} swipe={false} fullWidth={false} position="top-right" visible={true}>
         {this.renderEntityBinder(data)}
       </Drawer>
     }
@@ -492,6 +612,123 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   renderChildAction(){
     return <></>
   }
+
+  onSettingsColumnDrop(e: React.DragEvent<HTMLDivElement>){
+    e.preventDefault();
+    if(!this.state.persistentSettings) return;
+    
+    var elem = document.querySelectorAll(`.dragging`)[0] as HTMLDivElement
+    elem.classList.remove("dragging");
+    if(!elem.parentElement?.classList.contains("oph-collectionBinders-settings-columns")) return;
+
+    var colums = this.state.persistentSettings?.Columns ?? [];
+    var indexedItem = colums[parseInt(elem.ariaColIndex ?? "-1")];
+    if (indexedItem) {
+      var newColumns: Array<any> = [];
+      var itemInjected = false;
+      var sortOrder: number = 0;
+      for (let i = 0; i < colums.length; i++) {
+        if(i == parseInt(elem.ariaColIndex ?? "-1")) continue;
+
+        const element = colums[i];
+        var tmpElems = document.querySelectorAll(`[aria-colindex='${i}']`)
+        for (let elemIndex = 0; elemIndex < tmpElems.length; elemIndex++) {
+          const tmpElem = tmpElems[elemIndex];
+          if(tmpElem.parentNode == elem.parentNode){
+            if((tmpElem.getBoundingClientRect().top + tmpElem.getBoundingClientRect().height / 2) < e.clientY){
+              element.SortOrder = sortOrder;
+              newColumns.push(element);
+              sortOrder++;
+            }
+            else {
+              if(!itemInjected){
+                indexedItem.SortOrder = sortOrder;
+                newColumns.push(indexedItem)
+                itemInjected = true;
+                sortOrder++;
+              }
+              element.SortOrder = sortOrder;
+              sortOrder++;
+              newColumns.push(element)
+            } 
+            break;
+          } 
+        }
+      }
+      if(!itemInjected) {
+        indexedItem.SortOrder = sortOrder;
+        newColumns.push(indexedItem);
+      }
+      newColumns.forEach((col) => {
+        var tableCol = this.Config.Table?.Columns.find((tableCol) => tableCol.PropertyName == col.Name);
+        if(tableCol) tableCol.SortOrder = col.SortOrder;
+      });
+      var newSettings = clone(this.state.persistentSettings);
+      newSettings.Columns = newColumns;
+      this.setState({persistentSettings: newSettings});
+      this.ApplySettings(newSettings);
+    }
+  }
+  onSettingsColumnDragOver(e: React.DragEvent<HTMLDivElement>){
+    e.preventDefault();
+  }
+  onSettingsColumnDrag(e: React.DragEvent<HTMLDivElement>, item: any, index: number){
+    e.currentTarget.classList.add("dragging")
+  }
+  onSettingsColumnDragEnd(e: React.DragEvent<HTMLDivElement>){
+    e.currentTarget.classList.remove("dragging")
+  }
+  async CancelSettingsModal(){
+    var setting = await this.GetPersistentSetting(this.state.path);
+    this.setState({showingSettingsModal: false, persistentSettings: setting ?? {PageURL: this.state.path, Columns: [], BinderName: this.Config.DataSourcePath}})
+  }
+  renderSettingsModal(){
+    if(!this.Config.Table) return <></>;
+    if(!this.state.persistentSettings) return <></>;
+
+    if(!this.state.persistentSettings.Columns || this.state.persistentSettings.Columns.length == 0){
+      var columns: Array<PersistentColumnConfig> = this.Config.Table.Columns.map((item, i) => {
+        var column: PersistentColumnConfig = { 
+          Name: item.PropertyName,
+          SortOrder: i,
+          Width: item.Width,
+          Text: item.HeaderText ?? item.PropertyName,
+          Visible: item.Visible == undefined || (typeof item.Visible == "boolean"? item.Visible != false: item.Visible())
+        };
+        return column;
+      })
+      var newSettings = clone(this.state.persistentSettings);
+      newSettings.Columns = columns;
+      this.setState({persistentSettings: newSettings});
+    }
+
+    return <Drawer key="SettingsModal" className="oph-collectionBinders-settings" backdrop={true} swipe={false} fullWidth={false} position="top-right" visible={true}>
+        <div className="oph-collectionBinders-settings-title">
+          <div onClick={() => this.CancelSettingsModal()} className="oph-collectionBinders-settings-title-back-button">
+            {getImageComponent({name: "arrow-left", size: 16, color: "#5B6782"})}
+          </div>
+          {this.props.AppClient?.Translate("Settings")}
+        </div>
+        <div className="oph-collectionBinders-settings-columns" onDrop={(e) => this.onSettingsColumnDrop(e)} onDragOver={(e) => this.onSettingsColumnDragOver(e)}>
+          {this.state.persistentSettings?.Columns?.map((column, i) => <div className="oph-collectionBinders-settings-columns-column"
+            key={i}
+            draggable={true} 
+            onDragEnd={(e) => this.onSettingsColumnDragEnd(e)} 
+            onDragStart={(e) => this.onSettingsColumnDrag(e, column, i)} aria-colindex={i}
+            >
+              <div className="oph-collectionBinders-settings-columns-column-left">
+                <label className="oph-collectionBinders-settings-columns-column-left-move"><Bars3Icon width={16} height={16}></Bars3Icon></label>
+                <label>{column.Text}</label>
+              </div>
+              <CheckboxInput switchbox={true} onChange={(e) => {column.Visible = e.target.checked;} } defaultChecked={column.Visible} name={column.Name} id={"col_" + column.Name}></CheckboxInput>
+          </div>)}
+        </div>
+        <div className="oph-collectionBinders-settings-buttons">
+          <Button id="accept-button" onClick={() => this.SaveSettings()} className="oph-collectionBinders-settings-button" text={this.props.AppClient?.Translate("Save")}></Button>
+          <Button id="cancel-button" onClick={() => this.CancelSettingsModal()} className="oph-collectionBinders-settings-button" text={this.props.AppClient?.Translate("Cancel")}></Button>
+        </div>
+    </Drawer>
+  }
   render(): React.ReactNode {
     try {
       //console.log("this.state.loadingState ", this.state?.loadingState )
@@ -502,17 +739,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setMetaTags(stateData)
       this.OnBeforeRender();
       return <>
-        <div className="oph-collectionBinders">
+        <div className="oph-collectionBinders" key={this.state.rerenderKey}>
           <ContentLoading appClient={this.props.AppClient} loading={this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed}>
             {this.renderHeader()}
             {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
-            <div className="oph-collectionBinders">
+            <div className="oph-collectionBinders-body">
               <div ref={this.RootElementRef}>
-                <Table refreshKey={this.state.dataIndex} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+                <Table focusForNewRow={this.Config.NewEntityMethod == "Row"} refreshKey={`${this.state.dataIndex}${this.state.rerenderKey}`} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
               </div>
               {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
             </div>
             {this.renderChildAction()}
+            {!this.state.importState?.isImporting && this.state.showingSettingsModal && this.renderSettingsModal()}
             {this.renderFooter()}
           </ContentLoading>
         </div>

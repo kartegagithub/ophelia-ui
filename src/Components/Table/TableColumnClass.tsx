@@ -13,8 +13,11 @@ export default class TableColumnClass{
     AllowSorting?: boolean = true
     AllowFiltering?: boolean = true
     AllowEditing?: boolean = false
+    AllowEditingOnNewRow?: boolean = true
     IsSorted?: boolean = false
     SortDirection?: string = ""
+    SortOrder?: number  = 0
+    Width?: string  = ""
     IsFiltered?: boolean = false
     MaxTextLength?: number = 100
     Checkboxes?: boolean = false

@@ -1,2 +1,2 @@
-import EntityBinder, {EntityBinderProps} from "./entityBinder"
-export { EntityBinder, EntityBinderProps }
+export {default as EntityBinder} from "./entityBinder"
+export * from "./entityBinder"

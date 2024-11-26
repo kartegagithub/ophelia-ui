@@ -39,7 +39,8 @@ export default class EntityBinder<P> extends React.Component<
     messages: Array<ServiceMessage>, 
     languageID: number,
     rerenderCounter: number,
-    processing: boolean
+    processing: boolean,
+    rerenderKey?: any,
 }
 > {
   Key: number = 0;
@@ -56,6 +57,7 @@ export default class EntityBinder<P> extends React.Component<
   RootElementRef = React.createRef<HTMLDivElement>();
   UploadFiles: Array<FileData> = new Array<FileData>();
   EntityOperations: EntityOperations
+  
   constructor(props: P & EntityBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
@@ -161,20 +163,50 @@ export default class EntityBinder<P> extends React.Component<
   CreateService() {
     return this.props.AppClient?.CreateService();
   }
-
+  ProcessCopiedData(data: any){
+    return data;
+  }
   async onButtonClicked (key: string, params?: any) {
     if(key === "Save"){
-      this.SaveEntity();
+      if(this.Options.AllowSave != false)
+        this.SaveEntity();
     }
     else if(key === "Delete" && confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))){
-      this.DeleteEntity()
+      if(this.Options.AllowDelete != false)
+        this.DeleteEntity()
+    }
+    else if(key === "CopyAndSave" && !this.Options.IsNewEntity && this.Options.AllowCopyAndSave == true){
+      this.resetMetaTags();
+      this.setState({processing: true});
+      var newData = this.ProcessCopiedData(clone(this.state.data));
+      newData.id = 0;
+      if(Object.hasOwn(newData, "name")) newData.name += " (Copy)";
+      else if(Object.hasOwn(newData, "title")) newData.title += " (Copy)";
+      else if(Object.hasOwn(newData, "text")) newData.text += " (Copy)";
+      var result = await this.EntityOperations.SaveEntity(this.state.languageID, newData, []);
+      this.setState({processing: false});
+      if(result.data){
+        if(this.props.shownInParent == true){
+          this.props.parent?.onChildAction("refreshData");
+          this.setInitData(false, false, result.data.id);
+        }
+        else
+          Router.push(this.getEditUrl(result.data.id))
+      }
+      else if (result.messages && result.messages.length > 0) {
+        this.setState({messages: result.messages})
+      }
     }
     else if(key === "AddNew"){
-      this.resetMetaTags()
-      this.setInitData(false, true)
+      if(this.Options.AllowSave != false){
+        this.resetMetaTags()
+        this.setInitData(false, true)
+      }
     }
     else if(key === "Reload"){
-      this.setInitData(false, false, this.state.data.id)
+      if(this.Options.AllowRefresh != false){
+        this.setInitData(false, false, this.state.data.id)
+      }
     }
   }
   getExportFileName(){

@@ -128,6 +128,20 @@ export function getQueryParam(param: string, defaultValue: any, url?: string) {
   return params.get(param) ?? defaultValue;
 }
 
+export function removeQueryParam(param: string, url?: string) {
+  var searchParams = "";
+  if (!url) {
+    if(globalThis.window) searchParams = document.location.search;
+  } else if (url.indexOf("?")) {
+    searchParams = url.substring(url.indexOf("?"), url.length);
+  }
+  if(!searchParams) return "";
+  
+  var params = new URLSearchParams(searchParams);
+  params.delete(param);
+  return params.toString();
+}
+
 export function queryParamsAsObject(
   key: string,
   removeKey: boolean = false,

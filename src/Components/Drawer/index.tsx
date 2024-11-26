@@ -11,6 +11,7 @@ const Drawer: React.FC<DrawerProps> = ({
   fullWidth = true,
   position = "top-center",
   swipeButtonText = "Show Drawer",
+  className = undefined,
 }) => {
   if (position == "center") swipe = false;
   const [swipedData, setSwipedData] = useState(false);
@@ -103,7 +104,7 @@ const Drawer: React.FC<DrawerProps> = ({
     <>
       <div
         id={id}
-        className={`oph-drawer ${fullWidth ? `fullWidth ${position}` : `${position}`} ${!visible ? "hidden" : ""} ${backdrop ? "backdrop" : ""}`}
+        className={`oph-drawer ${className} ${fullWidth ? `fullWidth ${position}` : `${position}`} ${!visible ? "hidden" : ""} ${backdrop ? "backdrop" : ""}`}
       >
         {swipe && (
           <div
