@@ -54,6 +54,7 @@ export class UrlHandlerClass{
         }
         if(lang) lang = lang.toString().toLocaleLowerCase();
                 
+        console.log("destination: " + destination)
         var obj = this.RouteData[trimChars(destination.toLocaleLowerCase(), "/")];
         if(obj){
             var item = obj[lang ?? this.DefaultLanguage ?? "default"] as RouteItem
@@ -74,6 +75,7 @@ export class UrlHandlerClass{
                 destination = destination?.replaceAll(`:${key}`, routeData[key])
             });
         }
+        console.log("destination-2: " + destination)
         return `/${trimChars(destination, '/')}`;
     }
     Log(...args: any){
@@ -102,10 +104,10 @@ export class UrlHandlerClass{
                 }
                 item = await this.FindRoute(path, false);
             }
-
             // If user language is different, redirect to language specific urls
             if(userLang && (!item || (userLang != item.language))){
                 var keys = Object.keys(this.ReverseRouteData);
+                
                 var rewrite = false;
                 for (let index = 0; index < keys.length; index++) {
                     const key = keys[index];
@@ -147,8 +149,26 @@ export class UrlHandlerClass{
                     if(looping) item = undefined;
                     else item = { permanent: false, destination: item.destination, source: path, language: item.language};
                 }
+
+                // check for pattern
+                if(!item){
+                    var splittedPath = path.split((/[/]/))
+                    if(splittedPath && splittedPath.length > 1){
+                        var url = splittedPath.slice(0, splittedPath.length - 1).join("/");
+
+                        console.log("url: " + url)
+                        var key = keys.find(op => op.startsWith(url) && op.indexOf(":") > -1);
+                        if(key){
+                            tmpItem = this.ReverseRouteData[key];
+                            var tmpSplited = tmpItem.destination.split((/[/]/));
+                            url = tmpSplited.slice(0, tmpSplited.length - 1).join("/");
+                            rewrite = true;
+                            console.log("[url, splittedPath[splittedPath.length - 1]].join('/'): " + ([url, splittedPath[splittedPath.length - 1]].join("/")))
+                            return { permanent: undefined, destination: [url, splittedPath[splittedPath.length - 1]].join("/"), source: path, language: tmpItem.language};;
+                        }
+                    }
+                }
             }
-            
             if(item){
                 this.Log("Formatting: " + JSON.stringify(item))
                 item = {source: "/" + trimChars(item.source, "/"), destination: "/" + trimChars(item.destination, "/") + (search ?? ""), permanent: item.permanent};

@@ -455,7 +455,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async uploadFiles(data: any, files: Array<FileData>){
  
   }
-  onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false){
+  onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any){
     if(!name) return;
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
   }

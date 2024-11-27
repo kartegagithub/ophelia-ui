@@ -14,6 +14,7 @@ export default class TableColumnClass{
     AllowFiltering?: boolean = true
     AllowEditing?: boolean = false
     AllowEditingOnNewRow?: boolean = true
+    InputProps?: any = undefined
     IsSorted?: boolean = false
     SortDirection?: string = ""
     SortOrder?: number  = 0

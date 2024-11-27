@@ -779,14 +779,65 @@ export const createHtmlIndex = (
   return indexData;
 };
 
-export const cleanSlug = (text: any) => {
+export const  slugify = (text?: string): string => {
+  if(!text) return "";
+  text = text.toLowerCase().trim();
+
+  const sets = [
+    {to: 'a', from: '[ÀÁÂÃÄÅÆĀĂĄẠẢẤẦẨẪẬẮẰẲẴẶἀə]'},
+    {to: 'b', from: '[б]'},
+    {to: 'c', from: '[ÇĆĈČ]'},
+    {to: 'd', from: '[ÐĎĐÞд]'},
+    {to: 'e', from: '[ÈÉÊËĒĔĖĘĚẸẺẼẾỀỂỄỆе]'},
+    {to: 'f', from: '[ф]'},
+    {to: 'g', from: '[ĜĞĢǴг]'},
+    {to: 'h', from: '[ĤḦ]'},
+    {to: 'i', from: '[ÌÍÎÏĨĪĮİỈỊı]'},
+    {to: 'j', from: '[Ĵй]'},
+    {to: 'ij', from: '[Ĳ]'},
+    {to: 'k', from: '[Ķк]'},
+    {to: 'l', from: '[ĹĻĽŁл]'},
+    {to: 'm', from: '[Ḿм]'},
+    {to: 'n', from: '[ÑŃŅŇин]'},
+    {to: 'o', from: '[ÒÓÔÕÖØŌŎŐỌỎỐỒỔỖỘỚỜỞỠỢǪǬƠо]'},
+    {to: 'oe', from: '[Œ]'},
+    {to: 'p', from: '[ṕп]'},
+    {to: 'r', from: '[ŔŖŘр]'},
+    {to: 's', from: '[ßŚŜŞŠȘс]'},
+    {to: 't', from: '[ŢŤт]'},
+    {to: 'u', from: '[ÙÚÛÜŨŪŬŮŰŲỤỦỨỪỬỮỰƯу]'},
+    {to: 'v', from: '[в]'},
+    {to: 'w', from: '[ẂŴẀẄ]'},
+    {to: 'x', from: '[ẍ]'},
+    {to: 'y', from: '[ÝŶŸỲỴỶỸ]'},
+    {to: 'z', from: '[ŹŻŽз]'},
+    {to: 'yo', from: '[ё]'},
+    {to: 'zh', from: '[ж]'},
+    {to: 'kh', from: '[х]'},
+    {to: 'ts', from: '[ц]'},
+    {to: 'ch', from: '[ч]'},
+    {to: 'sh', from: '[ш]'},
+    {to: 'shh', from: '[щ]'},
+    {to: '', from: '[ъ]'},
+    {to: 'y', from: '[ы]'},
+    {to: '', from: '[ь]'},
+    {to: 'ee', from: '[э]'},
+    {to: 'yu', from: '[ю]'},
+    {to: 'ya', from: '[я]'},
+    {to: '-', from: '[·/_,:;\']'}
+  ];
+
+  sets.forEach(set => {
+    text = text?.replace(new RegExp(set.from,'gi'), set.to)
+  });
+
   return text
-    ?.replace(/\s*-\s*/g, "-") // Boşlukları ve çevresindeki `-` işaretlerini tek `-` ile değiştir
-    ?.replace(/\s+/g, "-") // Kalan boşlukları `-` ile değiştir
-    ?.replace(/-+/g, "-") // Çift `--` gibi durumları tek `-` yap
-    ?.replace(/^-|-$/g, "") // Başta veya sonda kalan `-` işaretlerini temizle
-    ?.toLowerCase();
-};
+    .replace(/\s+/g, '-')    // Replace spaces with -
+    .replace(/[^-a-z0-9а-я\u0370-\u03ff\u1f00-\u1fff]+/g, '') // Remove all non-word chars
+    .replace(/--+/g, '-')    // Replace multiple - with single -
+    .replace(/^-+/, '')      // Trim - from start of text
+    .replace(/-+$/, '')      // Trim - from end of text
+}
 
 export const isImageFile = (fileName?: string): boolean => {
   if(!fileName || fileName.indexOf(".") == -1) return false;

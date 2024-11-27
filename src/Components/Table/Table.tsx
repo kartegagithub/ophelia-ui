@@ -546,11 +546,16 @@ const Table: React.FC<TableProps> = React.memo(
       row: any,
       name?: string,
       value?: any,
-      i18n: boolean = false
+      i18n: boolean = false,
+      rowIndex?: number,
+      columnIndex?: number,
+      field?: any
     ) => {
       if (listener && listener.onCellValueChanging)
-        listener.onCellValueChanging(row, name, value, i18n);
-      else setObjectValue(row, name, value);
+        listener.onCellValueChanging(row, name, value, i18n, rowIndex, columnIndex, field);
+      else{ 
+        setObjectValue(row, name, value);
+      }
     };
     const renderCellValue = (
       row: any,
@@ -571,6 +576,7 @@ const Table: React.FC<TableProps> = React.memo(
         var fieldName = column.Filtering?.Name ?? column.PropertyName;
         return (
           <InputField
+            {...column.InputProps}
             id={`${fieldName}${rowIndex}`}
             onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column, rowIndex, columnIndex)}
             labelVisible={false}
@@ -585,7 +591,9 @@ const Table: React.FC<TableProps> = React.memo(
                   row,
                   column.Filtering?.Name,
                   value,
-                  column.I18n
+                  column.I18n,
+                  rowIndex,
+                  columnIndex
                 );
                 if (column.Type == "selectbox" || column.Type == "enum")
                   cellEditableControlKeyUp(undefined, row, column, rowIndex, columnIndex);
