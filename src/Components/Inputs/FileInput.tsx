@@ -92,13 +92,15 @@ const FileInput: React.FC<
   ) => {
     e.preventDefault();
     if (file.Base64Data) {
-      var image = new Image();
-      image.src = file.Base64Data;
-      var w = window.open("");
-      if (!w) return;
-
-      w.document.write(image.outerHTML);
-      w.document.close();
+      if(isImageFile(file.FileName)){
+        var image = new Image();
+        image.src = file.Base64Data;
+        var w = window.open("");
+        if (!w) return;
+  
+        w.document.write(image.outerHTML);
+        w.document.close();
+      }      
     } else if (file.FilePath) {
       var w = window.open(file.FilePath);
     } else if (file.FileName) {
@@ -153,7 +155,7 @@ const FileInput: React.FC<
                   )}
                 </label>
                 <div className="oph-fileInput-file-content-right-icons">
-                  {isImageFile(file.FileName) && <EyeIcon
+                  {<EyeIcon
                     width={18}
                     height={18}
                     className="oph-fileInput-file-content-right-eye-eyeIcon"

@@ -428,13 +428,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
     }
   }
+  CanAddNewRow(){
+    return (this.state?.data as Array<any>).filter(op => op.isNewRow == true).length == 0;
+  }
   AddNewRow(list?: Array<any>){
-    var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
-    if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
-    if(!list) list = this.state.data;
-    var newData = clone(list) as Array<any>
-    newData.push(newRow)
-    this.setState({data: newData, clickedRowIndex: newData.length - 1, rerenderKey: randomKey(5)});
+    if(this.CanAddNewRow()){
+      var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
+      if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
+      if(!list) list = this.state.data;
+      var newData = clone(list) as Array<any>
+      newData.push(newRow)
+      this.setState({data: newData, clickedRowIndex: newData.length - 1, rerenderKey: randomKey(5)});
+    }
   }
   OnNewRowAdded(data: any){
     return data;
@@ -481,9 +486,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async OnSaveSettings(settingsData: PersistentConfig): Promise<PersistentConfig | undefined>{
     return undefined;
   }
+  async CanSaveEntity(data: any) {
+    return true;
+  }
   async SaveEntity(data: any, rowIndex: number){
     try {
       raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
+      var canSave = await this.CanSaveEntity(data);
+      if(!canSave){
+        raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
+        return;
+      }
+
       var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
       if (!result.hasFailed) {
         var newData = clone(this.state.data) as Array<any>;
