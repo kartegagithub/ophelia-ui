@@ -540,7 +540,7 @@ const Table: React.FC<TableProps> = React.memo(
             listener.onCellValueChanged(row, column, rowIndex, columnIndex, e.key);
         }
       } else if (listener && listener.onCellValueChanged)
-        listener.onCellValueChanged(row, column, rowIndex, columnIndex, e.key);
+        listener.onCellValueChanged(row, column, rowIndex, columnIndex, e);
     };
     const cellValueChanging = (
       row: any,
