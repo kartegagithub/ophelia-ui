@@ -44,7 +44,6 @@ const Dropdown: React.FC<DropdownProps> = ({
   visibilityCallback = undefined,
   refreshSearchList = false,
   alwaysOpen = false,
-
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -55,13 +54,13 @@ const Dropdown: React.FC<DropdownProps> = ({
   var Timer: any;
   const RootRef = React.createRef<HTMLDivElement>();
   const ListRef = React.createRef<HTMLUListElement>();
-  const { pathname } = useRouter();
+  const { pathname, events } = useRouter();
 
   if (!selectedItemValueProp) selectedItemValueProp = valueProp;
   if (!selectedItemDisplayProp) selectedItemDisplayProp = displayProp;
 
   useEffect(() => {
-    if(!alwaysOpen) setOpen(false);
+    if (!alwaysOpen) setOpen(false);
     //url değişirse dropdown kapansın.
   }, [pathname]);
 
@@ -69,7 +68,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     e?: React.KeyboardEvent<HTMLInputElement>,
     searchedPage: number = 1
   ) => {
-    if(e?.key == "Escape"){
+    if (e?.key == "Escape") {
       setSearching(false);
       setOpen(false);
       if (visibilityCallback) visibilityCallback(false);
@@ -94,6 +93,19 @@ const Dropdown: React.FC<DropdownProps> = ({
       setSearching(false);
     }, 500);
   };
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setOpen(false);
+      if (visibilityCallback) visibilityCallback(false);
+    };
+
+    events.on("routeChangeStart", handleRouteChange);
+
+    return () => {
+      events.off("routeChangeStart", handleRouteChange);
+    };
+  }, []);
 
   const onButtonClick = (e: any, button: any) => {
     e.preventDefault();
@@ -228,6 +240,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           leftIcon={button.leftIcon}
           rightIcon={button.rightIcon}
           size={button.size ?? "small"}
+          isOpen={open}
           onMouseOver={() => {
             if (button.dropdownAction == "hover") {
               setOpen(true);
@@ -241,7 +254,9 @@ const Dropdown: React.FC<DropdownProps> = ({
       <div
         id={id}
         key={id}
-        className={`oph-dropdown ${className} ${positionClass || "left"} ${open ? "open" : ""} `}
+        className={`oph-dropdown ${className} ${positionClass || "left"} ${
+          open ? "open" : ""
+        } `}
         ref={RootRef}
       >
         {enableSearch && (

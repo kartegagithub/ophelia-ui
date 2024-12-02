@@ -76,6 +76,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   Theme = getAppTheme()
   RootElementRef = React.createRef<HTMLDivElement>();
   EntityOperations: EntityOperations
+  Mounted: boolean = false;
   constructor(props: P & CollectionBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
@@ -101,7 +102,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(this.Config.Entity) this.EntityOperations.Entity = this.Config.Entity;
       this.EntityOperations.UseI18n = true
       this.ProcessColumns();
-      this.setInitData(true) 
+      this.setInitData(true); 
     } catch (error) {
       console.error(error);
     }
@@ -145,6 +146,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   componentDidMount(){
+    this.Mounted = true;
     this.Init();
   }
 
@@ -181,26 +183,26 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       column.Filtering.Value = undefined
     })   
 
-    if(!this.props.shownInParent){
-      this.setState({viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
-    }
-    else{
-      setTimeout(() => {
-        this.setState({viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
-      }, 1000);
-    }
-
-    if(!this.state?.persistentSettings){
+    var persistentSettings = this.state?.persistentSettings;
+    if(!persistentSettings){
       var path = Router.asPath;
       if(path.indexOf("?") > 1) path = path.substring(0, path.indexOf("?")).replace("?", "");
       
-      var persistentSettings = await this.GetPersistentSetting(path, this.Config.DataSourcePath);
+      persistentSettings = await this.GetPersistentSetting(path, this.Config.DataSourcePath);
       if(!persistentSettings) persistentSettings = { PageURL: path, BinderName: this.Config.DataSourcePath, Columns: []};
       if(!persistentSettings.Columns) persistentSettings.Columns = [];
       if(!persistentSettings.PageURL) persistentSettings.PageURL = path;
       if(!persistentSettings.PageURL) persistentSettings.BinderName = this.Config.DataSourcePath;
-      this.setState({persistentSettings: persistentSettings});
       this.ApplySettings(persistentSettings);
+    }
+
+    if(!this.props.shownInParent){
+      this.setState({persistentSettings: persistentSettings, viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+    }
+    else{
+      setTimeout(() => {
+        this.setState({persistentSettings: persistentSettings, viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      }, 1000);
     }
   }
   ApplySettings(persistentSettings: PersistentConfig){
@@ -214,7 +216,6 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           else if(column.Visible != undefined && column.Visible()) column.Visible = item.Visible;
           else column.Visible = true;
           item.Text = column.HeaderText;
-          console.log(column.PropertyName, column.Visible)
         }
       });
 

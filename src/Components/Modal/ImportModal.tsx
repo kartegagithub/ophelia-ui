@@ -62,6 +62,7 @@ import {
         <Form
           formData={{}}
           onSubmit={(e: any, data: any) => onFormSubmit(e, data)}
+          translateFn={(key) => AppClient?.Translate(key) ?? key}
         >
           <Modal
             dismissOnBackdropClick={false}

@@ -46,5 +46,5 @@
 }
 
 .oph-sidebar-mobileSwitchButton {
-  @apply flex pl-6 pt-9 md:hidden;
+  @apply absolute top-6 left-2 z-10 md:hidden;
 }

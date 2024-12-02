@@ -1,3 +1,6 @@
 .oph-navigation {
   @apply inline-flex items-center gap-1.5 transition delay-100 py-[7px] px-3 text-xxs sm:text-sm rounded-md;
+  &-shadow {
+    @apply w-full absolute h-full bg-transparent z-50;
+  }
 }

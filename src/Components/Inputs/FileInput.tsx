@@ -100,7 +100,7 @@ const FileInput: React.FC<
   
         w.document.write(image.outerHTML);
         w.document.close();
-      }      
+      }    
     } else if (file.FilePath) {
       var w = window.open(file.FilePath);
     } else if (file.FileName) {

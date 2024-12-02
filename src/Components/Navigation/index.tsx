@@ -7,6 +7,7 @@ const Navigation: React.FC<
     size?: string;
     text?: string;
     direction?: string;
+    isOpen?: boolean;
     leftIcon?: React.JSX.Element | string | undefined | IconProps;
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
     disable?: string;
@@ -20,11 +21,18 @@ const Navigation: React.FC<
   size = undefined,
   disable = undefined,
   children,
+  isOpen = false,
   id,
   ...otherProps
 }) => {
   return (
-    <button id={id} className="oph-navigation" {...otherProps}>
+    <button
+      id={id}
+      className={`oph-navigation ${isOpen ? "btnOpen" : ""}`}
+      //disabled={isOpen}
+      {...otherProps}
+    >
+      {isOpen && <div className="oph-navigation-shadow"></div>}
       {leftIcon && getImageComponent(leftIcon)}
       {text ? <RawHTML html={text} className="oph-navigation-raw" /> : children}
       {rightIcon && getImageComponent(rightIcon)}

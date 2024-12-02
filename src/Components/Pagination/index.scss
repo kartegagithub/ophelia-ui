@@ -1,24 +1,40 @@
 .oph-pagination {
-  @apply bg-white mb-12 p-5 flex flex-col xl:flex-row items-center justify-between gap-y-5;
+  @apply bg-white mb-12 p-4 flex flex-col xl:flex-row items-center justify-between gap-y-2 md:gap-y-5;
   &-title {
-    @apply text-slate-500 text-[14px] tracking-[.5px];
+    @apply text-sm font-medium;
+    strong {
+      @apply text-blue-400;
+    }
   }
   &-list {
-    @apply flex items-center gap-6;
-    &-item {
-      @apply flex items-center gap-2 text-[14px] text-slate-500;
-    }
-    &-items {
-      @apply flex gap-4;
-      &-selected {
-        @apply text-[14px] text-indigo-900 font-bold bg-gray-200 px-3 py-1.5 rounded-lg;
+    @apply flex flex-col lg:flex-row items-center justify-center gap-2;
+    &-wrapper {
+      @apply flex items-center gap-2;
+      &-directions {
+        @apply bg-gray-100 size-8 md:size-10 flex items-center justify-center rounded-lg;
+      }
+      &-numbers {
+        @apply flex items-center gap-2;
+        &-item {
+          @apply bg-white border border-gray-300 size-8 md:size-10 text-sm font-medium flex items-center justify-center rounded-lg;
+          &-selected {
+            @apply border-2 border-blue-400  text-blue-400 font-bold;
+          }
+        }
+        &-dots {
+          @apply text-2xl px-1;
+        }
       }
     }
   }
   &-pagesize {
-    @apply flex items-center gap-6 text-[14px] text-slate-500 tracking-[.5px];
+    @apply flex items-center gap-2 text-sm text-slate-500 tracking-[.5px] ml-6;
     &-select {
-      @apply text-[14px] text-indigo-900 font-bold bg-gray-200 px-3 py-1.5 rounded-lg;
+      @apply text-sm border border-gray-300 px-3 bg-white size-8 md:size-10 font-medium flex items-center justify-center rounded-lg !w-min;
+
+      &-label {
+        @apply text-sm text-nowrap text-black;
+      }
     }
   }
 }
