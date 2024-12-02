@@ -171,7 +171,10 @@ export function queryParamsAsObject(
 }
 
 export function isValidDate(value?: string) {
-  if (!value) return false;
+  if (!value || !value.indexOf){
+    if((value as any).getDate) return true;
+    return false;
+  };
   if (
     typeof value["indexOf"] === "function" &&
     value.indexOf(" ") == -1 &&
@@ -212,6 +215,9 @@ export function characterCountInString(str?: string, char?: string) {
 }
 export function convertToDate(value?: string) {
   if (!value) return moment(new Date());
+  if((value as any).getDate) {
+    return moment(value);
+  }
   var setting = getCurrentRegionSetting();
   moment.locale(setting?.Code.toLowerCase());
   if(value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1 && (value.split(":").length == 2 || value.split(":").length == 3)){

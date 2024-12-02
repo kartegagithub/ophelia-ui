@@ -432,7 +432,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return (this.state?.data as Array<any>).filter(op => op.isNewRow == true).length == 0;
   }
   AddNewRow(list?: Array<any>){
-    if(this.CanAddNewRow()){
+    if(this.CanAddNewRow() && this.Config.NewEntityMethod == "Row"){
       var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
       if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
       if(!list) list = this.state.data;
@@ -486,15 +486,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async OnSaveSettings(settingsData: PersistentConfig): Promise<PersistentConfig | undefined>{
     return undefined;
   }
-  async CanSaveEntity(data: any) {
-    return true;
+  async CanSaveEntity(data: any): Promise<{canSave: boolean, showMessage?: boolean, message?: string}> {
+    return {canSave: true, showMessage: true};
   }
   async SaveEntity(data: any, rowIndex: number){
     try {
       raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
-      var canSave = await this.CanSaveEntity(data);
-      if(!canSave){
-        raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
+      var canSaveResult = await this.CanSaveEntity(data);
+      if(canSaveResult && !canSaveResult.canSave){
+        if(canSaveResult.showMessage != false)
+          raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate(canSaveResult.message ?? "EntityCouldNotBeSaved")  })
         return;
       }
 
@@ -574,7 +575,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   getRowProps(row: any, index: number){
     return {className: undefined}
   }
-  getCellProps(row: any, index: number, rowIndex?: number, columnIndex?: number){
+  getCellProps(row: any, column: TableColumnClass, rowIndex?: number, columnIndex?: number){
     return {className: undefined}
   }
   renderCellValue(row: any, column: TableColumnClass, value?: string, rowIndex?: number, columnIndex?: number) {
@@ -761,7 +762,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
               <div ref={this.RootElementRef}>
                 <Table focusForNewRow={this.Config.NewEntityMethod == "Row"} refreshKey={`${this.state.dataIndex}${this.state.rerenderKey}`} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
               </div>
-              {this.state.totalDatacount > stateData.length  && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
+              {this.state.totalDatacount > 0 && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
             </div>
             {this.renderChildAction()}
             {!this.state.importState?.isImporting && this.state.showingSettingsModal && this.renderSettingsModal()}
