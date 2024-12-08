@@ -44,7 +44,7 @@ const Sidebar: React.FC<{
     if (menu.Search) {
       setCurrentState({
         stateKey: currentState.stateKey,
-        menu: menu.Search(menu, text),
+        menu: menu.Search(AppClient, menu, text),
         searchKey: text,
       });
     }

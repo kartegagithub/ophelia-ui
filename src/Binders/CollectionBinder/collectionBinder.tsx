@@ -469,8 +469,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(row.isNewRow == true && key != "Enter") return;
     this.SaveEntity(row, rowIndex)
   }
-  onCellValueCancelled(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
-    if(row.isNewRow == true && confirm(this.props.AppClient?.Translate("AreYouSureToRemoveRow"))){
+  async ConfirmDeletion(newRow: boolean = false){
+    return confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))
+  }
+  async onCellValueCancelled(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
+    if(row.isNewRow == true && await this.ConfirmDeletion()){
       var newData = clone(this.state.data) as Array<any>;
       newData.splice(rowIndex, 1);
       this.setState({clickedRowIndex: -2, data: newData, rerenderKey: randomKey(5)});

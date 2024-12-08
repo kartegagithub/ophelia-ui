@@ -131,12 +131,12 @@ export function getQueryParam(param: string, defaultValue: any, url?: string) {
 export function removeQueryParam(param: string, url?: string) {
   var searchParams = "";
   if (!url) {
-    if(globalThis.window) searchParams = document.location.search;
+    if (globalThis.window) searchParams = document.location.search;
   } else if (url.indexOf("?")) {
     searchParams = url.substring(url.indexOf("?"), url.length);
   }
-  if(!searchParams) return "";
-  
+  if (!searchParams) return "";
+
   var params = new URLSearchParams(searchParams);
   params.delete(param);
   return params.toString();
@@ -171,10 +171,10 @@ export function queryParamsAsObject(
 }
 
 export function isValidDate(value?: string) {
-  if (!value || !value.indexOf){
-    if((value as any).getDate) return true;
+  if (!value || !value.indexOf) {
+    if ((value as any).getDate) return true;
     return false;
-  };
+  }
   if (
     typeof value["indexOf"] === "function" &&
     value.indexOf(" ") == -1 &&
@@ -215,12 +215,17 @@ export function characterCountInString(str?: string, char?: string) {
 }
 export function convertToDate(value?: string) {
   if (!value) return moment(new Date());
-  if((value as any).getDate) {
+  if ((value as any).getDate) {
     return moment(value);
   }
   var setting = getCurrentRegionSetting();
   moment.locale(setting?.Code.toLowerCase());
-  if(value.indexOf(".") == -1 && value.indexOf("/") == -1 && value.indexOf("-") == -1 && (value.split(":").length == 2 || value.split(":").length == 3)){
+  if (
+    value.indexOf(".") == -1 &&
+    value.indexOf("/") == -1 &&
+    value.indexOf("-") == -1 &&
+    (value.split(":").length == 2 || value.split(":").length == 3)
+  ) {
     value = "1/1/1970 " + value;
   }
   return moment(value);
@@ -332,13 +337,21 @@ export function formatTimestampToDateTime(
   }
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
-
 export function formatMoneyTr(value: any) {
+  // Gelen değerden boşlukları kaldırıp sayıya çevirmeyi dener.
+  const numericValue = parseFloat(
+    String(value).replace(/\s+/g, "").replace(",", ".")
+  );
+
+  if (isNaN(numericValue)) {
+    throw new Error("Geçersiz sayı formatı");
+  }
+
   // Türkiye formatına göre virgül ve nokta ayracı kullanarak sayıyı biçimlendirir.
   return new Intl.NumberFormat("tr-TR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(numericValue);
 }
 
 // resim url düzeltip boyutunu ayarlıyor
@@ -752,6 +765,32 @@ export const formatTimeTotalSecond = (totalSeconds: number) => {
 
   return `${hours}:${minutes}:${seconds}`;
 };
+export function getTimeUntil(nextDrawTime: string): string {
+  const now = new Date();
+  const [targetHours, targetMinutes] = nextDrawTime.split(":").map(Number);
+
+  // Hedef zamanı oluştur
+  const targetTime = new Date();
+  targetTime.setHours(targetHours, targetMinutes, 0, 0);
+
+  // Eğer hedef zaman geçmişse, bir gün sonraki aynı zamanı hesapla
+  if (targetTime < now) {
+    targetTime.setDate(targetTime.getDate() + 1);
+  }
+
+  const difference = targetTime.getTime() - now.getTime(); // Fark milisaniye cinsinden
+
+  const hours = Math.floor(difference / (1000 * 60 * 60));
+  const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+  // Değerleri iki basamaklı hale getirme
+  const formatNumber = (num: number) => num.toString().padStart(2, "0");
+
+  return `${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(
+    seconds
+  )}`;
+}
 
 export const createHtmlIndex = (
   val: string | undefined,
@@ -785,72 +824,75 @@ export const createHtmlIndex = (
   return indexData;
 };
 
-export const  slugify = (text?: string): string => {
-  if(!text) return "";
+export const slugify = (text?: string): string => {
+  if (!text) return "";
   text = text.toLowerCase().trim();
 
   const sets = [
-    {to: 'a', from: '[ÀÁÂÃÄÅÆĀĂĄẠẢẤẦẨẪẬẮẰẲẴẶἀə]'},
-    {to: 'b', from: '[б]'},
-    {to: 'c', from: '[ÇĆĈČ]'},
-    {to: 'd', from: '[ÐĎĐÞд]'},
-    {to: 'e', from: '[ÈÉÊËĒĔĖĘĚẸẺẼẾỀỂỄỆе]'},
-    {to: 'f', from: '[ф]'},
-    {to: 'g', from: '[ĜĞĢǴг]'},
-    {to: 'h', from: '[ĤḦ]'},
-    {to: 'i', from: '[ÌÍÎÏĨĪĮİỈỊı]'},
-    {to: 'j', from: '[Ĵй]'},
-    {to: 'ij', from: '[Ĳ]'},
-    {to: 'k', from: '[Ķк]'},
-    {to: 'l', from: '[ĹĻĽŁл]'},
-    {to: 'm', from: '[Ḿм]'},
-    {to: 'n', from: '[ÑŃŅŇин]'},
-    {to: 'o', from: '[ÒÓÔÕÖØŌŎŐỌỎỐỒỔỖỘỚỜỞỠỢǪǬƠо]'},
-    {to: 'oe', from: '[Œ]'},
-    {to: 'p', from: '[ṕп]'},
-    {to: 'r', from: '[ŔŖŘр]'},
-    {to: 's', from: '[ßŚŜŞŠȘс]'},
-    {to: 't', from: '[ŢŤт]'},
-    {to: 'u', from: '[ÙÚÛÜŨŪŬŮŰŲỤỦỨỪỬỮỰƯу]'},
-    {to: 'v', from: '[в]'},
-    {to: 'w', from: '[ẂŴẀẄ]'},
-    {to: 'x', from: '[ẍ]'},
-    {to: 'y', from: '[ÝŶŸỲỴỶỸ]'},
-    {to: 'z', from: '[ŹŻŽз]'},
-    {to: 'yo', from: '[ё]'},
-    {to: 'zh', from: '[ж]'},
-    {to: 'kh', from: '[х]'},
-    {to: 'ts', from: '[ц]'},
-    {to: 'ch', from: '[ч]'},
-    {to: 'sh', from: '[ш]'},
-    {to: 'shh', from: '[щ]'},
-    {to: '', from: '[ъ]'},
-    {to: 'y', from: '[ы]'},
-    {to: '', from: '[ь]'},
-    {to: 'ee', from: '[э]'},
-    {to: 'yu', from: '[ю]'},
-    {to: 'ya', from: '[я]'},
-    {to: '-', from: '[·/_,:;\']'}
+    { to: "a", from: "[ÀÁÂÃÄÅÆĀĂĄẠẢẤẦẨẪẬẮẰẲẴẶἀə]" },
+    { to: "b", from: "[б]" },
+    { to: "c", from: "[ÇĆĈČ]" },
+    { to: "d", from: "[ÐĎĐÞд]" },
+    { to: "e", from: "[ÈÉÊËĒĔĖĘĚẸẺẼẾỀỂỄỆе]" },
+    { to: "f", from: "[ф]" },
+    { to: "g", from: "[ĜĞĢǴг]" },
+    { to: "h", from: "[ĤḦ]" },
+    { to: "i", from: "[ÌÍÎÏĨĪĮİỈỊı]" },
+    { to: "j", from: "[Ĵй]" },
+    { to: "ij", from: "[Ĳ]" },
+    { to: "k", from: "[Ķк]" },
+    { to: "l", from: "[ĹĻĽŁл]" },
+    { to: "m", from: "[Ḿм]" },
+    { to: "n", from: "[ÑŃŅŇин]" },
+    { to: "o", from: "[ÒÓÔÕÖØŌŎŐỌỎỐỒỔỖỘỚỜỞỠỢǪǬƠо]" },
+    { to: "oe", from: "[Œ]" },
+    { to: "p", from: "[ṕп]" },
+    { to: "r", from: "[ŔŖŘр]" },
+    { to: "s", from: "[ßŚŜŞŠȘс]" },
+    { to: "t", from: "[ŢŤт]" },
+    { to: "u", from: "[ÙÚÛÜŨŪŬŮŰŲỤỦỨỪỬỮỰƯу]" },
+    { to: "v", from: "[в]" },
+    { to: "w", from: "[ẂŴẀẄ]" },
+    { to: "x", from: "[ẍ]" },
+    { to: "y", from: "[ÝŶŸỲỴỶỸ]" },
+    { to: "z", from: "[ŹŻŽз]" },
+    { to: "yo", from: "[ё]" },
+    { to: "zh", from: "[ж]" },
+    { to: "kh", from: "[х]" },
+    { to: "ts", from: "[ц]" },
+    { to: "ch", from: "[ч]" },
+    { to: "sh", from: "[ш]" },
+    { to: "shh", from: "[щ]" },
+    { to: "", from: "[ъ]" },
+    { to: "y", from: "[ы]" },
+    { to: "", from: "[ь]" },
+    { to: "ee", from: "[э]" },
+    { to: "yu", from: "[ю]" },
+    { to: "ya", from: "[я]" },
+    { to: "-", from: "[·/_,:;']" },
   ];
 
-  sets.forEach(set => {
-    text = text?.replace(new RegExp(set.from,'gi'), set.to)
+  sets.forEach((set) => {
+    text = text?.replace(new RegExp(set.from, "gi"), set.to);
   });
 
   return text
-    .replace(/\s+/g, '-')    // Replace spaces with -
-    .replace(/[^-a-z0-9а-я\u0370-\u03ff\u1f00-\u1fff]+/g, '') // Remove all non-word chars
-    .replace(/--+/g, '-')    // Replace multiple - with single -
-    .replace(/^-+/, '')      // Trim - from start of text
-    .replace(/-+$/, '')      // Trim - from end of text
-}
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^-a-z0-9а-я\u0370-\u03ff\u1f00-\u1fff]+/g, "") // Remove all non-word chars
+    .replace(/--+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+};
 
 export const isImageFile = (fileName?: string): boolean => {
-  if(!fileName || fileName.indexOf(".") == -1) return false;
+  if (!fileName || fileName.indexOf(".") == -1) return false;
   var imgExtensions = ["gif", "png", "jpg", "jpeg", "bmp", "webp"];
-  var extension = fileName.substring(fileName.indexOf("."), fileName.length).replaceAll(".", "").toLocaleLowerCase();
+  var extension = fileName
+    .substring(fileName.indexOf("."), fileName.length)
+    .replaceAll(".", "")
+    .toLocaleLowerCase();
   return imgExtensions.indexOf(extension) > -1;
-}
+};
 
 export const hexToRgb = (hex: string): string => {
   const sanitizedHex = hex.replace("#", "");

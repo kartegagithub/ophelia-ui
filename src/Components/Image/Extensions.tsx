@@ -24,7 +24,7 @@ export function getImageComponent(elem: string | React.JSX.Element | Function | 
         }
         else if(elem.indexOf("/") > -1 && elem.indexOf("<") == -1){
             if(props.unoptimized == undefined) props.unoptimized = true;
-            return <Image src={elem} alt="icon" {...props}/>;
+            return <Image src={elem} alt={props?.alt || "icon"} {...props}/>;
         }
         else{
             return <RawHTML clearHtml={false} sanitize={false} html={elem} />;

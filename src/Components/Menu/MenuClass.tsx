@@ -1,3 +1,4 @@
+import AppClient from "../../AppClient"
 import MenuItemClass from "./MenuItemClass"
 
 export default class MenuClass{
@@ -10,21 +11,26 @@ export default class MenuClass{
     ItemVisiblityFn? = (menu: MenuClass, item: MenuItemClass) => {
         return true
     }
-    Search? = (menu: MenuClass, key: string) => {
+    Search? = (AppClient: AppClient | undefined, menu: MenuClass, key: string) => {
         menu.SearchInProgress = true;
         if(!key) menu.SearchInProgress = false;
         if(menu.SearchInProgress){
             key = key.toLocaleLowerCase();
-            menu.Items?.forEach((item) => this.SearchItem && this.SearchItem(item, key))
+            menu.Items?.forEach((item) => this.SearchItem && this.SearchItem(AppClient, item, key))
         }
         return menu;
     }
-    SearchItem? = (item: MenuItemClass, key: string) => {
+    SearchItem? = (AppClient: AppClient | undefined, item: MenuItemClass, key: string) => {
         item.SearchVisiblity = false;
         if(!item.Component){
-            if(item.Text) item.SearchVisiblity = item.Text.toLocaleLowerCase().indexOf(key) > -1;
+            if(item.Text){
+                var translatedText: string | undefined = item.Text;
+                if(AppClient && AppClient.Translate) translatedText = AppClient.Translate(item.Text);
+                if(translatedText && translatedText.toLocaleLowerCase().indexOf(key) > -1) item.SearchVisiblity = true;
+                else item.SearchVisiblity = item.Text.toLocaleLowerCase().indexOf(key) > -1;
+            }
             if(item.SubItems){
-                item.SubItems.forEach((subItem) => this.SearchItem && this.SearchItem(subItem, key))
+                item.SubItems.forEach((subItem) => this.SearchItem && this.SearchItem(AppClient, subItem, key))
                 if(item.SubItems.find((subItem) => subItem.SearchVisiblity === true)) item.SearchVisiblity = true
             }
         }

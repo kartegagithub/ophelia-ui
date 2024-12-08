@@ -69,3 +69,9 @@ export const onlyNumeric = (event: any) => {
     event.preventDefault();
   }
 };
+export const onlyNumber = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const invalidKeys = ["e", "E", "+", "-"];
+  if (invalidKeys.includes(e.key)) {
+    e.preventDefault();
+  }
+};

@@ -166,12 +166,15 @@ export default class EntityBinder<P> extends React.Component<
   ProcessCopiedData(data: any){
     return data;
   }
+  async ConfirmDeletion(){
+    return confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))
+  }
   async onButtonClicked (key: string, params?: any) {
     if(key === "Save"){
       if(this.Options.AllowSave != false)
         this.SaveEntity();
     }
-    else if(key === "Delete" && confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))){
+    else if(key === "Delete" && await this.ConfirmDeletion()){
       if(this.Options.AllowDelete != false)
         this.DeleteEntity()
     }
