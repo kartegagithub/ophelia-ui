@@ -16,6 +16,7 @@ export default class Config {
   HierarchicalDisplay?: boolean = false
   HierarchyPropertyName?: string = ""
   HierarchyParentValue?: string = ""
+  EmptyColumnSelection?: "Both" | "Beginning" | "End" | "None" = "None"
   beforeSendRequest? = (data: any) => {
     return data;
   }

@@ -588,6 +588,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     return value;
   }
+  renderEmptyCell(row: any, beginningColumn: boolean, rowIndex?: number) {
+    return <></>
+  }
   renderHeader(){
     return <></>
   }
@@ -764,7 +767,20 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
             <div className="oph-collectionBinders-body">
               <div ref={this.RootElementRef}>
-                <Table focusForNewRow={this.Config.NewEntityMethod == "Row"} refreshKey={`${this.state.dataIndex}${this.state.rerenderKey}`} applyRowValidation={this.state.importState?.isImporting} allowFiltering={!this.isImporting() && !this.props.shownInParent} allowSorting={!this.isImporting()} hierarchicalDisplay={this.Config.HierarchicalDisplay} hierarchyPropertyName={this.Config.HierarchyPropertyName} hierarchyParentValue={this.Config.HierarchyParentValue} appClient={this.props.AppClient} table={this.Config.Table} data={stateData} listener={this}/>
+                <Table 
+                 emptyColumnToBeginning={this.Config.EmptyColumnSelection == "Beginning" || this.Config.EmptyColumnSelection == "Both"}
+                 emptyColumnToEnd={this.Config.EmptyColumnSelection == "End" || this.Config.EmptyColumnSelection == "Both"}
+                 focusForNewRow={this.Config.NewEntityMethod == "Row"} 
+                 refreshKey={`${this.state.dataIndex}${this.state.rerenderKey}`} 
+                 applyRowValidation={this.state.importState?.isImporting} 
+                 allowFiltering={!this.isImporting() && !this.props.shownInParent} 
+                 allowSorting={!this.isImporting()} 
+                 hierarchicalDisplay={this.Config.HierarchicalDisplay} 
+                 hierarchyPropertyName={this.Config.HierarchyPropertyName} 
+                 hierarchyParentValue={this.Config.HierarchyParentValue} 
+                 appClient={this.props.AppClient} 
+                 table={this.Config.Table} 
+                 data={stateData} listener={this}/>
               </div>
               {this.state.totalDatacount > 0 && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
             </div>

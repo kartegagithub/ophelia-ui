@@ -1,6 +1,7 @@
 import { Children } from "react";
 import { clone, isNullOrEmpty, isNumeric, parseFloatIfCan } from "./StringExtensions";
 import { FileSizeUnit } from "../Enums";
+import { EntityOperations } from "../Binders";
 
 export function getKeyByValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -274,4 +275,29 @@ export function convertFileSize(
   const sizeInBytes = size * unitMultipliers[unit];
   const convertedSize = sizeInBytes / unitMultipliers[convertUnit];
   return convertedSize.toFixed(decimalPlaces);
+}
+
+export function arrayToDictionary(arr: Array<any>, keyProperty: string, valueProperty: string | ((data: any) => any)){
+  return arr.reduce((acc, cur) => {
+      var value: any = "";
+      if(typeof valueProperty == "string") value = cur[valueProperty];
+      else value = valueProperty(cur);
+      acc[cur[keyProperty]] = value;
+      return acc;
+  }, {})
+}
+
+function groupArray(arr: Array<any>, property: string) {
+  return arr.reduce((acc, cur) => {
+      const { [property]: _, ...obj} = cur;
+      acc[cur[property]] = [...(acc[cur[property]] || []), obj];
+      return acc;
+  }, {})
+}
+
+export function getI18nValue(data: any, propName: string, languageID: number, keepBaseValue: boolean = true){
+  var eo = new EntityOperations();
+  eo.UseI18n = true;
+  var text = eo.getPropertyValue(data, propName, languageID, true, keepBaseValue);
+  return text;
 }

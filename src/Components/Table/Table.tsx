@@ -48,7 +48,9 @@ const Table: React.FC<TableProps> = React.memo(
     allowSorting = true,
     applyRowValidation = false,
     className = undefined,
-    focusForNewRow = undefined
+    focusForNewRow = undefined,
+    emptyColumnToBeginning = false,
+    emptyColumnToEnd = false
   }) => {
     var [selectedRow, setSelectedRow] = useState(-1);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
@@ -175,6 +177,7 @@ const Table: React.FC<TableProps> = React.memo(
     const renderColumns = () => {
       return (
         <tr className="oph-table-columns">
+          {emptyColumnToBeginning == true && <th></th>}
           {hierarchycalDisplayEnabled() && <th></th>}
           {table.Columns.filter((column) => isColumnVisible(column)).map(
             (column, index) => {
@@ -228,6 +231,7 @@ const Table: React.FC<TableProps> = React.memo(
               );
             }
           )}
+          {emptyColumnToEnd == true && <th></th>}
         </tr>
       );
     };
@@ -444,6 +448,14 @@ const Table: React.FC<TableProps> = React.memo(
               className={`oph-table-body-row ${className} ${selectedRow === row.viewOrderIndex ? "selected" : ""} ${applyRowValidation && row.isValid === false ? "inValid" : ""} ${additionalClassName ?? ""}`}
               {...otherProps}
             >
+              {emptyColumnToBeginning == true && (
+                <td className={`px-4 py-2`} onClick={(e) => {
+                  if (selectedRow != row.viewOrderIndex)
+                    onCellClick(e, row, undefined, row.viewOrderIndex, -1);
+                }}>
+                  {listener && listener.renderEmptyCell && listener.renderEmptyCell(row, true, index)}
+                </td>
+              )}
               {hierarchycalDisplayEnabled() && (
                 <td
                   onClick={(e) => {
@@ -481,6 +493,14 @@ const Table: React.FC<TableProps> = React.memo(
                     columnIndex
                   );
                 }
+              )}
+              {emptyColumnToEnd == true && (
+                <td className={`px-4 py-2`} onClick={(e) => {
+                  if (selectedRow != row.viewOrderIndex)
+                    onCellClick(e, row, undefined, row.viewOrderIndex, -1);
+                }}>
+                  {listener && listener.renderEmptyCell && listener.renderEmptyCell(row, false, index)}
+                </td>
               )}
             </tr>
             {childrenRows &&
@@ -832,10 +852,13 @@ var tableProps: {
   applyRowValidation?: boolean;
   refreshKey?: string | number| undefined;
   focusForNewRow?: boolean
+  emptyColumnToEnd?: boolean
+  emptyColumnToBeginning?: boolean
   listener?: {
     onCellClick?: Function;
     // onRowClick?: Function;
     renderCellValue?: Function;
+    renderEmptyCell?: Function;
     onSortingChanged?: Function;
     onFilteringChanged?: Function;
     onCellValueChanged?: Function;
