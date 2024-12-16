@@ -12,6 +12,7 @@ var iconProps: {
   ext2?: string;
   ext3?: string;
   unoptimized?: boolean;
+  alt?: string;
   width?: number | string | undefined;
   height?: number | string | undefined;
 };
@@ -30,6 +31,7 @@ const Icon: React.FC<IconProps & any> = ({
   unoptimized,
   width,
   height,
+  alt,
   ...props
 }) => {
   return getImageComponent(name, {
@@ -45,6 +47,7 @@ const Icon: React.FC<IconProps & any> = ({
       unoptimized,
       width,
       height,
+      alt,
     },
     ...props,
   });

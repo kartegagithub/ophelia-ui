@@ -128,20 +128,6 @@ export function getQueryParam(param: string, defaultValue: any, url?: string) {
   return params.get(param) ?? defaultValue;
 }
 
-export function queryAsObject(url: string) {
-  var searchParams = "";
-  if (url && url.indexOf("?")) {
-    searchParams = url.substring(url.indexOf("?"), url.length);
-  }
-  var params = new URLSearchParams(searchParams);
-  var returnValues: any = {};
-  for (let [item, value] of Array.from(params.entries())) {
-    if(item)
-      returnValues[item] = value;
-  }
-  return returnValues;
-}
-
 export function removeQueryParam(param: string, url?: string) {
   var searchParams = "";
   if (!url) {
@@ -180,6 +166,20 @@ export function queryParamsAsObject(
         }
       }
     }
+  }
+  return returnValues;
+}
+
+export function queryAsObject(url: string) {
+  var searchParams = "";
+  if (url && url.indexOf("?")) {
+    searchParams = url.substring(url.indexOf("?"), url.length);
+  }
+  var params = new URLSearchParams(searchParams);
+  var returnValues: any = {};
+  for (let [item, value] of Array.from(params.entries())) {
+    if(item)
+      returnValues[item] = value;
   }
   return returnValues;
 }
@@ -367,7 +367,6 @@ export function formatMoneyTr(value: any) {
     maximumFractionDigits: 2,
   }).format(numericValue);
 }
-
 export function formatMoneyAzl(value: any) {
   // Sayıya dönüştür ve geçersiz girişleri kontrol et.
   const numericValue = parseInt(String(value).replace(/\s+/g, ""), 10);
@@ -395,7 +394,6 @@ export function formatMoneyAzl(value: any) {
 
   return `${formattedMainPart},${formattedFractionPart}`;
 }
-
 // resim url düzeltip boyutunu ayarlıyor
 export function imagesReplace(imgURl: any, size?: any) {
   if (imgURl && !size) {

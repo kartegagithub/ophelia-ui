@@ -21,7 +21,7 @@
         }
       }
       &-header {
-        @apply flex flex-shrink-0 items-center justify-between rounded-t-md border-b-2 border-neutral-100 p-4 dark:border-white/10;
+        @apply flex flex-shrink-0 items-center justify-center rounded-t-md border-b-2 border-neutral-100 p-4 dark:border-white/10;
         &-title {
           @apply text-xl font-semibold text-gray-900;
         }

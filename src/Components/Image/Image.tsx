@@ -39,7 +39,7 @@ const Image: React.FC<
     <NextImage
       {...(id && { id })}
       src={src || defaultImage}
-      alt={alt}
+      alt={alt || "Image Default Alt"}
       onError={handleError}
       {...props}
     />

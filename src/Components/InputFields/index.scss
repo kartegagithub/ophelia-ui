@@ -18,7 +18,7 @@
     }
   }
   &-errorMessage {
-    @apply text-xxs text-red-600;
+    @apply flex text-xxs text-red-600;
   }
   &-inputError {
     @apply border-red-500 hover:border-red-500;

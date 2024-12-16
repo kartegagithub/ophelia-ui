@@ -236,6 +236,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           id={`${id}_button`}
           data-testid={`${id}_button`}
           onClick={(e) => handleMainButtonClick(e, button)}
+          extraClass={button.extraClass}
           text={button.text}
           leftIcon={button.leftIcon}
           rightIcon={button.rightIcon}
@@ -370,6 +371,7 @@ var dropdownProps: {
     leftIcon?: IconProps | string | React.JSX.Element;
     rightIcon?: IconProps | string | React.JSX.Element;
     size?: string;
+    extraClass?: string;
     btnChildren?: React.JSX.Element;
   };
   newBtn?: React.JSX.Element;

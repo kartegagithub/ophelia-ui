@@ -13,6 +13,7 @@ const Tabs: React.FC<{
   InlineTabHeaderClass?: string;
   InlineTabContentClass?: string;
   defaultSelected?: string;
+  noContent?: boolean;
 }> = ({
   id,
   children,
@@ -21,6 +22,7 @@ const Tabs: React.FC<{
   InlineTabHeaderClass = "",
   InlineTabContentClass = "",
   defaultSelected,
+  noContent = false,
 }) => {
   const [selectedTab, setSelectedTab] = useState(defaultSelected || "0");
   const tabHeaderRef = useRef<HTMLUListElement>(null);
@@ -108,7 +110,6 @@ const Tabs: React.FC<{
       onClick: item.props.onClick && item.props.onClick,
     });
   });
-
   return (
     <div
       className={`oph-tabs ${type} ${InlineRootClass}`}
@@ -130,7 +131,9 @@ const Tabs: React.FC<{
               var selected = tab.props.active || tabs.length == 1;
               return (
                 <li
-                  className={`oph-tabs-header-buttonContainer ${selected ? "selected" : ""}`}
+                  className={`oph-tabs-header-buttonContainer ${
+                    selected ? "selected" : ""
+                  }`}
                   role="presentation"
                   key={i}
                   onClick={() => {
@@ -139,7 +142,9 @@ const Tabs: React.FC<{
                   ref={activeLinkRef}
                 >
                   <button
-                    className={`oph-tabs-header-button ${selected ? "selected" : ""}`}
+                    className={`oph-tabs-header-button ${
+                      selected ? "selected" : ""
+                    }`}
                     key={tab.props?.id + "-tab"}
                     id={tab.props?.id + "-tab"}
                     data-tabs-target={"#" + tab.props?.id}
@@ -156,20 +161,22 @@ const Tabs: React.FC<{
             })}
         </ul>
       )}
-      <div className={`oph-tabs-content ${InlineTabContentClass}`}>
-        {tabs.map((tab: any, i) => {
-          var selected = tab.props.active || tabs.length == 1;
-          var otherProps = (({ active, ...others }) => others)(tab.props);
-          return (
-            <Tab
-              tabPaneClass={`oph-tabs-tabPane  ${selected ? "selected" : ""}`}
-              key={i}
-              active={selected}
-              {...otherProps}
-            ></Tab>
-          );
-        })}
-      </div>
+      {!noContent && (
+        <div className={`oph-tabs-content ${InlineTabContentClass}`}>
+          {tabs.map((tab: any, i) => {
+            var selected = tab.props.active || tabs.length == 1;
+            var otherProps = (({ active, ...others }) => others)(tab.props);
+            return (
+              <Tab
+                tabPaneClass={`oph-tabs-tabPane  ${selected ? "selected" : ""}`}
+                key={i}
+                active={selected}
+                {...otherProps}
+              ></Tab>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

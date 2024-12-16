@@ -25,7 +25,7 @@ export default class MenuClass{
         if(!item.Component){
             if(item.Text){
                 var translatedText: string | undefined = item.Text;
-                if(AppClient && AppClient.Translate) translatedText = AppClient.Translate(item.Text);
+                if(AppClient && AppClient?.Translate) translatedText = AppClient?.Translate(item.Text);
                 if(translatedText && translatedText.toLocaleLowerCase().indexOf(key) > -1) item.SearchVisiblity = true;
                 else item.SearchVisiblity = item.Text.toLocaleLowerCase().indexOf(key) > -1;
             }

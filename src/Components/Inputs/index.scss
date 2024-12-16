@@ -124,7 +124,7 @@
           @apply ml-2;
         }
         &-icons {
-          @apply flex items-center;
+          @apply flex items-center gap-2;
           &-eyeIcon {
             @apply pr-1 cursor-pointer;
           }

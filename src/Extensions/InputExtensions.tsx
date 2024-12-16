@@ -75,7 +75,6 @@ export const onlyNumber = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
   }
 };
-
 export const maxChar = (maxLength: number) => {
   return (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;

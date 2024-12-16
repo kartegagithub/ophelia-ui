@@ -12,6 +12,7 @@ const Navigation: React.FC<
     rightIcon?: React.JSX.Element | string | undefined | IconProps;
     disable?: string;
     id: string;
+    extraClass?: string;
   }
 > = ({
   text = undefined,
@@ -23,12 +24,15 @@ const Navigation: React.FC<
   children,
   isOpen = false,
   id,
+  extraClass,
   ...otherProps
 }) => {
   return (
     <button
       id={id}
-      className={`oph-navigation ${isOpen ? "btnOpen" : ""}`}
+      className={`oph-navigation group ${isOpen ? "btnOpen" : ""} ${
+        extraClass && extraClass
+      }`}
       //disabled={isOpen}
       {...otherProps}
     >
