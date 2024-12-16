@@ -70,8 +70,17 @@ export const onlyNumeric = (event: any) => {
   }
 };
 export const onlyNumber = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  const invalidKeys = ["e", "E", "+", "-"];
+  const invalidKeys = ["e", "E", "+", "-", "."];
   if (invalidKeys.includes(e.key)) {
     e.preventDefault();
   }
+};
+
+export const maxChar = (maxLength: number) => {
+  return (e: React.FormEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    if (target.value.length > maxLength) {
+      target.value = target.value.slice(0, maxLength); // Maksimum uzunluğu aşan karakterleri sil
+    }
+  };
 };

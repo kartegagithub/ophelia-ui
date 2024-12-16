@@ -128,6 +128,20 @@ export function getQueryParam(param: string, defaultValue: any, url?: string) {
   return params.get(param) ?? defaultValue;
 }
 
+export function queryAsObject(url: string) {
+  var searchParams = "";
+  if (url && url.indexOf("?")) {
+    searchParams = url.substring(url.indexOf("?"), url.length);
+  }
+  var params = new URLSearchParams(searchParams);
+  var returnValues: any = {};
+  for (let [item, value] of Array.from(params.entries())) {
+    if(item)
+      returnValues[item] = value;
+  }
+  return returnValues;
+}
+
 export function removeQueryParam(param: string, url?: string) {
   var searchParams = "";
   if (!url) {
@@ -148,9 +162,9 @@ export function queryParamsAsObject(
   url?: string
 ) {
   var searchParams = "";
-  if (!url) {
+  if (!url && globalThis.window) {
     searchParams = document.location.search;
-  } else if (url.indexOf("?")) {
+  } else if (url && url.indexOf("?")) {
     searchParams = url.substring(url.indexOf("?"), url.length);
   }
   var params = new URLSearchParams(searchParams);
@@ -343,7 +357,7 @@ export function formatMoneyTr(value: any) {
     String(value).replace(/\s+/g, "").replace(",", ".")
   );
 
-  if (isNaN(numericValue)) {
+  if (numericValue && isNaN(numericValue)) {
     throw new Error("Geçersiz sayı formatı");
   }
 
@@ -352,6 +366,34 @@ export function formatMoneyTr(value: any) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(numericValue);
+}
+
+export function formatMoneyAzl(value: any) {
+  // Sayıya dönüştür ve geçersiz girişleri kontrol et.
+  const numericValue = parseInt(String(value).replace(/\s+/g, ""), 10);
+
+  if (isNaN(numericValue)) {
+    throw new Error("Geçərsiz ədəd formatı");
+  }
+
+  // Sayıyı 100'e bölerek virgülden önceki ve sonraki kısmı hesapla.
+  const mainPart = Math.floor(numericValue / 100);
+  const fractionPart = numericValue % 100;
+
+  // Binlik ayracı ekle
+  const formattedMainPart = mainPart
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  // Fractional kısmı sıfır ise sadece ana kısmı döndür.
+  if (fractionPart === 0) {
+    return formattedMainPart;
+  }
+
+  // Fractional kısmı varsa sıfırları at ve birleştir.
+  const formattedFractionPart = fractionPart.toString().replace(/0+$/, "");
+
+  return `${formattedMainPart},${formattedFractionPart}`;
 }
 
 // resim url düzeltip boyutunu ayarlıyor
@@ -767,7 +809,7 @@ export const formatTimeTotalSecond = (totalSeconds: number) => {
 };
 export function getTimeUntil(nextDrawTime: string): string {
   const now = new Date();
-  const [targetHours, targetMinutes] = nextDrawTime.split(":").map(Number);
+  const [targetHours, targetMinutes] = nextDrawTime?.split(":").map(Number);
 
   // Hedef zamanı oluştur
   const targetTime = new Date();
