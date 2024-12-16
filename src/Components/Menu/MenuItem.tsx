@@ -4,6 +4,7 @@ import MenuClass from "./MenuClass";
 import Link from "next/link";
 import { getImageComponent } from "../Image/Extensions";
 import AppClient from "../../AppClient";
+import { usePathname } from "next/navigation";
 
 const MenuItem: React.FC<MenuItemProps> = React.memo(
   ({
@@ -20,6 +21,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
   }) => {
     selected = selected && item.Selected;
     const [collapsed, setCollapsed] = useState(selected);
+    const path = usePathname();
 
     const onClick = (e: any) => {
       if (item.Location) {
@@ -79,12 +81,14 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     if (item.SubItems && item.SubItems?.length > 0 && !item.RightIcon) {
       RightIconComponent = getImageComponent(
         item.RightIcon ?? {
-          name: "arrow-down",
+          name: collapsed && selected ? "arrow-up" : "arrow-down",
           fill: "none",
           size: 16,
         },
         {
-          className: `oph-menu-item-link-content-icon ${selected && "selected"}`,
+          className: `oph-menu-item-link-content-icon ${
+            selected ? `selected${item.Level}` : ""
+          }`,
         },
         selected
       );
@@ -109,7 +113,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
 
     var className = "oph-menu-item-link";
 
-    if (selected && item.Level)
+    if (item.Location === path && item.Level)
       className = `oph-menu-item-link selected${item.Level}`;
 
     if (menuCollapsed) {

@@ -19,11 +19,14 @@
         @apply flex items-center gap-3;
         &-icon {
           path {
-            stroke: #FFFF;
+            stroke: #a6a5e3;
           }
-          &.selected {
+          &.selected1,
+          &.selected2,
+          &.selected3,
+          &.selected4 {
             path {
-              stroke: #A6A5E3;
+              stroke: #ffff;
             }
           }
         }
