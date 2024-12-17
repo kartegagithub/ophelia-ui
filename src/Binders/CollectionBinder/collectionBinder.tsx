@@ -429,17 +429,21 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
     }
   }
-  CanAddNewRow(){
-    return (this.state?.data as Array<any>).filter(op => op.isNewRow == true).length == 0;
+  CanAddNewRow(list?: Array<any>){
+    if(!list) list = this.state.data;
+    return list?.filter(op => op.isNewRow == true).length == 0;
   }
-  AddNewRow(list?: Array<any>){
-    if(this.CanAddNewRow() && this.Config.NewEntityMethod == "Row"){
+  AddNewRow(list?: Array<any>, forceStateChange: boolean = false){
+    if(this.CanAddNewRow(list) && this.Config.NewEntityMethod == "Row"){
       var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
       if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
       if(!list) list = this.state.data;
       var newData = clone(list) as Array<any>
       newData.push(newRow)
       this.setState({data: newData, clickedRowIndex: newData.length - 1, rerenderKey: randomKey(5)});
+    }
+    else if(forceStateChange){
+      this.setState({rerenderKey: randomKey(5)});
     }
   }
   OnNewRowAdded(data: any){
@@ -507,7 +511,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if (!result.hasFailed) {
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
-        this.AddNewRow(newData);
+        this.AddNewRow(newData, true);
         raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
       } else {
         data.isValid = false;
