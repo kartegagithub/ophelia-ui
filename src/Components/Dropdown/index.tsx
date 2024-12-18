@@ -48,10 +48,10 @@ const Dropdown: React.FC<DropdownProps> = ({
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [page, setPage] = useState(1);
+  const [timer, setTimer] = useState(setTimeout(() => 0, 0));
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
   const SearchRef = React.createRef<HTMLInputElement>();
-  var Timer: any;
   const RootRef = React.createRef<HTMLDivElement>();
   const ListRef = React.createRef<HTMLUListElement>();
   const { pathname, events } = useRouter();
@@ -76,9 +76,12 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (searching) return;
     setSearching(true);
 
-    if (Timer) clearTimeout(Timer);
+    if (timer){
+      clearTimeout(timer)
+      setTimer(undefined);
+    }
     var key = SearchRef.current?.value ?? "";
-    Timer = setTimeout(async () => {
+    var Timer = setTimeout(async () => {
       var result: Array<any> | undefined = undefined;
       if (onSearch) {
         result = await onSearch(key, searchedPage);
@@ -92,6 +95,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       }
       setSearching(false);
     }, 500);
+    setTimer(Timer)
   };
 
   useEffect(() => {

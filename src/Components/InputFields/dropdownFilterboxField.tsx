@@ -22,6 +22,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
     allowClear?: boolean
     hideSelections?: boolean
     dropDownDefaultOpen?: boolean
+    optionTemplateFn?: (item: any) => React.JSX.Element;
   }> {
 
   constructor(props: any){
@@ -44,6 +45,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
     return <FilterboxInput 
      alwaysOpen={this.props.dropDownDefaultOpen}
      hideSelections={this.props.hideSelections}
+     optionTemplateFn={this.props.optionTemplateFn}
      displayProp={this.props.displayProp ?? this.props.remoteDataSource?.DisplayProp ?? "name"}
      valueProp={this.props.valueProp ?? this.props.remoteDataSource?.ValueProp ?? "id"}
      dropDownDisplayProp={this.props.remoteDataSource?.DisplayProp ?? this.props.displayProp ?? "name"}

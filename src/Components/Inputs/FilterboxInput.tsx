@@ -47,7 +47,8 @@ export default class FilterboxInput<P> extends React.Component<
       newTextInputPlaceholder?: string;
       onNewAction?: (text: string) => Promise<void>;
       id?: string;
-      alwaysOpen?: boolean
+      alwaysOpen?: boolean,
+      optionTemplateFn?: (item: any) => React.JSX.Element;
     },
   {
     filteredOptions: Array<any>;
@@ -327,6 +328,7 @@ export default class FilterboxInput<P> extends React.Component<
               refreshSearchList={this.state.refreshSearchList}
               multipleSelection={this.props.multipleSelection ?? false}
               handleOutboundClick={true}
+              optionTemplateFn={this.props.optionTemplateFn}
             >
               {this.props.allowNew == true && (
                 <div
