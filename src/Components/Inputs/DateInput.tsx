@@ -20,11 +20,18 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
     (defaultValue ?? value) as string,
     "YYYY-MM-DD"
   );
+
+  const handleFocus = (e: any) => {
+    e.target.showPicker(); 
+  };
   return (
     <input
       id={id}
       type="date"
-      className={`oph-dateInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-dateInput peer ${props.errorClassName ? "error" : ""} ${
+        labelType && labelType === "floating" ? "floating" : ""
+      }`}
+      onClick={handleFocus}
       defaultValue={formattedValue}
       {...props}
       style={style}

@@ -143,6 +143,12 @@
   }
   &-box {
     @apply border-b border-slate-200 text-black text-sm focus:border-black outline-none w-full py-2 flex gap-3;
+    &-arrow {
+      @apply absolute right-3 top-5;
+      path {
+        @apply stroke-black;
+      }
+    }
 
     &-icon {
       @apply cursor-pointer absolute right-1 top-1;

@@ -48,7 +48,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [page, setPage] = useState(1);
-  const [timer, setTimer] = useState(setTimeout(() => 0, 0));
+  const [timer, setTimer] = useState<any>(setTimeout(() => 0, 0));
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
   const SearchRef = React.createRef<HTMLInputElement>();
@@ -319,7 +319,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                         getImageComponent(getObjectValue(option, iconProp))}
                       {multipleSelection != undefined && (
                         <input
-                          disabled
+                          // disabled
                           id={`${id}_selectedvalue_${i}`}
                           name={`${id}_selectedvalue`}
                           type={multipleSelection ? "checkbox" : "radio"}

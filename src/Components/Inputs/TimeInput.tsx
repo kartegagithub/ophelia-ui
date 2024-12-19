@@ -24,6 +24,10 @@ const TimeInput: React.FC<TimeInputProps> = ({
     "HH:mm"
   );
 
+  const handleFocus = (e: any) => {
+    e.target.showPicker();
+  };
+
   return (
     <>
       <DataList options={dataOptions} id={list} />
@@ -32,6 +36,7 @@ const TimeInput: React.FC<TimeInputProps> = ({
         className={`oph-timeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         defaultValue={formattedValue}
         {...props}
+        onClick={handleFocus}
         style={style}
       />
     </>

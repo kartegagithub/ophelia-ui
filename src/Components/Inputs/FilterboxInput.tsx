@@ -1,16 +1,24 @@
 import { AppTheme, getAppTheme } from "../../AppTheme";
 import React, { SelectHTMLAttributes } from "react";
 import Dropdown from "../Dropdown";
-import { clone, formatString, parseFloatIfCan } from "../../Extensions/StringExtensions";
+import {
+  clone,
+  formatString,
+  parseFloatIfCan,
+} from "../../Extensions/StringExtensions";
 import {
   findInArray,
   removeAtIndex,
   selectDefaultValues,
 } from "../../Extensions/ArrayExtensions";
-import { ArrowTopRightOnSquareIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowTopRightOnSquareIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/solid";
 import { getObjectValue } from "../../Extensions";
 import TextInput from "./TextInput";
 import Link from "next/link";
+import Icon from "../Icon";
 export default class FilterboxInput<P> extends React.Component<
   P &
     SelectHTMLAttributes<HTMLSelectElement> & {
@@ -43,12 +51,11 @@ export default class FilterboxInput<P> extends React.Component<
       shownInDropdown?: boolean;
       allowNew?: boolean;
       allowSorting?: boolean;
-      selectedOptionDetailUrlPattern?: string
+      selectedOptionDetailUrlPattern?: string;
       newTextInputPlaceholder?: string;
       onNewAction?: (text: string) => Promise<void>;
       id?: string;
-      alwaysOpen?: boolean,
-      optionTemplateFn?: (item: any) => React.JSX.Element;
+      alwaysOpen?: boolean;
     },
   {
     filteredOptions: Array<any>;
@@ -129,13 +136,30 @@ export default class FilterboxInput<P> extends React.Component<
   }
   getItemDisplayText(item: any, i: number) {
     return (
-      <div className="oph-filterboxInput-display" 
-      key={i} 
-      style={{ cursor: this.props.allowSorting != false && this.props.multipleSelection == true? "move": "default"}}
-      draggable={true} 
-      onDragEnd={(e) => this.onDragEnd(e)} 
-      onDragStart={(e) => this.onDrag(e, item, i)} aria-colindex={i}>
-        <label style={{ cursor: this.props.allowSorting != false && this.props.multipleSelection == true? "move": "default"}}>
+      <div
+        className="oph-filterboxInput-display"
+        key={i}
+        style={{
+          cursor:
+            this.props.allowSorting != false &&
+            this.props.multipleSelection == true
+              ? "move"
+              : "default",
+        }}
+        draggable={true}
+        onDragEnd={(e) => this.onDragEnd(e)}
+        onDragStart={(e) => this.onDrag(e, item, i)}
+        aria-colindex={i}
+      >
+        <label
+          style={{
+            cursor:
+              this.props.allowSorting != false &&
+              this.props.multipleSelection == true
+                ? "move"
+                : "default",
+          }}
+        >
           {typeof item == "string" && item}
           {typeof item != "string" &&
             getObjectValue(item, this.props.displayProp)}
@@ -146,7 +170,21 @@ export default class FilterboxInput<P> extends React.Component<
           height={12}
           className="oph-filterboxInput-display-icon"
         ></XMarkIcon>
-        {this.props.selectedOptionDetailUrlPattern && <Link className="oph-filterboxInput-display-url" href={formatString(this.props.selectedOptionDetailUrlPattern, getObjectValue(item, this.props.valueProp))} target="_blank"><ArrowTopRightOnSquareIcon width={12} height={12}></ArrowTopRightOnSquareIcon></Link>}
+        {this.props.selectedOptionDetailUrlPattern && (
+          <Link
+            className="oph-filterboxInput-display-url"
+            href={formatString(
+              this.props.selectedOptionDetailUrlPattern,
+              getObjectValue(item, this.props.valueProp)
+            )}
+            target="_blank"
+          >
+            <ArrowTopRightOnSquareIcon
+              width={12}
+              height={12}
+            ></ArrowTopRightOnSquareIcon>
+          </Link>
+        )}
       </div>
     );
   }
@@ -176,55 +214,59 @@ export default class FilterboxInput<P> extends React.Component<
   toggleDropDown() {
     this.setState({ showDropdown: !this.state.showDropdown });
   }
-  onDrop(e: React.DragEvent<HTMLDivElement>){
-    if(this.props.multipleSelection != true) return;
+  onDrop(e: React.DragEvent<HTMLDivElement>) {
+    if (this.props.multipleSelection != true) return;
     e.preventDefault();
-    var elem = document.querySelectorAll(`.dragging`)[0] as HTMLDivElement
+    var elem = document.querySelectorAll(`.dragging`)[0] as HTMLDivElement;
     elem.classList.remove("dragging");
-    if(elem.parentNode != this.SelectionLabelRef.current) return;
-    var indexedItem = this.state.selectedOptions[parseInt(elem.ariaColIndex ?? "-1")];
+    if (elem.parentNode != this.SelectionLabelRef.current) return;
+    var indexedItem =
+      this.state.selectedOptions[parseInt(elem.ariaColIndex ?? "-1")];
     if (indexedItem) {
       var newOptions: Array<any> = [];
       var itemInjected = false;
       for (let i = 0; i < this.state.selectedOptions.length; i++) {
-        if(i == parseInt(elem.ariaColIndex ?? "-1")) continue;
+        if (i == parseInt(elem.ariaColIndex ?? "-1")) continue;
 
         const element = this.state.selectedOptions[i];
-        var tmpElems = document.querySelectorAll(`[aria-colindex='${i}']`)
+        var tmpElems = document.querySelectorAll(`[aria-colindex='${i}']`);
         for (let elemIndex = 0; elemIndex < tmpElems.length; elemIndex++) {
           const tmpElem = tmpElems[elemIndex];
-          if(tmpElem.parentNode == elem.parentNode){
-            if((tmpElem.getBoundingClientRect().left + tmpElem.getBoundingClientRect().width / 2) < e.clientX){
+          if (tmpElem.parentNode == elem.parentNode) {
+            if (
+              tmpElem.getBoundingClientRect().left +
+                tmpElem.getBoundingClientRect().width / 2 <
+              e.clientX
+            ) {
               newOptions.push(element);
-            }
-            else {
-              if(!itemInjected){
-                newOptions.push(indexedItem)
+            } else {
+              if (!itemInjected) {
+                newOptions.push(indexedItem);
                 itemInjected = true;
               }
-              newOptions.push(element)
-            } 
+              newOptions.push(element);
+            }
             break;
-          } 
+          }
         }
       }
-      if(!itemInjected) newOptions.push(indexedItem);
-      this.setState({selectedOptions: newOptions});
-      this.onSelection(newOptions)
+      if (!itemInjected) newOptions.push(indexedItem);
+      this.setState({ selectedOptions: newOptions });
+      this.onSelection(newOptions);
     }
     //(e.target as HTMLDivElement).appendChild(document.querySelectorAll("aria-col"));
   }
-  onDragOver(e: React.DragEvent<HTMLDivElement>){
-    if(this.props.multipleSelection != true) return;
+  onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (this.props.multipleSelection != true) return;
     e.preventDefault();
   }
-  onDrag(e: React.DragEvent<HTMLDivElement>, item: any, index: number){
-    if(this.props.multipleSelection != true) return;
-    e.currentTarget.classList.add("dragging")
+  onDrag(e: React.DragEvent<HTMLDivElement>, item: any, index: number) {
+    if (this.props.multipleSelection != true) return;
+    e.currentTarget.classList.add("dragging");
   }
-  onDragEnd(e: React.DragEvent<HTMLDivElement>){
-    if(this.props.multipleSelection != true) return;
-    e.currentTarget.classList.remove("dragging")
+  onDragEnd(e: React.DragEvent<HTMLDivElement>) {
+    if (this.props.multipleSelection != true) return;
+    e.currentTarget.classList.remove("dragging");
   }
   getButtons() {
     var buttons = new Array<any>();
@@ -273,7 +315,8 @@ export default class FilterboxInput<P> extends React.Component<
           id={this.props?.id}
           ref={this.RootRef}
           className="oph-filterboxInput"
-          onDrop={(e) => this.onDrop(e)} onDragOver={(e) => this.onDragOver(e)}
+          onDrop={(e) => this.onDrop(e)}
+          onDragOver={(e) => this.onDragOver(e)}
         >
           <input
             ref={this.HiddenInputRef}
@@ -283,10 +326,15 @@ export default class FilterboxInput<P> extends React.Component<
           />
           {this.props.hideSelections != true && (
             <div
-              ref={this.SelectionLabelRef}
-              className="oph-filterboxInput-box"
-              onClick={() => this.toggleDropDown()}
+            ref={this.SelectionLabelRef}
+            className="oph-filterboxInput-box"
+            onClick={() => this.toggleDropDown()}
             >
+            <Icon
+              name={this.state.showDropdown ? "arrow-up" : "arrow-down"}
+              size={16}
+              className="oph-filterboxInput-box-arrow"
+            />
               {this.state.selectedOptions &&
                 this.state.selectedOptions.length > 0 &&
                 this.state.selectedOptions.map((item, i) =>
@@ -296,7 +344,8 @@ export default class FilterboxInput<P> extends React.Component<
                 this.state.selectedOptions.length == 0) &&
                 this.getEmptyDisplayText()}
               {this.props.multipleSelection == true &&
-                this.props.allowClear != false && (
+                // this.props.allowClear != false && ( // kullanıcı allowclear derse hepsini silebilsin
+                this.props.allowClear  && ( 
                   <XMarkIcon
                     onClick={() => this.clear()}
                     width={13}
@@ -328,7 +377,6 @@ export default class FilterboxInput<P> extends React.Component<
               refreshSearchList={this.state.refreshSearchList}
               multipleSelection={this.props.multipleSelection ?? false}
               handleOutboundClick={true}
-              optionTemplateFn={this.props.optionTemplateFn}
             >
               {this.props.allowNew == true && (
                 <div

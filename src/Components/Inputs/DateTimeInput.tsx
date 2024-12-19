@@ -12,15 +12,24 @@ export interface DateTimeInputProps
 const DateTimeInput: React.FC<
   DateTimeInputProps & AdditionalHtmlAttributes
 > = ({ labelType, value, defaultValue, style, id, ...props }) => {
+
   var formattedValue = stringToDateInputValue(
     (defaultValue ?? value) as string,
     "YYYY-MM-DD HH:mm"
   );
+
+  const handleFocus = (e: any) => {
+    e.target.showPicker();
+  };
+
   return (
     <input
       id={id}
       type="datetime-local"
-      className={`oph-dateTimeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-dateTimeInput peer ${
+        props.errorClassName ? "error" : ""
+      } ${labelType && labelType === "floating" ? "floating" : ""}`}
+      onClick={handleFocus}
       defaultValue={formattedValue}
       {...props}
       style={style}
