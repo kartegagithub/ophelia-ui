@@ -181,7 +181,7 @@ export default class BaseField<P> extends React.Component<
       value = e.value;
     }
     if (this.props.onChange)
-      this.props.onChange({ name: this.props.name, value });
+      this.props.onChange({ name: this.props.name, value, rawValue: e.rawValue });
 
     var isValid = this.Validate(value);
     if (this.props.listener?.onChangeRequest)
