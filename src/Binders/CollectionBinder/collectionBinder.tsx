@@ -508,7 +508,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
 
       var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
-      if (!result.hasFailed) {
+      if (!result.hasFailed && result.data) {
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
         this.AddNewRow("AfterSaveEntity", newData, true);
