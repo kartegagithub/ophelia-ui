@@ -12,6 +12,7 @@ export default class Config {
   RowClickOption?: "navigate" | "showEntityBinder" | undefined = undefined;
   NewEntityMethod?: "Default" | "Row" = "Default";
   ChildBinderContainer?: "modal" | "drawer" = "drawer";
+  Checkboxes?: boolean = false
   HideSelectAll?: boolean = false
   HierarchicalDisplay?: boolean = false
   HierarchyPropertyName?: string = ""

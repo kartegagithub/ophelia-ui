@@ -11,6 +11,7 @@ import {
 import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
 import {
+  clone,
   getFormattedDateString,
   isNullOrEmpty,
   padLeft,
@@ -31,6 +32,7 @@ import Checkbox from "../Inputs/CheckboxInput";
 import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
 import { findInArray } from "../../Extensions";
+import CheckboxInput from "../Inputs/CheckboxInput";
 const Table: React.FC<TableProps> = React.memo(
   ({
     refreshKey,
@@ -50,7 +52,9 @@ const Table: React.FC<TableProps> = React.memo(
     className = undefined,
     focusForNewRow = undefined,
     emptyColumnToBeginning = false,
-    emptyColumnToEnd = false
+    emptyColumnToEnd = false,
+    checkboxes = false,
+    checkedItems = undefined
   }) => {
     var [selectedRow, setSelectedRow] = useState(-1);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
@@ -174,10 +178,17 @@ const Table: React.FC<TableProps> = React.memo(
       }
       return true;
     };
+
+    const onCheckAllChange = (e: any) => {
+      var checked = e.target.checked
+      if(listener?.setCheckedItems) listener?.setCheckedItems(undefined, -1, checked ? "ALL": "NONE")
+    }
+
     const renderColumns = () => {
       return (
         <tr className="oph-table-columns">
           {emptyColumnToBeginning == true && <th></th>}
+          {checkboxes == true && <th className={`px-4 py-2`}><CheckboxInput onChange={(e) => onCheckAllChange(e)}></CheckboxInput></th>}
           {hierarchycalDisplayEnabled() && <th></th>}
           {table.Columns.filter((column) => isColumnVisible(column)).map(
             (column, index) => {
@@ -399,6 +410,11 @@ const Table: React.FC<TableProps> = React.memo(
       );
     };
     
+    const onItemCheckedChange = (e: any, row: any, rowIndex: number) => {
+      var checked = e.target.checked;
+      if(listener?.setCheckedItems) listener?.setCheckedItems(row, rowIndex, checked);
+    }
+
     const renderRows = (
       rowsToRender?: Array<any>,
       additionalClassName?: string
@@ -438,6 +454,8 @@ const Table: React.FC<TableProps> = React.memo(
             selectedRowData.viewOrderStr.startsWith(row.viewOrderStr));
         listener?.getItemPropertyValue
 
+        var isChecked = false;
+        if(listener && listener.isChecked) isChecked = listener.isChecked(row, index);
         var rowProps: {className?: string} = {};
         if(listener && listener.getRowProps) rowProps = listener?.getRowProps(row, index);
         var {className, ...otherProps} = rowProps
@@ -448,6 +466,11 @@ const Table: React.FC<TableProps> = React.memo(
               className={`oph-table-body-row ${className} ${selectedRow === row.viewOrderIndex ? "selected" : ""} ${applyRowValidation && row.isValid === false ? "inValid" : ""} ${additionalClassName ?? ""}`}
               {...otherProps}
             >
+              {checkboxes == true && (
+                <td className={`px-4 py-2`} onClick={(e) => { onItemCheckedChange(e, row, index);}}>
+                  {row.isNewRow != true && <CheckboxInput key={`${index}${isChecked}`} defaultChecked={isChecked}></CheckboxInput>}
+                </td>
+              )}
               {emptyColumnToBeginning == true && (
                 <td className={`px-4 py-2`} onClick={(e) => {
                   if (selectedRow != row.viewOrderIndex)
@@ -717,7 +740,7 @@ const Table: React.FC<TableProps> = React.memo(
         if (value) {
           if (value.indexOf("size") > -1)
             value = value.replace("{size}", "Size1");
-          value = <Image src={value} size={100} className="w-full max-w-25" />;
+          value = <Image src={value} size={100} className="w-full max-w-25" unoptimized={true} />;
         }
       } else if (column.Type == "checkbox") {
         value = (
@@ -854,6 +877,8 @@ var tableProps: {
   focusForNewRow?: boolean
   emptyColumnToEnd?: boolean
   emptyColumnToBeginning?: boolean
+  checkboxes?: boolean
+  checkedItems?: Array<any>
   listener?: {
     onCellClick?: Function;
     // onRowClick?: Function;
@@ -867,6 +892,8 @@ var tableProps: {
     getItemPropertyValue?: Function;
     getRowProps?: Function;
     getCellProps?: Function;
+    setCheckedItems?: Function;
+    isChecked?: Function
   };
 };
 export type TableProps = typeof tableProps;
