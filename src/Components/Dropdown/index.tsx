@@ -12,7 +12,7 @@ import {
   registerDocumentMouseDown,
   unregisterDocumentMouseDown,
 } from "../../Extensions/DocumentExtension";
-import { getObjectValue, setObjectValue } from "../../Extensions";
+import { getObjectValue, randomKey, setObjectValue } from "../../Extensions";
 import Navigation from "../Navigation";
 import Backdrop from "../Backdrop";
 import { useRouter } from "next/router";
@@ -47,11 +47,11 @@ const Dropdown: React.FC<DropdownProps> = ({
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [uniqueID, setUniqueID] = useState(randomKey(5));
   const [page, setPage] = useState(1);
   const [timer, setTimer] = useState<any>(setTimeout(() => 0, 0));
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
-  const SearchRef = React.createRef<HTMLInputElement>();
   const RootRef = React.createRef<HTMLDivElement>();
   const ListRef = React.createRef<HTMLUListElement>();
   const { pathname, events } = useRouter();
@@ -80,14 +80,15 @@ const Dropdown: React.FC<DropdownProps> = ({
       clearTimeout(timer)
       setTimer(undefined);
     }
-    var key = SearchRef.current?.value ?? "";
     var Timer = setTimeout(async () => {
+      var elem = document.getElementById(`${uniqueID}-search-input`) as HTMLInputElement; 
+      if(!elem) return;
       var result: Array<any> | undefined = undefined;
       if (onSearch) {
-        result = await onSearch(key, searchedPage);
+        result = await onSearch(elem.value, searchedPage);
       }
       if (!onSearch || result == undefined) {
-        result = filterInArray(options, key, displayProp);
+        result = filterInArray(options, elem.value, displayProp);
       }
       if (result != undefined) {
         if (searchedPage > 1) result = filteredOptions.concat(result);
@@ -228,7 +229,9 @@ const Dropdown: React.FC<DropdownProps> = ({
       onSearchKeyup();
     if (enableSearch && visible && refreshSearchList != true) {
       setTimeout(function () {
-        SearchRef.current?.focus();
+        var elem = document.getElementById(`${uniqueID}-search-input`) as HTMLInputElement; 
+        if(!elem) return;
+        elem.focus();
       }, 200);
     }
   }, [setOpen, visible, refreshSearchList]);
@@ -272,8 +275,8 @@ const Dropdown: React.FC<DropdownProps> = ({
                   setPage(1);
                   onSearchKeyup(e, 1);
                 }}
+                id={`${uniqueID}-search-input`}
                 type="text"
-                ref={SearchRef}
                 className="oph-dropdown-search-container-searchInput"
                 placeholder={searchPlaceholder}
               />
