@@ -30,6 +30,7 @@ import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
+import { insertToIndex } from "../../Extensions";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -429,6 +430,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.setImportState(false)
       }
     }
+    else if(key == "Save"){
+      if(this.Config.SaveActionType == "SaveButtonClick"){
+        var unsavedItems = this.state.data.filter((item: any) => item.hasUnsavedChanges == true)
+        var length = unsavedItems.length;
+        if(length >= 2) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
+        for (let index = 0; index < unsavedItems.length; index++) {
+          const item = unsavedItems[index];
+          await this.SaveEntity(item, item.viewOrderIndex, length)
+          length--; 
+        }
+      }
+    }
   }
   CanAddNewRow(action: string, list?: Array<any>){
     if(!list) list = this.state.data;
@@ -439,9 +452,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     var newData = clone(list) as Array<any>
     if(this.CanAddNewRow(action, list) && this.Config.NewEntityMethod == "Row"){
       var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
+      newRow.hasUnsavedChanges = true;
       if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
-      newData.push(newRow)
-      this.setState({data: newData, clickedRowIndex: newData.length - 1, rerenderKey: randomKey(5)});
+      var index = 0;
+      if(this.Config.NewEntityLocation == "End"){
+        newData.push(newRow)
+        index = newData.length - 1;
+      }
+      else{
+        insertToIndex(newData, 0, newRow);
+        index = 0;
+      }
+      this.setState({data: newData, clickedRowIndex: index, rerenderKey: randomKey(5)});
     }
     else if(forceStateChange){
       this.setState({data: newData, clickedRowIndex: -2, rerenderKey: randomKey(5)});
@@ -472,7 +494,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
     if(row.isNewRow == true && key != "Enter") return;
-    this.SaveEntity(row, rowIndex)
+    if(this.Config.SaveActionType == "EnterKey")
+      this.SaveEntity(row, rowIndex)
+    else {
+      row.hasUnsavedChanges = true;
+      raiseCustomEvent("notification", { type: "warning", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("PleaseUseSaveButtonToSaveChanges")  })
+    }
   }
   async ConfirmDeletion(newRow: boolean = false){
     return confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))
@@ -498,9 +525,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async CanSaveEntity(data: any): Promise<{canSave: boolean, showMessage?: boolean, message?: string}> {
     return {canSave: true, showMessage: true};
   }
-  async SaveEntity(data: any, rowIndex: number){
+  async SaveEntity(data: any, rowIndex: number, updateQueueLength: number = 0){
     try {
-      raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
+      var canExecuteAdditionalActions = updateQueueLength <= 1;
+      if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
       var canSaveResult = await this.CanSaveEntity(data);
       if(canSaveResult && !canSaveResult.canSave){
         if(canSaveResult.showMessage != false)
@@ -512,8 +540,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if (!result.hasFailed && result.data) {
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
-        this.AddNewRow("AfterSaveEntity", newData, true);
-        raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
+        if(data.isNewRow == true && canExecuteAdditionalActions) this.AddNewRow("AfterSaveEntity", newData, true);
+        if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
       } else {
         data.isValid = false;
         this.setState({rerenderKey: randomKey(5)})
@@ -524,7 +552,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   async onCellClick(e: React.MouseEvent<HTMLTableCellElement> | undefined, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
     if(!this.isImporting() && this.state.clickedRowIndex > 0 && this.state.data[this.state.clickedRowIndex].isNewRow == true && this.state.clickedRowIndex != rowIndex){
-      await this.SaveEntity(this.state.data[this.state.clickedRowIndex], this.state.clickedRowIndex);
+      if(this.Config.SaveActionType == "EnterKey")
+        await this.SaveEntity(this.state.data[this.state.clickedRowIndex], this.state.clickedRowIndex);
     }
     if(column.AllowEditing != true && this.Config.RowClickOption == "showEntityBinder" && !this.isImporting()){
       e?.preventDefault();

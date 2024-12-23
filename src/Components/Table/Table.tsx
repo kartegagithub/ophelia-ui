@@ -422,9 +422,7 @@ const Table: React.FC<TableProps> = React.memo(
       if (!data) return <></>;
 
       var childrenRows: Array<any> | undefined = undefined;
-      data.map((item, i) => {
-        if (!item.viewOrderIndex) item.viewOrderIndex = i;
-      });
+      data.map((item, i) => { item.viewOrderIndex = i; });
       if (!rowsToRender && hierarchyPropertyName) {
         rowsToRender = data.filter((item, i) => {
           return (
@@ -535,6 +533,8 @@ const Table: React.FC<TableProps> = React.memo(
     };
 
     const canEditCell = (row: any, column: TableColumnClass) => {
+      if(!row.isNewRow && data && data.filter((item) => item.isNewRow == true).length > 0) return false;
+
       return (column.AllowEditing == true && (!row.isNewRow || column.AllowEditingOnNewRow !== false)) || (row.isNewRow == true && column.AllowEditingOnNewRow !== false)
     }
     const onCellClick = (

@@ -11,6 +11,8 @@ export default class Config {
   RowSelection?: string = "";
   RowClickOption?: "navigate" | "showEntityBinder" | undefined = undefined;
   NewEntityMethod?: "Default" | "Row" = "Default";
+  NewEntityLocation?: "Beginning" | "End" = "Beginning"
+  SaveActionType?: "EnterKey" | "SaveButtonClick" = "EnterKey"
   ChildBinderContainer?: "modal" | "drawer" = "drawer";
   Checkboxes?: boolean = false
   HideSelectAll?: boolean = false
