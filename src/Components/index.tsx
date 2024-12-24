@@ -1,5 +1,6 @@
 export { default as Accordion } from "./Accordion"
 export * from "./Accordion"
+export {default as RawHTML } from "./RawHTML"
 export { default as AccordionGroup } from "./AccordionGroup"
 export { default as Alert } from "./Alert"
 export { default as Backdrop } from "./Backdrop"

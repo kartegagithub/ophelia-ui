@@ -60,7 +60,6 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   languageID: number, 
   childState: any, 
   viewId?: string,
-  persistentSettings?: PersistentConfig,
   showingSettingsModal?: boolean,
   rerenderKey?: any,
   checkedItems?: Array<any>
@@ -79,6 +78,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   RootElementRef = React.createRef<HTMLDivElement>();
   EntityOperations: EntityOperations
   Mounted: boolean = false;
+  PersistentSettings?: PersistentConfig
   constructor(props: P & CollectionBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
@@ -153,6 +153,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
 
   async setInitData(firstLoad: boolean = false){
+    if(!firstLoad) return;
+
     var data: any = undefined;
     if(firstLoad) data = this.props.data 
     var viewID: string = "";
@@ -185,25 +187,29 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       column.Filtering.Value = undefined
     })   
 
-    var persistentSettings = this.state?.persistentSettings;
-    if(!persistentSettings){
+    if(!this.PersistentSettings){
+      this.PersistentSettings = {};
       var path = Router.asPath;
       if(path.indexOf("?") > 1) path = path.substring(0, path.indexOf("?")).replace("?", "");
       
-      persistentSettings = await this.GetPersistentSetting(path, this.Config.DataSourcePath);
-      if(!persistentSettings) persistentSettings = { PageURL: path, BinderName: this.Config.DataSourcePath, Columns: []};
-      if(!persistentSettings.Columns) persistentSettings.Columns = [];
-      if(!persistentSettings.PageURL) persistentSettings.PageURL = path;
-      if(!persistentSettings.PageURL) persistentSettings.BinderName = this.Config.DataSourcePath;
-      this.ApplySettings(persistentSettings);
+      this.PersistentSettings = await this.GetPersistentSetting(path, this.Config.DataSourcePath);
+      if(!this.PersistentSettings) this.PersistentSettings = { PageURL: path, BinderName: this.Config.DataSourcePath, Columns: []};
+      if(!this.PersistentSettings.Columns) this.PersistentSettings.Columns = [];
+      if(!this.PersistentSettings.PageURL) this.PersistentSettings.PageURL = path;
+      if(!this.PersistentSettings.PageURL) this.PersistentSettings.BinderName = this.Config.DataSourcePath;
+      this.ApplySettings(this.PersistentSettings);
     }
 
+    var loadingState = data? LoadingState.Loaded: LoadingState.Waiting;
+    if(this.state && this.state.loadingState == LoadingState.Loading)
+      loadingState = LoadingState.Loading;
+
     if(!this.props.shownInParent){
-      this.setState({checkedItems: [], persistentSettings: persistentSettings, viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      this.setState({checkedItems: [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
     }
     else{
       setTimeout(() => {
-        this.setState({checkedItems: [], persistentSettings: persistentSettings, viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: data? LoadingState.Loaded: LoadingState.Waiting, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+        this.setState({checkedItems: [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
       }, 1000);
     }
   }
@@ -229,13 +235,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   componentDidUpdate(prevProps: any, prevState: any){
     try {
-      //console.log("Reiniting binder", prevState, this.state)
       if(!this.state) return;
       if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
-        this.setInitData().then(() => this.onAfterSetData());
+        this.setInitData(!this.props.shownInParent && this.state.path != Router.asPath).then(() => this.onAfterSetData());
       }
       else if(this.state.loadingState === LoadingState.Waiting){
         // console.log("loading binder data")
+        //console.log("Reiniting binder", prevState, this.state)
         this.getData().then((data) => {
           this.onAfterSetData();
           if(data && data.data){
@@ -476,6 +482,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return this.state && this.state.importState && this.state.importState.isImporting
   }
   setImportState(isImporting: boolean, importKey?: string, data?: any){
+    //console.log("setImportState", isImporting, importKey)
     if(isImporting) this.setState({importState: { isImporting: true, importKey, data }, loadingState: LoadingState.Waiting})
     else this.setState({importState: {isImporting: false, importRequested: false, importKey: undefined, data: undefined}, loadingState: LoadingState.Waiting})
   }
@@ -512,9 +519,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
   }
   private async SaveSettings(): Promise<PersistentConfig | undefined>{
-    if(!this.state.persistentSettings) return undefined;
+    if(!this.PersistentSettings) return undefined;
 
-    var data = await this.OnSaveSettings(this.state.persistentSettings);
+    var data = await this.OnSaveSettings(this.PersistentSettings);
     if(data) this.ApplySettings(data)
     this.setState({showingSettingsModal: false, rerenderKey: randomKey(5)});
     return undefined;
@@ -571,21 +578,31 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setState({clickedRowIndex: -2})
     }
     else if(type == "refreshData"){
-      this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
+      this.refreshData();
     }
   }
   refreshData(){
+    //console.log("Refreshing data")
     this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
   }
   onPageChange(i: number){
-    Router.push("", replaceQueryParam(this.state.viewId + "page", i.toString()), { shallow: true })
+    //console.log("Page is changing: " + this.state?.page + " => " + i);
+    if(!this.props.shownInParent)
+      Router.push("", replaceQueryParam(this.state.viewId + "page", i.toString()), { shallow: true })
+    else this.setState({page: i, loadingState: LoadingState.Waiting});
   }
   onPageSizeChange(i: number){
-    Router.push("", replaceQueryParam(this.state.viewId + "pageSize", i.toString()), { shallow: true })
+    //console.log("PageSize is changing: " + this.state?.pageSize + " => " + i);
+    if(!this.props.shownInParent)
+      Router.push("", replaceQueryParam(this.state.viewId + "pageSize", i.toString()), { shallow: true })
+    else this.setState({pageSize: i, loadingState: LoadingState.Waiting});
   }
   onSortingChanged(column: TableColumnClass, direction: string){
+    //console.log("Sorting is changing: " + this.state?.sorter?.name + " => " + column.PropertyName);
     if(column.PropertyName){
-      Router.push("", replaceQueryParam(this.state.viewId + "sortDirection", direction, replaceQueryParam(this.state.viewId + "sortBy", column.PropertyName)), { shallow: true })
+      if(!this.props.shownInParent)
+        Router.push("", replaceQueryParam(this.state.viewId + "sortDirection", direction, replaceQueryParam(this.state.viewId + "sortBy", column.PropertyName)), { shallow: true })
+      else this.setState({sorter: { name: column.PropertyName, ascending: direction != "DESC"}, loadingState: LoadingState.Waiting})
     }
   }
   onFilteringChanged(filteredColumns: Array<TableColumnClass>){
@@ -605,7 +622,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         }
       }
     });
-    Router.push("", url, { shallow: true }) 
+    if(!this.props.shownInParent)
+      Router.push("", url, { shallow: true }) 
+    else this.setState({ loadingState: LoadingState.Waiting, filter: filters });
   }
   getItemPropertyValue(row: any, name: string, i18n: boolean = false) {
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);
@@ -699,13 +718,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
 
   onSettingsColumnDrop(e: React.DragEvent<HTMLDivElement>){
     e.preventDefault();
-    if(!this.state.persistentSettings) return;
+    if(!this.PersistentSettings) return;
     
     var elem = document.querySelectorAll(`.dragging`)[0] as HTMLDivElement
     elem.classList.remove("dragging");
     if(!elem.parentElement?.classList.contains("oph-collectionBinders-settings-columns")) return;
 
-    var colums = this.state.persistentSettings?.Columns ?? [];
+    var colums = this.PersistentSettings?.Columns ?? [];
     var indexedItem = colums[parseInt(elem.ariaColIndex ?? "-1")];
     if (indexedItem) {
       var newColumns: Array<any> = [];
@@ -747,9 +766,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         var tableCol = this.Config.Table?.Columns.find((tableCol) => tableCol.PropertyName == col.Name);
         if(tableCol) tableCol.SortOrder = col.SortOrder;
       });
-      var newSettings = clone(this.state.persistentSettings);
+      var newSettings = clone(this.PersistentSettings);
       newSettings.Columns = newColumns;
-      this.setState({persistentSettings: newSettings});
+      this.setState({rerenderKey: randomKey(5)});
       this.ApplySettings(newSettings);
     }
   }
@@ -764,13 +783,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   async CancelSettingsModal(){
     var setting = await this.GetPersistentSetting(this.state.path);
-    this.setState({showingSettingsModal: false, persistentSettings: setting ?? {PageURL: this.state.path, Columns: [], BinderName: this.Config.DataSourcePath}})
+    this.PersistentSettings = setting ?? {PageURL: this.state.path, Columns: [], BinderName: this.Config.DataSourcePath};
+    this.setState({showingSettingsModal: false, rerenderKey: randomKey(5) })
   }
   renderSettingsModal(){
     if(!this.Config.Table) return <></>;
-    if(!this.state.persistentSettings) return <></>;
+    if(!this.PersistentSettings) return <></>;
 
-    if(!this.state.persistentSettings.Columns || this.state.persistentSettings.Columns.length == 0){
+    if(!this.PersistentSettings.Columns || this.PersistentSettings.Columns.length == 0){
       var columns: Array<PersistentColumnConfig> = this.Config.Table.Columns.map((item, i) => {
         var column: PersistentColumnConfig = { 
           Name: item.PropertyName,
@@ -781,9 +801,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         };
         return column;
       })
-      var newSettings = clone(this.state.persistentSettings);
+      var newSettings = clone(this.PersistentSettings);
       newSettings.Columns = columns;
-      this.setState({persistentSettings: newSettings});
+      this.PersistentSettings = newSettings;
+      this.setState({rerenderKey: randomKey(5)});
     }
 
     return <Drawer key="SettingsModal" className="oph-collectionBinders-settings" backdrop={true} swipe={false} fullWidth={false} position="top-right" visible={true}>
@@ -794,7 +815,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           {this.props.AppClient?.Translate("Settings")}
         </div>
         <div className="oph-collectionBinders-settings-columns" onDrop={(e) => this.onSettingsColumnDrop(e)} onDragOver={(e) => this.onSettingsColumnDragOver(e)}>
-          {this.state.persistentSettings?.Columns?.map((column, i) => <div className="oph-collectionBinders-settings-columns-column"
+          {this.PersistentSettings?.Columns?.map((column, i) => <div className="oph-collectionBinders-settings-columns-column"
             key={i}
             draggable={true} 
             onDragEnd={(e) => this.onSettingsColumnDragEnd(e)} 
@@ -819,7 +840,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!this.Config.Table || !this.state)
         return <></>
   
-      console.log(this.state.checkedItems)
+      //console.log(this.state.checkedItems)
       var stateData = this.state.data ?? []
       this.setMetaTags(stateData)
       this.OnBeforeRender();
@@ -838,7 +859,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
                  focusForNewRow={this.Config.NewEntityMethod == "Row"} 
                  refreshKey={`${this.state.dataIndex}${this.state.rerenderKey}`} 
                  applyRowValidation={this.state.importState?.isImporting} 
-                 allowFiltering={!this.isImporting() && !this.props.shownInParent} 
+                 allowFiltering={!this.isImporting()} 
                  allowSorting={!this.isImporting()} 
                  hierarchicalDisplay={this.Config.HierarchicalDisplay} 
                  hierarchyPropertyName={this.Config.HierarchyPropertyName} 
