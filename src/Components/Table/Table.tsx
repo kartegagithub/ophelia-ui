@@ -58,6 +58,7 @@ const Table: React.FC<TableProps> = React.memo(
   }) => {
     var [selectedRow, setSelectedRow] = useState(-1);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
+    var [editingCell, setEditingCell] = useState<TableColumnClass>();
     var [hoveredCell, setHoveredCell] = useState([-1, -1]);
     var [selectedColumn, setSelectedColumn] = useState(-1);
     var [filteredColumns, setFilteredColumns] = useState([""]);
@@ -138,13 +139,27 @@ const Table: React.FC<TableProps> = React.memo(
     const recalculateHeight = () => {
       if (adjustHeight && containerRef.current) {
         if (selectedColumnToFilter && selectedColumnToFilter.PropertyName)
-          containerRef.current.style.minHeight = "400px";
-        else containerRef.current.style.minHeight = "";
+          containerRef.current.classList.add("filter-opened");
+        else containerRef.current.classList.remove("filter-opened");
+
+        for (let index = containerRef.current.classList.length -1; index >= 0; index--) {
+          const element = containerRef.current.classList[index];
+          if(element && element.indexOf("editing-input") > -1)
+            containerRef.current.classList.remove(element);
+        }
+
+        if (editingCell){
+          containerRef.current.classList.add("editing-input");
+          if(editingCell.Filtering)
+            containerRef.current.classList.add("editing-input-type-" + editingCell.Filtering.Type);
+          else
+            containerRef.current.classList.add("editing-input-type-" + editingCell.Type);
+        }
       }
     };
     useEffect(() => {
       recalculateHeight();
-    }, [selectedColumnToFilter]);
+    }, [selectedColumnToFilter, editingCell]);
 
     useEffect(() => {
       onTableScroll();
@@ -304,7 +319,7 @@ const Table: React.FC<TableProps> = React.memo(
           key={`${modalID}-dropdown-${column.PropertyName}`}
           visible={true}
           id={modalID}
-          label="Filter to"
+          label={appClient?.Translate("FilterTo") ?? "Filter to"}
           onSelectionChange={(options, button) => {
             if (button) {
               if (button.id == 0) {
@@ -334,6 +349,7 @@ const Table: React.FC<TableProps> = React.memo(
         >
           {comparisons && comparisons.length > 0 && (
             <Select
+              className="filter-comparison"
               defaultValue={column.Filtering?.Comparison}
               options={comparisons}
               onChange={(e) =>
@@ -461,16 +477,16 @@ const Table: React.FC<TableProps> = React.memo(
           <>
             <tr
               key={`${row.viewOrderIndex}${refreshKey}`}
-              className={`oph-table-body-row ${className} ${selectedRow === row.viewOrderIndex ? "selected" : ""} ${applyRowValidation && row.isValid === false ? "inValid" : ""} ${additionalClassName ?? ""}`}
+              className={`oph-table-body-row ${className} ${selectedRow === row.viewOrderIndex ? "selected" : ""} ${applyRowValidation && row.isValid === false ? "inValid" : ""} ${row.hasUnsavedChanges === true ? "has-dirty-data" : ""} ${additionalClassName ?? ""}`}
               {...otherProps}
             >
               {checkboxes == true && (
-                <td className={`px-4 py-2`} onClick={(e) => { onItemCheckedChange(e, row, index);}}>
+                <td className={`px-4 py-2 checkbox-column`} onClick={(e) => { onItemCheckedChange(e, row, index);}}>
                   {row.isNewRow != true && <CheckboxInput key={`${index}${isChecked}`} defaultChecked={isChecked}></CheckboxInput>}
                 </td>
               )}
               {emptyColumnToBeginning == true && (
-                <td className={`px-4 py-2`} onClick={(e) => {
+                <td className={`px-4 py-2 empty-column`} onClick={(e) => {
                   if (selectedRow != row.viewOrderIndex)
                     onCellClick(e, row, undefined, row.viewOrderIndex, -1);
                 }}>
@@ -516,7 +532,7 @@ const Table: React.FC<TableProps> = React.memo(
                 }
               )}
               {emptyColumnToEnd == true && (
-                <td className={`px-4 py-2`} onClick={(e) => {
+                <td className={`px-4 py-2 empty-column`} onClick={(e) => {
                   if (selectedRow != row.viewOrderIndex)
                     onCellClick(e, row, undefined, row.viewOrderIndex, -1);
                 }}>
@@ -550,6 +566,12 @@ const Table: React.FC<TableProps> = React.memo(
       setSelectedColumn(columnIndex);
       setSelectedRow(rowIndex);
 
+      if(column){
+        var willShowEdit = canEditCell(row, column) || row.isNewRow == true;
+        if(willShowEdit) setEditingCell(column);
+        else setEditingCell(undefined)
+      }
+
       setTimeout(() => {
         var fieldName = column?.Filtering?.Name ?? column?.PropertyName;
         var elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} input`);
@@ -574,11 +596,13 @@ const Table: React.FC<TableProps> = React.memo(
     ) => {
       if (e) {
         if (e.key == "Escape") {
+          setEditingCell(undefined)
           setSelectedCell([-1, -1]);
           if (listener && listener.onCellValueCancelled)
             listener.onCellValueCancelled(row, column, rowIndex, columnIndex);
         } else if (e.key == "Enter") {
           setSelectedCell([-1, -1]);
+          setEditingCell(undefined)
           if (listener && listener.onCellValueChanged)
             listener.onCellValueChanged(row, column, rowIndex, columnIndex, e.key);
         }
@@ -592,10 +616,12 @@ const Table: React.FC<TableProps> = React.memo(
       i18n: boolean = false,
       rowIndex?: number,
       columnIndex?: number,
-      field?: any
+      field?: any,
+      rawValue?: any
     ) => {
-      if (listener && listener.onCellValueChanging)
-        listener.onCellValueChanging(row, name, value, i18n, rowIndex, columnIndex, field);
+      if (listener && listener.onCellValueChanging){
+        listener.onCellValueChanging(row, name, value, i18n, rowIndex, columnIndex, field, rawValue);
+      }
       else{ 
         setObjectValue(row, name, value);
       }
@@ -610,34 +636,53 @@ const Table: React.FC<TableProps> = React.memo(
       if (listener && listener.renderCellValue)
         value = listener.renderCellValue(row, column, value);
 
-      if (
-        canEditCell(row, column) &&
-        selectedCell &&
-        ((selectedCell[0] == rowIndex &&
-        selectedCell[1] == columnIndex) || row.isNewRow == true)
-      ) {
-        var fieldName = column.Filtering?.Name ?? column.PropertyName;
+      if (selectedCell && ((selectedCell[0] == rowIndex && selectedCell[1] == columnIndex) && column == editingCell)) {
+        var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
+        var multipleSelection = false;
+        if(column.InputProps?.multipleSelection != undefined) multipleSelection = column.InputProps?.multipleSelection;
+        else if(column.Filtering?.MultipleSelection != undefined) multipleSelection = column.Filtering?.MultipleSelection;
+
         return (
           <InputField
             {...column.InputProps}
             id={`${fieldName}${rowIndex}`}
             onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column, rowIndex, columnIndex)}
             labelVisible={false}
-            valuevisible={column.Filtering?.Value}
+            valueName={column.Filtering?.ValueName}
             valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
             displayProp={
               column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"
             }
             listener={{
-              setFieldData: (name: string, value: any) => {
+              onChangeRequest: (name: string, value: any, isValid: boolean, field: any) => {
+                if(column.OnBeforeSetData) column.OnBeforeSetData(row, name, value, field, isValid)
+              },
+              setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
+                if(rawValue && Array.isArray(rawValue) && rawValue.length > 0 && multipleSelection !== true){
+                  rawValue = rawValue[0]
+                }
                 cellValueChanging(
                   row,
-                  column.Filtering?.Name,
+                  fieldName,
                   value,
                   column.I18n,
                   rowIndex,
-                  columnIndex
+                  columnIndex,
+                  field,
+                  rawValue
                 );
+                if(column.Filtering && column.Filtering.ValueName && column.Filtering.ValueName != column.Filtering?.Name){
+                  cellValueChanging(
+                    row,
+                    column.Filtering?.Name,
+                    rawValue,
+                    column.I18n,
+                    rowIndex,
+                    columnIndex,
+                    field
+                  );
+                }
+                if(column.OnAfterSetData) column.OnAfterSetData(row, value, field, rawValue)
                 if (column.Type == "selectbox" || column.Type == "enum")
                   cellEditableControlKeyUp(undefined, row, column, rowIndex, columnIndex);
               },
@@ -655,6 +700,8 @@ const Table: React.FC<TableProps> = React.memo(
             type={column.Filtering?.Type ?? column.Type}
             enumSelectionType={column.Filtering?.EnumSelectionType}
             remoteDataSource={column.Filtering?.RemoteDataSource}
+            multipleSelection={multipleSelection}
+            multiple={multipleSelection}
             name={fieldName}
             translateFn={(key: string) => appClient?.Translate(key) ?? key}
           />
@@ -821,7 +868,7 @@ const Table: React.FC<TableProps> = React.memo(
 
     try {
       return (
-        <div id={id} className={`oph-table-container ${className}`}>
+        <div id={id} className={`oph-table-container-root ${className}`}>
           <div
             className="oph-table-scroller"
             ref={topScrollRef}

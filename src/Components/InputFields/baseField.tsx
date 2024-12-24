@@ -188,7 +188,8 @@ export default class BaseField<P> extends React.Component<
       this.props.listener?.onChangeRequest(
         this.props.valueName ?? this.props.name,
         value,
-        isValid
+        isValid,
+        this
       );
     if (isValid) {
       if (this.props.listener?.setFileDeleted && deletedFile) {
@@ -205,7 +206,8 @@ export default class BaseField<P> extends React.Component<
         this.props.listener?.setFieldData(
           this.props.valueName ?? this.props.name,
           value,
-          this
+          this,
+          e.rawValue
         );
       }
     }

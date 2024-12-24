@@ -7,6 +7,8 @@ export default class TableColumnClass{
     HeaderText?: string = ""
     Format?: string = ""
     TextFormatter?: Function = (text: string) => text;
+    OnAfterSetData?: (row: any, value: any, field: any, rawValue?: any) => void;
+    OnBeforeSetData?: (row: any, name: string, value: any, field: any, isValid: boolean) => undefined;
     Freeze?: boolean = false
     DisplayOrder?: number = 0
     Visible?: boolean | Function = true
@@ -28,7 +30,9 @@ export default class TableColumnClass{
         Name?: string,
         EnumSelectionType?: any,
         Value?: any
+        ValueName?: string
         Comparison?: DataComparison
+        MultipleSelection?: boolean
         RemoteDataSource?: {
             DisplayProp?: string,
             ValueProp?: string,

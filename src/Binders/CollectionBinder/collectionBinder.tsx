@@ -495,7 +495,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async uploadFiles(data: any, files: Array<FileData>){
  
   }
-  onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any){
+  onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
     if(!name) return;
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
   }
@@ -564,6 +564,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     if(column.AllowEditing != true && this.Config.RowClickOption == "showEntityBinder" && !this.isImporting()){
       e?.preventDefault();
+      if(row.isNewRow && this.Config.NewEntityMethod == "Row"){
+        return;
+      }
       this.setState({clickedRowIndex: rowIndex})
     }
   }
@@ -636,7 +639,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return {className: undefined}
   }
   renderCellValue(row: any, column: TableColumnClass, value?: string, rowIndex?: number, columnIndex?: number) {
-    if(value){
+    if(value && !row.isNewRow && column.AllowEditing != true){
       return <Link href={this.getLink(row)}>{value}</Link>
     }
     return value;
