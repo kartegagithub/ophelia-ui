@@ -34,6 +34,7 @@ export default class TableColumnClass{
         Comparison?: DataComparison
         MultipleSelection?: boolean
         RemoteDataSource?: {
+            ExtraFilters?: any | ((row: any) => any)
             DisplayProp?: string,
             ValueProp?: string,
             CallFunction?: Function

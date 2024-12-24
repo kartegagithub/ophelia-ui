@@ -11,9 +11,10 @@ export default class DropdownFilterboxField<P> extends BaseField<
     newTextInputClassName?: string;
     newTextInputPlaceholder?: string;
     remoteDataSource?: {
+        ExtraFilters?: any
         DisplayProp?: string,
         ValueProp?: string,
-        CallFunction: (input: string, page: number, pageSize: number) => Promise<any>
+        CallFunction: (input: string, page: number, pageSize: number, extraFilters?: any) => Promise<any>
     },
     displayProp?: string
     valueProp?: string
@@ -33,7 +34,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
   onSearch = (input?: string, page: number = 1) => {
     if(!this.Searching && this.props.remoteDataSource && this.props.remoteDataSource.CallFunction){
       this.Searching = true;
-      var data = this.props.remoteDataSource.CallFunction(input ?? "", page, 10); 
+      var data = this.props.remoteDataSource.CallFunction(input ?? "", page, 10, this.props.remoteDataSource.ExtraFilters); 
       this.Searching = false;
       return data;
     }

@@ -641,7 +641,9 @@ const Table: React.FC<TableProps> = React.memo(
         var multipleSelection = false;
         if(column.InputProps?.multipleSelection != undefined) multipleSelection = column.InputProps?.multipleSelection;
         else if(column.Filtering?.MultipleSelection != undefined) multipleSelection = column.Filtering?.MultipleSelection;
-
+        if(column.Filtering?.RemoteDataSource){
+          column.Filtering.RemoteDataSource.ExtraFilters = {...column.Filtering.RemoteDataSource.ExtraFilters, ...row};
+        }
         return (
           <InputField
             {...column.InputProps}
