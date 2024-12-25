@@ -438,6 +438,27 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.setImportState(false)
       }
     }
+    else if(key == "Delete"){
+      if(this.Options.AllowDelete == true && this.state.checkedItems && this.state.checkedItems.length > 0){
+        if(confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))){
+          var deletedItemCount = 0;
+          for (let index = 0; index < this.state.checkedItems.length; index++) {
+            const element = this.state.checkedItems[index];
+            var item = this.state.data.find((i: any) => this.getUniqueID(i) == element)
+            if(!item) return;
+            
+            item = clone(item);
+            var canDelete = (await this.CanDeleteEntity(item))
+            if(canDelete && !item.isNewRow){
+              this.SetAsDeleted(item);
+              await this.SaveEntity(item, item.viewOrderIndex, length)
+              deletedItemCount++;
+            } 
+          }
+          this.refreshData();
+        }
+      }
+    }
     else if(key == "Save"){
       if(this.Config.SaveActionType == "SaveButtonClick"){
         var unsavedItems = this.state.data.filter((item: any) => item.hasUnsavedChanges == true)
@@ -450,6 +471,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         }
       }
     }
+  }
+  SetAsDeleted(data: any){
+    data.isDeleted = true;
   }
   CanAddNewRow(action: string, list?: Array<any>){
     if(!list) list = this.state.data;
@@ -536,6 +560,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   async CanSaveEntity(data: any): Promise<{canSave: boolean, showMessage?: boolean, message?: string}> {
     return {canSave: true, showMessage: true};
+  }
+  async CanDeleteEntity(data: any): Promise<boolean> {
+    return true
   }
   async SaveEntity(data: any, rowIndex: number, updateQueueLength: number = 0){
     try {

@@ -652,7 +652,7 @@ const Table: React.FC<TableProps> = React.memo(
         value = listener.renderCellValue(row, column, value);
 
       if (selectedCell && ((selectedCell[0] == rowIndex && selectedCell[1] == columnIndex) && column == editingCell)) {
-        var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
+        var fieldName = column.Filtering?.ValueName ?? column.CellValueProp ?? column.Filtering?.Name ?? column.PropertyName;
         var multipleSelection = false;
         if(column.InputProps?.multipleSelection != undefined) multipleSelection = column.InputProps?.multipleSelection;
         else if(column.Filtering?.MultipleSelection != undefined) multipleSelection = column.Filtering?.MultipleSelection;
@@ -666,10 +666,8 @@ const Table: React.FC<TableProps> = React.memo(
             onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column, rowIndex, columnIndex)}
             labelVisible={false}
             valueName={column.Filtering?.ValueName}
-            valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
-            displayProp={
-              column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"
-            }
+            valueProp={column.CellValueProp ?? column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
+            displayProp={column.CellDisplayProp ?? column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"}
             listener={{
               onChangeRequest: (name: string, value: any, isValid: boolean, field: any) => {
                 if(column.OnBeforeSetData) column.OnBeforeSetData(row, name, value, field, isValid)

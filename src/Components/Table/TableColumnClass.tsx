@@ -25,6 +25,8 @@ export default class TableColumnClass{
     MaxTextLength?: number = 100
     Checkboxes?: boolean = false
     I18n?: boolean = false
+    CellDisplayProp?: string = ""
+    CellValueProp?: string = ""
     Filtering?: {
         Type?: "text" | "file" | "month" | "week" | "url" | "phone" | "textarea"| "richtext" | "password" | "enum" | "email" | "numeric" | "filterbox" | "selectbox" | "date" | "time" | "datetime" | "checkbox" | "radio" | "range" | "image",
         Name?: string,
