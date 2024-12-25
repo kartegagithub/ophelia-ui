@@ -576,17 +576,35 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   renderEntityBinder(entity:any){
     return <></>
   }
-  onChildAction(type: string){
+  onChildAction(type: string, param?: any){
     if(type == "back"){
       this.setState({clickedRowIndex: -2})
     }
     else if(type == "refreshData"){
-      this.refreshData();
+      this.refreshData(param);
     }
   }
-  refreshData(){
-    //console.log("Refreshing data")
-    this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
+  refreshData(savedData?: any){
+    if(savedData){
+      var existingIndex = -1;
+      var existing = (this.state.data as Array<any>).find((op: any, index: number) => {
+        var isSame = op.id == savedData.id;
+        if(isSame) existingIndex = index;
+        return isSame;
+      })
+      if(existing && existingIndex > -1){
+        var newData = clone(this.state.data) as Array<any>;
+        newData.splice(existingIndex, 1, savedData);
+        this.setState({clickedRowIndex: existingIndex, data: newData});
+      }
+      else{
+        var newData = clone(this.state.data) as Array<any>;
+        insertToIndex(newData, 0, savedData);
+        this.setState({clickedRowIndex: 0, data: newData});
+      }
+    }
+    else
+      this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
   }
   onPageChange(i: number){
     //console.log("Page is changing: " + this.state?.page + " => " + i);

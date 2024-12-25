@@ -56,7 +56,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
      {...pureProps} 
      searchFn={(key, page) => this.onSearch(key, page)} 
      options={[]} 
-     defaultValue={props.defaultValue} 
+     defaultValue={props.defaultValue}
      dropDownDefaultOpen={this.props.dropDownDefaultOpen}/>;
   }
 }

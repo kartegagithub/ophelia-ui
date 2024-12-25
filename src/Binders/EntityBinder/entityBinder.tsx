@@ -57,7 +57,9 @@ export default class EntityBinder<P> extends React.Component<
   RootElementRef = React.createRef<HTMLDivElement>();
   UploadFiles: Array<FileData> = new Array<FileData>();
   EntityOperations: EntityOperations
-  
+  AfterSaveAction: "BackToList" | "RefreshData" = "RefreshData"
+  RefreshDataOnLoad: boolean = false;
+
   constructor(props: P & EntityBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
@@ -100,7 +102,7 @@ export default class EntityBinder<P> extends React.Component<
 
     return `/${this.Controller}/edit${this.Entity}/${id}`;
   };
-  OnAfterSave(): {redirect: boolean, redirectURL?: string, } | undefined {
+  async OnAfterSave(): Promise<{redirect: boolean, redirectURL?: string, } | undefined> {
     return { redirect: true}
   }
   getBackUrl() {
@@ -190,8 +192,7 @@ export default class EntityBinder<P> extends React.Component<
       this.setState({processing: false});
       if(result.data){
         if(this.props.shownInParent == true){
-          this.props.parent?.onChildAction("refreshData");
-          this.setInitData(false, false, result.data.id);
+          this.props.parent?.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data.id, undefined)).data: undefined);
         }
         else
           Router.push(this.getEditUrl(result.data.id))
@@ -285,11 +286,16 @@ export default class EntityBinder<P> extends React.Component<
     })
     if(rerender) this.setState({rerenderCounter: this.state.rerenderCounter + 1})
   }
-  async GetEntity(id: any, data: any){
+  async GetEntity(id: any, data: any): Promise<any>{
     this.setState({loadingState: LoadingState.Loading})
     var result = await this.EntityOperations.GetEntity(id, data)
     this.UploadFiles = [];
-    this.setState({loadingState: result.hasFailed? LoadingState.Failed: LoadingState.Loaded})
+    if(result.data){
+      this.setState({loadingState: LoadingState.Loaded, id: this.props.id, data: result.data, messages: result.messages, languageID: this.DefaultLanguageID})
+      this.onAfterSetData(result.data)
+    }
+    else
+      this.setState({loadingState: LoadingState.Failed})
     return result;
   }
   async SaveEntity(){
@@ -310,7 +316,7 @@ export default class EntityBinder<P> extends React.Component<
           if (!result.hasFailed) {
             this.UploadFiles = [];
             this.setState({data: result.data});
-            var saveResult = this.OnAfterSave();
+            var saveResult = await this.OnAfterSave();
             var redirectURL: string | undefined = undefined;
             if(saveResult && saveResult.redirect != undefined) redirect = saveResult.redirect;
             if(saveResult && saveResult.redirectURL != undefined) redirectURL = saveResult.redirectURL;
@@ -318,16 +324,25 @@ export default class EntityBinder<P> extends React.Component<
             if (redirect && this.props.shownInParent !== true) {
               if(redirectURL)
                 Router.push(redirectURL)
-              else
-                Router.push(this.getBackUrl())
+              else{
+                if(this.AfterSaveAction = "RefreshData"){
+                  await this.GetEntity(result.data.id, undefined)
+                }
+                else
+                  Router.push(this.getBackUrl())
+              }
             }
-            if(this.props.parent != null) this.props.parent.onChildAction("refreshData")
-            else if(!redirect){
-              if(redirectURL)
-                Router.push(redirectURL)
-              else
-                Router.push(this.getEditUrl(result.data.id))
-            }
+            else{
+              if(this.props.parent != null){
+                this.props.parent.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data.id, undefined)).data: undefined)
+              }
+              else if(!redirect){
+                if(redirectURL)
+                  Router.push(redirectURL)
+                else
+                  await this.GetEntity(result.data.id, undefined)
+              }
+            }            
             raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
           } else {
             if (result.messages && result.messages.length > 0) {
@@ -410,7 +425,13 @@ export default class EntityBinder<P> extends React.Component<
 
     if(resetForNew) id = 0;
     var data: any = undefined;
-    if(firstLoad) data = this.props.Data 
+    if(firstLoad){
+      if(this.RefreshDataOnLoad && this.props.Data?.id > 0){
+        id = this.props.Data?.id;
+      }
+      else
+        data = this.props.Data 
+    }
     if(!id && this.props.shownInParent !== true) {
       var splittedURL = window.location.href.split("/");
       id = splittedURL[splittedURL.length - 1];
@@ -443,16 +464,7 @@ export default class EntityBinder<P> extends React.Component<
       this.setInitData()
     }
     else if(this.state.loadingState === LoadingState.Waiting){
-      this.GetEntity(this.state.id, this.state.data).then((data) => {
-        if(data && data.data){
-          this.setState({id: this.props.id, data: data.data, messages: data.messages, languageID: this.DefaultLanguageID})
-          this.onAfterSetData(data.data)
-        }
-        else if(data){
-          this.setState({id: 0, data: {id: 0}, messages: data.messages})
-          this.onAfterSetData({id: 0})
-        }
-      })
+      this.GetEntity(this.state.id, this.state.data)
     }
     else{
       this.setMetaTags(this.state.data);
@@ -462,8 +474,8 @@ export default class EntityBinder<P> extends React.Component<
   onAfterSetData(data: any){
     this.setMetaTags(data);
   }
-  onChildAction(type: string){
-
+  onChildAction(type: string, param?: any){
+    
   }
   render(): React.ReactNode {
     //console.log("EntityBinder render");
