@@ -328,6 +328,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           msg.description = this.props.AppClient?.Translate("CouldNotRetrieveData") ?? ""
           return {data: [], totalDataCount: 0, messages: [ msg]}
         }
+        else this.props.parent?.onChildAction("ListChanged", {newData: data.data, key: this.props.viewId});
         return data;
       } catch (error) {
         raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
@@ -470,9 +471,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         index = 0;
       }
       this.setState({data: newData, clickedRowIndex: index, rerenderKey: randomKey(5)});
+      this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
     }
     else if(forceStateChange){
       this.setState({data: newData, clickedRowIndex: -2, rerenderKey: randomKey(5)});
+      this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
     }
   }
   OnNewRowAdded(data: any){
@@ -516,6 +519,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       var newData = clone(this.state.data) as Array<any>;
       newData.splice(rowIndex, 1);
       this.setState({clickedRowIndex: -2, data: newData, rerenderKey: randomKey(5)});
+      this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
     }
   }
   private async SaveSettings(): Promise<PersistentConfig | undefined>{
@@ -596,11 +600,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(existingIndex, 1, savedData);
         this.setState({clickedRowIndex: existingIndex, data: newData});
+        this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
       }
       else{
         var newData = clone(this.state.data) as Array<any>;
         insertToIndex(newData, 0, savedData);
         this.setState({clickedRowIndex: 0, data: newData});
+        this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
       }
     }
     else

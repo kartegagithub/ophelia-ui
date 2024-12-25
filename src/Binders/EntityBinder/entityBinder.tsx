@@ -66,7 +66,7 @@ export default class EntityBinder<P> extends React.Component<
     if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService()
   }
   
-  Init() {
+  async Init() {
     if(this.state && this.state.initialized) return;
     if (this.props.Options)this.Options = { ...this.Options, ...this.props.Options };
     if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
@@ -75,7 +75,7 @@ export default class EntityBinder<P> extends React.Component<
     this.EntityOperations.GetEntityURL = `${this.Controller}/Get${this.Entity}`
     this.EntityOperations.Entity = this.Entity;
     this.EntityOperations.UseI18n = this.UseI18n
-    this.setInitData(true)
+    await this.setInitData(true)
   }
 
   Configure() {}
@@ -204,12 +204,12 @@ export default class EntityBinder<P> extends React.Component<
     else if(key === "AddNew"){
       if(this.Options.AllowSave != false){
         this.resetMetaTags()
-        this.setInitData(false, true)
+        await this.setInitData(false, true)
       }
     }
     else if(key === "Reload"){
       if(this.Options.AllowRefresh != false){
-        this.setInitData(false, false, this.state.data.id)
+        await this.setInitData(false, false, this.state.data.id)
       }
     }
   }
@@ -419,7 +419,7 @@ export default class EntityBinder<P> extends React.Component<
     existing.StatusID = 2;
   }
 
-  setInitData(firstLoad: boolean = false, resetForNew: boolean = false, reloadID: any = undefined){
+  async setInitData(firstLoad: boolean = false, resetForNew: boolean = false, reloadID: any = undefined){
     var id: string | undefined | number | string[] = this.props.id;
     if(reloadID) id = reloadID;
 
@@ -437,7 +437,7 @@ export default class EntityBinder<P> extends React.Component<
       id = splittedURL[splittedURL.length - 1];
     }
     if (!data && (!id || id === "0")) {
-      data = {id: 0}
+      data = await this.CreateEntity();
       id = 0;
       this.Options.IsNewEntity = true;
     }
@@ -451,17 +451,20 @@ export default class EntityBinder<P> extends React.Component<
     if(data) this.onAfterSetData(data);
   }
 
-  componentDidMount(){
+  async CreateEntity(): Promise<any>{
+    return { id: 0 };
+  }
+  async componentDidMount(){
     this.Options = new BinderOptions();
     this.Options.AllowExport = false;
     this.UseI18n = this.props.useI18N === true;
     this.Key = Math.random() * (10000 - 1) + 1;
-    this.Init();
+    await this.Init();
   }
 
-  componentDidUpdate(prevProps: any, prevState: any){
+  async componentDidUpdate(prevProps: any, prevState: any){
     if(this.state.loadingState == LoadingState.Loaded && (!prevProps || prevProps.id != this.props.id || !this.state.data)){
-      this.setInitData()
+      await this.setInitData()
     }
     else if(this.state.loadingState === LoadingState.Waiting){
       this.GetEntity(this.state.id, this.state.data)
