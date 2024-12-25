@@ -176,10 +176,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!column.Filtering) column.Filtering = {};
       if(!column.Filtering.Name) column.Filtering.Name = removeLastPropName(column.PropertyName, "ID", true)
       if(filters){
-        if(filters[column.Filtering.Name]){
+        var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
+        if(filters[fieldName]){
           column.IsFiltered = true;
-          column.Filtering.Value = filters[column.Filtering.Name]
-          if(comparisons[column.Filtering.Name]) column.Filtering.Comparison = parseInt(comparisons[column.Filtering.Name]);
+          column.Filtering.Value = filters[fieldName]
+          if(comparisons[fieldName]) column.Filtering.Comparison = parseInt(comparisons[fieldName]);
           return;
         }
       }
@@ -638,14 +639,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     filteredColumns.forEach(column => {
       if(!column.Filtering) return;
       if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
-      if(column.Filtering?.Name){
-        setObjectValue(filters, column.Filtering.Name, column.Filtering.Value)
-        url = replaceQueryParam(this.state.viewId + "Filters." + column.Filtering.Name, column.Filtering.Value, url)
+
+      var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
+      if(fieldName){
+        setObjectValue(filters, fieldName, column.Filtering.Value)
+        url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, column.Filtering.Value, url)
         if(column.IsFiltered === true) {
-          if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam(this.state.viewId + "Comp." + column.Filtering.Name, column.Filtering.Comparison.toString(), url)
+          if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
         }
         else{
-          url = replaceQueryParam(this.state.viewId + "Comp." + column.Filtering.Name, "", url)
+          url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, "", url)
         }
       }
     });

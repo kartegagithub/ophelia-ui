@@ -265,7 +265,18 @@ const Table: React.FC<TableProps> = React.memo(
     const setColumnFilterValue = (column: TableColumnClass, value: any) => {
       if (value && value != "") {
         column.IsFiltered = true;
-        if (column.Filtering) column.Filtering.Value = value;
+        if (column.Filtering) {
+          var valueProp = column.PropertyName;
+          if(column.Filtering?.RemoteDataSource?.ValueProp) valueProp = column.Filtering?.RemoteDataSource?.ValueProp;
+          if(Array.isArray(value) && value.length > 0 && typeof value[0] == "object"){
+            value = value.map((item) => { return getObjectValue(item, valueProp)});
+          }
+          else if(typeof value == "object"){
+            if(column.Filtering?.RemoteDataSource?.ValueProp)
+              value = getObjectValue(value, valueProp);
+          }
+          column.Filtering.Value = value;
+        }
       } else {
         column.IsFiltered = false;
         if (column.Filtering) column.Filtering.Value = undefined;
@@ -310,6 +321,8 @@ const Table: React.FC<TableProps> = React.memo(
         comparisons.length > 0
       )
         column.Filtering.Comparison = parseInt(comparisons[0].value);
+
+      var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
       return (
         <Dropdown
           multipleSelection={true}
@@ -363,20 +376,22 @@ const Table: React.FC<TableProps> = React.memo(
             hideSelections={true}
             multipleSelection={true}
             labelVisible={false}
+            valueName={column.Filtering?.ValueName}
             valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
             displayProp={
               column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"
             }
             listener={{
-              setFieldData: (name: string, value: any) =>
-                setColumnFilterValue(column, value),
+              setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
+                setColumnFilterValue(column, value)
+              },
               getFieldData: (field: any) => column.Filtering?.Value,
             }}
             text={column.HeaderText}
             type={type}
             enumSelectionType={column.Filtering?.EnumSelectionType}
             remoteDataSource={column.Filtering?.RemoteDataSource}
-            name={column.Filtering?.Name ?? column.PropertyName}
+            name={fieldName}
           />
         </Dropdown>
       );

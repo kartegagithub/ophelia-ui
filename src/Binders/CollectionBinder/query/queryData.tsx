@@ -15,8 +15,11 @@ export default class QueryData {
     if(filters){
       for (var key of Object.keys(filters)) {
         if (filters[key] && filters[key].length > 0) {
-          const column = columns.find((x) => x.Filtering?.Name === key);
-          if (column && column.Filtering?.Name && (!disabledFilters || disabledFilters.indexOf(key) == -1)) {
+          const column = columns.find((x: TableColumnClass) => x.Filtering?.Name === key || x?.Filtering?.ValueName === key || x.PropertyName === key);
+          if(!column) continue;
+
+          var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
+          if (fieldName && (!disabledFilters || disabledFilters.indexOf(key) == -1)) {
             var internalFilter = new QueryFilter();
             internalFilter.name = key;
             internalFilter.value = filters[key];
