@@ -14,6 +14,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
         ExtraFilters?: any
         DisplayProp?: string,
         ValueProp?: string,
+        Hooks?: any,
         CallFunction: (input: string, page: number, pageSize: number, extraFilters?: any) => Promise<any>
     },
     displayProp?: string
@@ -44,6 +45,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
     var props = this.GetProps();
     var pureProps = (({ value, defaultValue, displayProp, valueProp,  remoteDataSource, ...others }) => others)(props)
     return <FilterboxInput 
+     hooks={this.props.remoteDataSource?.Hooks}
      alwaysOpen={this.props.dropDownDefaultOpen}
      hideSelections={this.props.hideSelections}
      optionTemplateFn={this.props.optionTemplateFn}

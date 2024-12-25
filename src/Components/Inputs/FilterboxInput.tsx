@@ -54,8 +54,10 @@ export default class FilterboxInput<P> extends React.Component<
       selectedOptionDetailUrlPattern?: string;
       newTextInputPlaceholder?: string;
       onNewAction?: (text: string) => Promise<void>;
+      hooks?: any;
       id?: string;
       alwaysOpen?: boolean;
+      refreshOnOpen?: boolean;
     },
   {
     filteredOptions: Array<any>;
@@ -98,6 +100,15 @@ export default class FilterboxInput<P> extends React.Component<
       this.setHiddenInputValue(this.props.defaultValue);
     }
   }
+  componentDidUpdate(prevProps: Readonly<P & React.SelectHTMLAttributes<HTMLSelectElement> & { placeholder?: string; options?: Array<any>; className?: string; defaultValue?: Array<any>; searchFn?: (key?: string, page?: number) => Promise<Array<any> | undefined>; low?: number; high?: number; displayProp?: string; valueProp?: string; dropDownDisplayProp?: string; dropDownValueProp?: string; valueName?: string; searchPlaceholder?: string; multipleSelection?: boolean; dropDownDefaultOpen?: boolean; applyText?: string; resetText?: string; applyButtonClassName?: string; resetButtonClassName?: string; applyIcon?: string | React.JSX.Element; resetIcon?: string | React.JSX.Element; allowClear?: boolean; hideSelections?: boolean; shownInDropdown?: boolean; allowNew?: boolean; allowSorting?: boolean; selectedOptionDetailUrlPattern?: string; newTextInputPlaceholder?: string; onNewAction?: (text: string) => Promise<void>; id?: string; alwaysOpen?: boolean; }>, prevState: Readonly<{ filteredOptions: Array<any>; selectedOptions: Array<any>; showDropdown: boolean; refreshSearchList: boolean; id?: string; }>, snapshot?: any): void {
+    if(prevProps && prevProps.defaultValue != this.props.defaultValue){
+      if(this.props.defaultValue)
+        this.setState({ filteredOptions: this.props.defaultValue });
+      else
+        this.setState({ filteredOptions: [] });
+      this.setHiddenInputValue(this.props.defaultValue);
+    }
+  }
   componentWillUnmount() {}
   onSelection(value?: any, clickedButton?: any) {
     if (this.props.applyText && !clickedButton) return;
@@ -135,6 +146,7 @@ export default class FilterboxInput<P> extends React.Component<
     }
   }
   getItemDisplayText(item: any, i: number) {
+    this.props.hooks?.onItemDisplayText?.(item, i);
     return (
       <div
         className="oph-filterboxInput-display"
@@ -196,6 +208,7 @@ export default class FilterboxInput<P> extends React.Component<
     );
   }
   removeItem(item: any) {
+    this.props.hooks?.onItemRemove?.(item);
     var findResult = findInArray(
       this.state.selectedOptions,
       item,
@@ -374,7 +387,7 @@ export default class FilterboxInput<P> extends React.Component<
               selectedItemDisplayProp={this.props.displayProp}
               selectedItemValueProp={this.props.valueProp}
               searchPlaceholder={this.props.searchPlaceholder}
-              refreshSearchList={this.state.refreshSearchList}
+              refreshSearchList={this.props.refreshOnOpen != false || this.state.refreshSearchList}
               multipleSelection={this.props.multipleSelection ?? false}
               handleOutboundClick={true}
             >
