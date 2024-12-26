@@ -7,11 +7,12 @@ export interface DateTimeInputProps
   extends InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
   id?: string;
+  showPickerOnFocus?: boolean;
 }
 
 const DateTimeInput: React.FC<
   DateTimeInputProps & AdditionalHtmlAttributes
-> = ({ labelType, value, defaultValue, style, id, ...props }) => {
+> = ({ showPickerOnFocus, labelType, value, defaultValue, style, id, ...props }) => {
 
   var formattedValue = stringToDateInputValue(
     (defaultValue ?? value) as string,
@@ -19,7 +20,8 @@ const DateTimeInput: React.FC<
   );
 
   const handleFocus = (e: any) => {
-    e.target.showPicker();
+    if(showPickerOnFocus)
+      e.target.showPicker();
   };
 
   return (

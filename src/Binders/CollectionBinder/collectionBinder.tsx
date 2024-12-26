@@ -477,7 +477,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   CanAddNewRow(action: string, list?: Array<any>){
     if(!list) list = this.state.data;
-    return list?.filter(op => op.isNewRow == true).length == 0;
+    if(this.Config.SaveActionType == "EnterKey")
+      return list?.filter(op => op.isNewRow == true).length == 0;
+    else return true;
   }
   AddNewRow(action: "AfterSaveEntity" | "ButtonClick", list?: Array<any>, forceStateChange: boolean = false){
     if(!list) list = this.state.data;

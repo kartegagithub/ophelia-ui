@@ -4,20 +4,30 @@ export interface MonthInputProps
   extends AdditionalHtmlAttributes,
     React.InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
+  showPickerOnFocus?: boolean;
 }
 
 const MonthInput: React.FC<MonthInputProps> = ({
   labelType,
   style,
   id,
+  showPickerOnFocus,
   ...props
 }) => {
+
+  const handleFocus = (e: any) => {
+    if(showPickerOnFocus)
+      e.target.showPicker();
+  };
+
+
   return (
     <input
       id={id}
       type="month"
       className={`oph-monthInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       style={style}
+      onClick={handleFocus}
       {...props}
     />
   );

@@ -8,6 +8,7 @@ export interface TimeInputProps
     InputHTMLAttributes<HTMLInputElement> {
   labelType?: any; // Örnek olarak any kullanıldı, gerçek türüne göre değiştirilebilir
   list?: string;
+  showPickerOnFocus?: boolean;
 }
 
 const TimeInput: React.FC<TimeInputProps> = ({
@@ -17,6 +18,7 @@ const TimeInput: React.FC<TimeInputProps> = ({
   value,
   defaultValue,
   style,
+  showPickerOnFocus,
   ...props
 }) => {
   var formattedValue = stringToDateInputValue(
@@ -25,7 +27,8 @@ const TimeInput: React.FC<TimeInputProps> = ({
   );
 
   const handleFocus = (e: any) => {
-    e.target.showPicker();
+    if(showPickerOnFocus)
+      e.target.showPicker();
   };
 
   return (

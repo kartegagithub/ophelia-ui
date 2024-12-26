@@ -6,6 +6,7 @@ import React, { InputHTMLAttributes } from "react";
 export interface DateInputProps extends InputHTMLAttributes<HTMLInputElement> {
   labelType?: any;
   id?: string;
+  showPickerOnFocus?: boolean;
 }
 
 const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
@@ -14,6 +15,7 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
   defaultValue,
   style,
   id,
+  showPickerOnFocus,
   ...props
 }) => {
   var formattedValue = stringToDateInputValue(
@@ -22,7 +24,8 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
   );
 
   const handleFocus = (e: any) => {
-    e.target.showPicker(); 
+    if(showPickerOnFocus)
+      e.target.showPicker(); 
   };
   return (
     <input
