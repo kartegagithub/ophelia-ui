@@ -442,20 +442,32 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(this.Options.AllowDelete == true && this.state.checkedItems && this.state.checkedItems.length > 0){
         if(confirm(this.props.AppClient?.Translate("AreYouSureToDelete"))){
           var deletedItemCount = 0;
+          var newData = clone(this.state.data) as Array<any>;
           for (let index = 0; index < this.state.checkedItems.length; index++) {
             const element = this.state.checkedItems[index];
-            var item = this.state.data.find((i: any) => this.getUniqueID(i) == element)
+            var itemIndex = 0;
+            var item = newData.find((i, index) => {
+              var isEqual = this.getUniqueID(i) == element
+              if(isEqual) itemIndex = index;
+              return isEqual;
+            })
             if(!item) return;
             
             item = clone(item);
             var canDelete = (await this.CanDeleteEntity(item))
             if(canDelete && !item.isNewRow){
               this.SetAsDeleted(item);
-              await this.SaveEntity(item, item.viewOrderIndex, length)
+              if(!this.props.data)
+                await this.SaveEntity(item, item.viewOrderIndex, length)
               deletedItemCount++;
             } 
           }
-          this.refreshData();
+          if(!this.props.data)
+            this.refreshData();
+          else{
+            this.setState({data: newData, checkedItems: [], clickedRowIndex: -2})
+            this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
+          }
         }
       }
     }
@@ -504,6 +516,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setState({data: newData, clickedRowIndex: -2, rerenderKey: randomKey(5)});
       this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
     }
+  }
+  canRenderRow(row: any, index: number){
+    return row && row.isDeleted != true
   }
   OnNewRowAdded(data: any){
     return data;

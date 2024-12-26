@@ -462,6 +462,7 @@ const Table: React.FC<TableProps> = React.memo(
         });
       } else if (!rowsToRender) rowsToRender = data;
       return rowsToRender?.map((row, index) => {
+        if (listener?.canRenderRow && !listener?.canRenderRow(row, index)) return <></>;
         if (hierarchycalDisplayEnabled()) {
           if (!row.viewOrderStr) row.viewOrderStr = padLeft(row.id, 4, "0");
           childrenRows = data.filter(
@@ -946,6 +947,7 @@ var tableProps: {
     // onRowClick?: Function;
     renderCellValue?: Function;
     renderEmptyCell?: Function;
+    canRenderRow?: Function;
     onSortingChanged?: Function;
     onFilteringChanged?: Function;
     onCellValueChanged?: Function;
