@@ -667,6 +667,7 @@ const Table: React.FC<TableProps> = React.memo(
           <InputField
             {...column.InputProps}
             id={`${fieldName}${rowIndex}`}
+            switchbox={column.Type == "checkbox"}
             onKeyUp={(e: any) => cellEditableControlKeyUp(e, row, column, rowIndex, columnIndex)}
             labelVisible={false}
             valueName={column.Filtering?.ValueName}

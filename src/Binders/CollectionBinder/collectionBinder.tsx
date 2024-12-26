@@ -756,7 +756,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(this.state.clickedRowIndex >= 0) {
       data = this.state.data[this.state.clickedRowIndex];
     }
-    if(data && data.isNewRow == true) return <></>;
+    if(data && (data.isNewRow == true || this.Options.AllowDetailNavigation == false)) return <></>;
 
     if(this.props.initialFilters && data.id == 0) data = {...data, ...this.props.initialFilters}
     //console.log(this.state.clickedRowIndex)
