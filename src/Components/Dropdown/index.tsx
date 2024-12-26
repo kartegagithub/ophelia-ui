@@ -44,6 +44,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   visibilityCallback = undefined,
   refreshSearchList = false,
   alwaysOpen = false,
+  refreshKey = undefined,
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -224,7 +225,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (visibilityCallback) visibilityCallback(visible);
     if (
       visible &&
-      (!filteredOptions || filteredOptions.length == 0 || refreshSearchList)
+      (!filteredOptions || filteredOptions.length == 0 || refreshSearchList || refreshKey)
     )
       onSearchKeyup();
     if (enableSearch && visible && refreshSearchList != true) {
@@ -234,7 +235,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         elem.focus();
       }, 200);
     }
-  }, [setOpen, visible, refreshSearchList]);
+  }, [setOpen, visible, refreshSearchList, refreshKey]);
 
   return (
     <>
@@ -417,6 +418,7 @@ var dropdownProps: {
   handleOutboundClick?: boolean;
   visibilityCallback?: (open: boolean) => void;
   refreshSearchList?: boolean;
+  refreshKey?: number | string
   listHeight?: string;
   alwaysOpen?: boolean;
 };

@@ -15,7 +15,7 @@ import {
   ArrowTopRightOnSquareIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { getObjectValue } from "../../Extensions";
+import { getObjectValue, randomKey } from "../../Extensions";
 import TextInput from "./TextInput";
 import Link from "next/link";
 import Icon from "../Icon";
@@ -64,6 +64,7 @@ export default class FilterboxInput<P> extends React.Component<
     selectedOptions: Array<any>;
     showDropdown: boolean;
     refreshSearchList: boolean;
+    refreshKey?: string;
     id?: string;
   }
 > {
@@ -176,12 +177,12 @@ export default class FilterboxInput<P> extends React.Component<
           {typeof item != "string" &&
             getObjectValue(item, this.props.displayProp)}
         </label>
-        <XMarkIcon
+        {this.props.disabled != true && <XMarkIcon
           onClick={() => this.removeItem(item)}
           width={12}
           height={12}
           className="oph-filterboxInput-display-icon"
-        ></XMarkIcon>
+        ></XMarkIcon>}
         {this.props.selectedOptionDetailUrlPattern && (
           <Link
             className="oph-filterboxInput-display-url"
@@ -307,9 +308,10 @@ export default class FilterboxInput<P> extends React.Component<
       if (target && target.value) {
         if (this.props.onNewAction) await this.props.onNewAction(target.value);
         target.value = "";
-        this.setState({ refreshSearchList: true });
+        this.setState({ refreshSearchList: true, refreshKey: randomKey(5) });
         setTimeout(() => {
           target.focus();
+          this.setState({ refreshSearchList: false, refreshKey: undefined });
         }, 300);
       }
     } else {
@@ -358,7 +360,8 @@ export default class FilterboxInput<P> extends React.Component<
                 this.getEmptyDisplayText()}
               {this.props.multipleSelection == true &&
                 // this.props.allowClear != false && ( // kullanıcı allowclear derse hepsini silebilsin
-                this.props.allowClear  && ( 
+                this.props.allowClear &&
+                this.props.disabled != true && ( 
                   <XMarkIcon
                     onClick={() => this.clear()}
                     width={13}
@@ -368,7 +371,7 @@ export default class FilterboxInput<P> extends React.Component<
                 )}
             </div>
           )}
-          <div className="oph-filterboxInput-dropdown">
+          {this.props.disabled !== true && <div className="oph-filterboxInput-dropdown">
             <Dropdown
               key={`${this.props.id}${this.props.name}-dropdown`}
               alwaysOpen={this.props.alwaysOpen}
@@ -389,6 +392,7 @@ export default class FilterboxInput<P> extends React.Component<
               searchPlaceholder={this.props.searchPlaceholder}
               refreshSearchList={this.props.refreshOnOpen != false || this.state.refreshSearchList}
               multipleSelection={this.props.multipleSelection ?? false}
+              refreshKey={this.state.refreshKey}
               handleOutboundClick={true}
             >
               {this.props.allowNew == true && (
@@ -404,7 +408,7 @@ export default class FilterboxInput<P> extends React.Component<
                 </div>
               )}
             </Dropdown>
-          </div>
+          </div>}
         </div>
       </>
     );
