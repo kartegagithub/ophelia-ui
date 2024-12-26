@@ -16,6 +16,9 @@ export default class BinderOptions {
   AllowRefresh?: boolean = true;
   AllowDelete?: boolean = true;
   AllowCopyAndSave?: boolean = false;
+  SaveButtonVisibility?: boolean = true;
+  DeleteButtonVisibility?: boolean = true;
+  RefreshButtonVisibility?: boolean = true;
   IsNewEntity?: boolean = false;
   AllowEdit?: boolean = true;
   DrawViewLinkInsteadOfEdit?: boolean = false;
