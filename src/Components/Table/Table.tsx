@@ -80,6 +80,7 @@ const Table: React.FC<TableProps> = React.memo(
         comparison: DataComparison.Equal,
         types: ["numeric", "date", "time", "datetime", "text", "month", "week"],
         sign: "=",
+        defaultFor: ["numeric", "date", "time", "datetime", "month", "week"],
       },
       {
         text: appClient?.Translate("Different"),
@@ -134,6 +135,7 @@ const Table: React.FC<TableProps> = React.memo(
         comparison: DataComparison.Contains,
         types: ["text"],
         sign: "*.*",
+        defaultFor: ["text"],
       },
     ];
     const recalculateHeight = () => {
@@ -315,12 +317,13 @@ const Table: React.FC<TableProps> = React.memo(
           value: comp.comparison.toString(),
         };
       });
-      if (
-        column.Filtering &&
-        !column.Filtering?.Comparison &&
-        comparisons.length > 0
-      )
-        column.Filtering.Comparison = parseInt(comparisons[0].value);
+      if (column.Filtering && !column.Filtering?.Comparison && comparisons.length > 0){
+        var defaultComparison = ComparisonSigns.find((comp) => comp.defaultFor && comp.defaultFor.indexOf(type) > -1);
+        if(defaultComparison)
+          column.Filtering.Comparison = parseInt(defaultComparison.comparison.toString());
+        else
+          column.Filtering.Comparison = parseInt(comparisons[0].value);
+      }
 
       var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
       return (
@@ -583,7 +586,7 @@ const Table: React.FC<TableProps> = React.memo(
       setSelectedRow(rowIndex);
 
       if(column){
-        var willShowEdit = canEditCell(row, column) || row.isNewRow == true;
+        var willShowEdit = canEditCell(row, column);
         if(willShowEdit) setEditingCell(column);
         else setEditingCell(undefined)
       }

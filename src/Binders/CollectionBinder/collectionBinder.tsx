@@ -453,7 +453,6 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             })
             if(!item) return;
             
-            item = clone(item);
             var canDelete = (await this.CanDeleteEntity(item))
             if(canDelete && !item.isNewRow){
               this.SetAsDeleted(item);

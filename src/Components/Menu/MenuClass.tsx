@@ -7,6 +7,7 @@ export default class MenuClass{
     Name?: string = undefined
     SearchInProgress?: boolean = false
     RTL?: boolean = false
+    PreventURLCache?: boolean = true
     ItemClassConfig?: {className: string, selectedClassName: string}
     ItemVisiblityFn? = (menu: MenuClass, item: MenuItemClass) => {
         return true

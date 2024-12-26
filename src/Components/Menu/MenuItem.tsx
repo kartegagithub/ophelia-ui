@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getImageComponent } from "../Image/Extensions";
 import AppClient from "../../AppClient";
 import { usePathname } from "next/navigation";
+import { replaceQueryParam } from "../../Extensions";
 
 const MenuItem: React.FC<MenuItemProps> = React.memo(
   ({
@@ -93,6 +94,14 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
         selected
       );
     }
+
+    const getItemUrl = (item: MenuItemClass) => {
+      var url = item.Location ?? "#";
+      if(item.Location && menu.PreventURLCache == true){
+        url = replaceQueryParam("rnd", Math.random().toString(), url);
+      }
+      return url;
+    }
     const subMenuItems = item.SubItems?.map((subItem, i) => {
       subItem.Level = (item.Level ?? 0) + 1;
       return (
@@ -139,7 +148,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
         <Link
           key="item-link"
           className={className}
-          href={item.Location ?? "#"}
+          href={getItemUrl(item)}
           onClick={onClick}
         >
           <div className="oph-menu-item-link-content">
