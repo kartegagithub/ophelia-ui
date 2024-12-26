@@ -16,6 +16,7 @@ export default class BinderOptions {
   AllowRefresh?: boolean = true;
   AllowDelete?: boolean = true;
   AllowCopyAndSave?: boolean = false;
+  AllowDetailNavigation?: boolean = true;
   SaveButtonVisibility?: boolean = true;
   DeleteButtonVisibility?: boolean = true;
   RefreshButtonVisibility?: boolean = true;

@@ -695,7 +695,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return {className: undefined}
   }
   renderCellValue(row: any, column: TableColumnClass, value?: string, rowIndex?: number, columnIndex?: number) {
-    if(value && !row.isNewRow && column.AllowEditing != true){
+    if(value && !row.isNewRow && column.AllowEditing != true && this.Options.AllowDetailNavigation != false){
       return <Link href={this.getLink(row)}>{value}</Link>
     }
     return value;
