@@ -325,7 +325,7 @@ export default class EntityBinder<P> extends React.Component<
               if(redirectURL)
                 Router.push(redirectURL)
               else{
-                if(this.AfterSaveAction = "RefreshData"){
+                if(this.AfterSaveAction == "RefreshData"){
                   await this.GetEntity(result.data.id, undefined)
                 }
                 else
