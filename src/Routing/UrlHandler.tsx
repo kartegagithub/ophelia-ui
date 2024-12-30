@@ -262,11 +262,10 @@ export class UrlHandlerClass {
     } catch (error) {
       console.error(error);
     }
-    if (
-      item &&
-      (item.destination == this.DefaultLanguage ||
-        item.source == item.destination)
-    ) {
+    if(path == this.DefaultLanguage){
+      return {destination: "/", source: path, permanent: true}
+    }
+    if (item && (item.destination == "/" + this.DefaultLanguage || item.source == item.destination)) {
       this.Log("Route reset-1: " + path + " => " + JSON.stringify(item));
       item = undefined;
     }
