@@ -104,6 +104,7 @@ var AppThemeConfig: any = {
       " | alignleft aligncenter alignright alignjustify" +
       " | bullist numlist | outdent indent" +
       " | removeformat visualblocks preview code | help",
+    Props: undefined
   },
   Icons: {
     DefaultSize: "18px",

@@ -61,7 +61,7 @@ const RichTextInput: React.FC<{
             onChange && onChange(event);
           }
         }}
-        init={{
+        init={{...theme.RichTextEditor?.Props, ...{
           height: theme.RichTextEditor?.Height,
           menubar: false,
           plugins: theme.RichTextEditor?.Plugins,
@@ -71,7 +71,7 @@ const RichTextInput: React.FC<{
           content_style: theme.RichTextEditor?.ContentStyle,
           content_css: theme.RichTextEditor?.ContentCSS,
           body_class: theme.RichTextEditor?.BodyClassName
-        }}
+        }}}
       />
     </>
   );
