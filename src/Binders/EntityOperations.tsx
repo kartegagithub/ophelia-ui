@@ -204,7 +204,7 @@ export class EntityOperations{
     async DeleteEntity(data: any){
         try {
             const postData: any = {
-            Data: {...clone(data), ...{statusID: 2}},
+              data: {...clone(data), ...{statusID: 2}},
             };
             const result = await this.Service.CreateEndpoint(this.UpdateURL,
             { Payload: postData }
