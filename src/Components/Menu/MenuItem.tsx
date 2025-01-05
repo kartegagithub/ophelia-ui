@@ -25,19 +25,20 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     const path = usePathname();
 
     const onClick = async (e: any) => {
-      if (item.Location) {
+      if (!item.OnClick && item.Location) {
         item.Selected = true;
         return true;
       } else {
         e.preventDefault();
+        if(item.OnClick) item.OnClick(e);
         if (!item.Selected) listener?.onSelect([item]);
         else listener?.onUnselect([item]);
-        setCollapsed(item.Selected);
-        if(item.Selected && menu.ItemLoader && (!item.SubItems || item.SubItems.length == 0)){
+        if(item.WillLoadOnDemand == true && item.Selected && menu.ItemLoader && (!item.SubItems || item.SubItems.length == 0)){
           var items = await menu.ItemLoader(menu, item);
           if(items)
             item.SubItems = items;
         }
+        setCollapsed(item.Selected);
         return false;
       }
     };
@@ -84,7 +85,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
       { className: item.IconClassName },
       selected
     );
-    if (item.SubItems && item.SubItems?.length > 0 && !item.RightIcon) {
+    if ((item.WillLoadOnDemand === true || (item.SubItems && item.SubItems?.length > 0)) && !item.RightIcon) {
       RightIconComponent = getImageComponent(
         item.RightIcon ?? {
           name: collapsed && selected ? "arrow-up" : "arrow-down",

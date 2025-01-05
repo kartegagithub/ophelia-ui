@@ -20,6 +20,7 @@ export default class MenuItemClass {
   Role?: string | number | undefined | string[] | number[];
   OnClick?: MouseEventHandler<HTMLAnchorElement>;
   SubItems?: Array<MenuItemClass> = [];
+  WillLoadOnDemand?: boolean;
   Component?:
     | React.JSX.Element
     | ((menuCollapsed: boolean, menu: MenuClass) => React.JSX.Element)
