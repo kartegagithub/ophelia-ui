@@ -4,6 +4,7 @@ import { replaceQueryParam, urlMatch } from "../../Extensions/StringExtensions";
 import React from "react";
 
 export default class MenuItemClass {
+  ID?: string
   Text?: string = undefined;
   LeftIcon?:
     | string
@@ -15,6 +16,7 @@ export default class MenuItemClass {
   ClassName?: string = undefined;
   Location?: string = undefined;
   RequireLogin?: boolean = true;
+  CustomData?: any = {};
   Role?: string | number | undefined | string[] | number[];
   OnClick?: MouseEventHandler<HTMLAnchorElement>;
   SubItems?: Array<MenuItemClass> = [];

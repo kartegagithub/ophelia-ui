@@ -9,6 +9,7 @@ export default class MenuClass{
     RTL?: boolean = false
     PreventURLCache?: boolean = true
     ItemClassConfig?: {className: string, selectedClassName: string}
+    ItemLoader?: ((menu: MenuClass, item: MenuItemClass) => Promise<Array<MenuItemClass>>);
     ItemVisiblityFn? = (menu: MenuClass, item: MenuItemClass) => {
         return true
     }

@@ -24,7 +24,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     const [collapsed, setCollapsed] = useState(selected);
     const path = usePathname();
 
-    const onClick = (e: any) => {
+    const onClick = async (e: any) => {
       if (item.Location) {
         item.Selected = true;
         return true;
@@ -33,6 +33,11 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
         if (!item.Selected) listener?.onSelect([item]);
         else listener?.onUnselect([item]);
         setCollapsed(item.Selected);
+        if(item.Selected && menu.ItemLoader && (!item.SubItems || item.SubItems.length == 0)){
+          var items = await menu.ItemLoader(menu, item);
+          if(items)
+            item.SubItems = items;
+        }
         return false;
       }
     };
@@ -107,7 +112,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
       return (
         <MenuItem
           key={i}
-          id={i.toString()}
+          id={subItem.ID ?? i.toString()}
           menu={menu}
           item={subItem}
           listener={childEventListener}
