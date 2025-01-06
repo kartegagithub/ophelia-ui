@@ -31,6 +31,7 @@ import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 import { insertToIndex } from "../../Extensions";
+import { DataComparison } from "./query/queryFilter";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -177,7 +178,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!column.Filtering.Name) column.Filtering.Name = removeLastPropName(column.PropertyName, "ID", true)
       if(filters){
         var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
-        if(filters[fieldName]){
+        if(comparisons[fieldName] && parseInt(comparisons[fieldName]) == DataComparison.Between){
+          column.IsFiltered = true;
+          column.Filtering.LowValue = filters[fieldName + "Low"]
+          column.Filtering.HighValue = filters[fieldName + "High"]
+          column.Filtering.Comparison = parseInt(comparisons[fieldName]);
+          return;
+        }
+        else if(filters[fieldName]){
           column.IsFiltered = true;
           column.Filtering.Value = filters[fieldName]
           if(comparisons[fieldName]) column.Filtering.Comparison = parseInt(comparisons[fieldName]);
@@ -681,10 +689,23 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     var url = "";
     filteredColumns.forEach(column => {
       if(!column.Filtering) return;
-      if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
+      var fieldName = column.Filtering.ValueName ?? column.Filtering.Name ?? column.PropertyName;
+      if(!fieldName) return;
 
-      var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
-      if(fieldName){
+      if(column.Filtering.Comparison == DataComparison.Between){
+        setObjectValue(filters, fieldName + "Low", column.Filtering.LowValue ?? "")
+        url = replaceQueryParam(this.state.viewId + "Filters." + fieldName + "Low", column.Filtering.LowValue ?? "", url)
+
+        setObjectValue(filters, fieldName + "High", column.Filtering.HighValue ?? "")
+        url = replaceQueryParam(this.state.viewId + "Filters." + fieldName + "High", column.Filtering.HighValue ?? "", url)
+
+        if(column.Filtering.HighValue || column.Filtering.LowValue)
+          url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
+        else
+          url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, "", url)
+      }
+      else{
+        if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
         setObjectValue(filters, fieldName, column.Filtering.Value)
         url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, column.Filtering.Value, url)
         if(column.IsFiltered === true) {

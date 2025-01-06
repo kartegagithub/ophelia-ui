@@ -25,3 +25,5 @@ export { default as AgreementCheckboxField } from "./agreementCheckboxField";
 export { default as WeekField } from "./weekField";
 export { default as ColorField } from "./colorField";
 export { default as InputValidationRule } from "./InputValidationRule";
+export { default as DateRangeField } from "./dateRangeField";
+export { default as TimeRangeField } from "./timeRangeField";

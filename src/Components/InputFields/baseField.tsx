@@ -14,6 +14,8 @@ export default class BaseField<P> extends React.Component<
   P & {
     id: string;
     name: string;
+    lowValueName?: string;
+    highValueName?: string;
     valueName?: string;
     languageKey?: string | number;
     text?: string;
@@ -136,6 +138,8 @@ export default class BaseField<P> extends React.Component<
   async onValueChange(e: SyntheticEvent | any) {
     var inputEvent = e.nativeEvent as InputEvent;
     var value: string | number | boolean | undefined = "";
+    var lowValue: string | number | boolean | undefined = "";
+    var highValue: string | number | boolean | undefined = "";
     var target: any = undefined;
     var deletedFile: FileData | undefined = undefined;
     if (inputEvent) {
@@ -180,40 +184,104 @@ export default class BaseField<P> extends React.Component<
     } else if (e.value) {
       value = e.value;
     }
+    if(e.rawValue && (e.rawValue.low || e.rawValue.high)){
+      lowValue = e.rawValue.low
+      highValue = e.rawValue.high
+    }
     if (this.props.onChange)
       this.props.onChange({ name: this.props.name, value, rawValue: e.rawValue });
 
-    var isValid = this.Validate(value);
-    if (this.props.listener?.onChangeRequest)
-      this.props.listener?.onChangeRequest(
-        this.props.valueName ?? this.props.name,
-        value,
-        isValid,
-        this
-      );
-    if (isValid) {
-      if (this.props.listener?.setFileDeleted && deletedFile) {
-        deletedFile.KeyName = this.props.name;
-        this.props.listener?.setFileDeleted(deletedFile);
+    var isValid = true;
+    if(this.props.lowValueName) {
+      isValid = this.Validate(lowValue, this.props.lowValueName);
+      if (this.props.listener?.onChangeRequest){
+        this.props.listener?.onChangeRequest(
+          this.props.lowValueName,
+          lowValue,
+          isValid,
+          this
+        );
       }
-      if (this.props.listener?.setFieldData) {
-        if(this.props.setDataCallback){
-          var tmpVal = this.props.setDataCallback(value)
-          if(tmpVal != undefined && tmpVal != null){
-            value = tmpVal;
+      if (isValid) {
+        if (this.props.listener?.setFieldData) {
+          if(this.props.setDataCallback){
+            var tmpVal = this.props.setDataCallback(lowValue)
+            if(tmpVal != undefined && tmpVal != null){
+              lowValue = tmpVal;
+            }
           }
+          this.props.listener?.setFieldData(
+            this.props.lowValueName,
+            lowValue,
+            this,
+            e.rawValue
+          );
         }
-        this.props.listener?.setFieldData(
+      }
+    }
+    if(this.props.highValueName){
+      isValid = this.Validate(highValue, this.props.highValueName);
+      if (this.props.listener?.onChangeRequest){
+        this.props.listener?.onChangeRequest(
+          this.props.highValueName,
+          highValue,
+          isValid,
+          this
+        );
+      }
+      if (isValid) {
+        if (this.props.listener?.setFieldData) {
+          if(this.props.setDataCallback){
+            var tmpVal = this.props.setDataCallback(highValue)
+            if(tmpVal != undefined && tmpVal != null){
+              highValue = tmpVal;
+            }
+          }
+          this.props.listener?.setFieldData(
+            this.props.highValueName,
+            highValue,
+            this,
+            e.rawValue
+          );
+        }
+      }
+    }
+    if(!this.props.lowValueName && !this.props.highValueName){
+      isValid = this.Validate(value);
+      if (this.props.listener?.onChangeRequest){
+        this.props.listener?.onChangeRequest(
           this.props.valueName ?? this.props.name,
           value,
-          this,
-          e.rawValue
+          isValid,
+          this
         );
+      }
+      if (isValid) {
+        if (this.props.listener?.setFileDeleted && deletedFile) {
+          deletedFile.KeyName = this.props.name;
+          this.props.listener?.setFileDeleted(deletedFile);
+        }
+        if (this.props.listener?.setFieldData) {
+          if(this.props.setDataCallback){
+            var tmpVal = this.props.setDataCallback(value)
+            if(tmpVal != undefined && tmpVal != null){
+              value = tmpVal;
+            }
+          }
+          this.props.listener?.setFieldData(
+            this.props.valueName ?? this.props.name,
+            value,
+            this,
+            e.rawValue
+          );
+        }
       }
     }
     return true;
   }
-  Validate = (val: any) => {
+  Validate = (val: any, propName?: string) => {
+    if(!propName) propName = this.props.name;
+
     var isEmpty = isNullOrEmpty(val);
     var rule: InputValidationRule | undefined = undefined;
     if (this.props.rules) {
@@ -221,7 +289,7 @@ export default class BaseField<P> extends React.Component<
         rule = this.props.rules.find(
           (r) =>
             (Array.isArray(r.field) && r.field.indexOf(this.props.name) > -1) ||
-            r.field == this.props.name
+            r.field == propName
         );
       } else {
         var tmpRule: any = this.props.rules;
@@ -230,7 +298,7 @@ export default class BaseField<P> extends React.Component<
     }
     if (!rule) {
       rule = {
-        field: this.props.name,
+        field: propName,
       };
     }
 

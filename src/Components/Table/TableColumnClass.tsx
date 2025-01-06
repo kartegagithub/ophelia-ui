@@ -32,6 +32,8 @@ export default class TableColumnClass{
         Name?: string,
         EnumSelectionType?: any,
         Value?: any
+        LowValue?: any
+        HighValue?: any
         ValueName?: string
         Comparison?: DataComparison
         MultipleSelection?: boolean

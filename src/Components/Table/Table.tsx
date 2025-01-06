@@ -264,8 +264,17 @@ const Table: React.FC<TableProps> = React.memo(
       );
     };
 
-    const setColumnFilterValue = (column: TableColumnClass, value: any) => {
-      if (value && value != "") {
+    const setColumnFilterValue = (column: TableColumnClass, value: any, propName: string) => {
+      if(!column.Filtering) return;
+
+      if(propName.indexOf("_low") > -1 || propName.indexOf("_high") > -1){
+        setComparison(column, DataComparison.Between)
+        if(propName.indexOf("_low") > -1)
+          column.Filtering.LowValue = value;
+        else column.Filtering.HighValue = value;
+        column.IsFiltered = !!column.Filtering.HighValue || !!column.Filtering.LowValue;
+      }
+      else if (value && value != "") {
         column.IsFiltered = true;
         if (column.Filtering) {
           var valueProp = column.PropertyName;
@@ -287,7 +296,11 @@ const Table: React.FC<TableProps> = React.memo(
 
     const ClearFilterValue = (column: TableColumnClass) => {
       column.IsFiltered = false;
-      if (column.Filtering) column.Filtering.Value = undefined;
+      if (column.Filtering){
+        column.Filtering.Value = undefined;
+        column.Filtering.LowValue = undefined;
+        column.Filtering.HighValue = undefined;
+      }
       SetFilteredColumnsState();
     };
     const SetFilteredColumnsState = () => {
@@ -308,6 +321,8 @@ const Table: React.FC<TableProps> = React.memo(
       var modalID = "filter-selection";
       var type = column.Filtering?.Type ?? column.Type ?? "NONE";
       if(type == "richtext" || type == "url") type = "text";
+      if(type == "date" || type == "datetime") type = "daterange";
+      if(type == "time") type = "timerange";
 
       var comparisons = ComparisonSigns.filter(
         (comp) => comp.types.indexOf(type) > -1
@@ -326,6 +341,12 @@ const Table: React.FC<TableProps> = React.memo(
       }
 
       var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
+      var lowValueName: string | undefined = undefined;
+      var highValueName: string | undefined = undefined;
+      if(type == "timerange" || type == "daterange"){
+        lowValueName = `${fieldName}_low`;
+        highValueName = `${fieldName}_high`;
+      }
       return (
         <Dropdown
           multipleSelection={true}
@@ -386,7 +407,7 @@ const Table: React.FC<TableProps> = React.memo(
             }
             listener={{
               setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
-                setColumnFilterValue(column, value)
+                setColumnFilterValue(column, value, name)
               },
               getFieldData: (field: any) => column.Filtering?.Value,
             }}
@@ -395,6 +416,10 @@ const Table: React.FC<TableProps> = React.memo(
             enumSelectionType={column.Filtering?.EnumSelectionType}
             remoteDataSource={column.Filtering?.RemoteDataSource}
             name={fieldName}
+            lowValueName={lowValueName}
+            highValueName={highValueName}
+            lowValue={column.Filtering?.LowValue}
+            highValue={column.Filtering?.HighValue}
           />
         </Dropdown>
       );

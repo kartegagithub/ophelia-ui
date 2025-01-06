@@ -1,7 +1,9 @@
+import { isNullOrEmpty, isValidDate, pascalize } from "../../../Extensions";
 import TableColumnClass from "../../../Components/Table/TableColumnClass";
 import QueryDataModel from "./queryDataModel";
 import QueryFilter, { DataComparison } from "./queryFilter";
 import QuerySorter from "./querySorter";
+import moment from "moment";
 
 export default class QueryData {
   model: QueryDataModel;
@@ -15,15 +17,32 @@ export default class QueryData {
     if(filters){
       for (var key of Object.keys(filters)) {
         if (filters[key] && filters[key].length > 0) {
-          const column = columns.find((x: TableColumnClass) => x.Filtering?.Name === key || x?.Filtering?.ValueName === key || x.PropertyName === key);
+          var columnKey = key.replace("Low", "").replace("High", "");
+          const column = columns.find((x: TableColumnClass) => x.Filtering?.Name === columnKey || x.Filtering?.ValueName === columnKey || x.PropertyName === columnKey);
           if(!column) continue;
 
           var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
-          if (fieldName && (!disabledFilters || disabledFilters.indexOf(key) == -1)) {
+          if (fieldName && !isNullOrEmpty(columnKey) && (!disabledFilters || disabledFilters.indexOf(columnKey) == -1)) {
             var internalFilter = new QueryFilter();
-            internalFilter.name = key;
-            internalFilter.value = filters[key];
-            internalFilter.comparison = column.Filtering?.Comparison ?? DataComparison.Equal;
+            internalFilter.name = columnKey;
+            if(key.endsWith("Low")){
+              internalFilter.value = filters[key];
+              if(internalFilter.value && internalFilter.value.toString().indexOf("-") != internalFilter.value.toString().lastIndexOf("-")){
+                internalFilter.value = moment(internalFilter.value + " 00:00:00").utc().toJSON();
+              }
+              internalFilter.comparison = DataComparison.GreaterOrEqual;
+            }
+            else if(key.endsWith("High")){
+              internalFilter.value = filters[key];
+              if(internalFilter.value && internalFilter.value.toString().indexOf("-") != internalFilter.value.toString().lastIndexOf("-")){
+                internalFilter.value = moment(internalFilter.value + " 23:59:59").utc().toJSON();
+              }
+              internalFilter.comparison = DataComparison.LessOrEqual;
+            }
+            else{
+              internalFilter.value = filters[key];
+              internalFilter.comparison = column.Filtering?.Comparison ?? DataComparison.Equal;
+            }
             if(internalFilter.value && typeof internalFilter.value == "string") {
               if(internalFilter.value.startsWith("[") && internalFilter.value.endsWith("]")){
                 internalFilter.value = JSON.parse(internalFilter.value)
@@ -56,6 +75,12 @@ export default class QueryData {
   }
 
   applyFilter(filterToApply: QueryFilter) {
+    if(filterToApply && !this.model.filter) {
+      this.model.filter = filterToApply;
+      return filterToApply;
+    }
+    if(!filterToApply && this.model.filter) return this.model.filter;
+
     var newFilter = new QueryFilter();
     newFilter.left = filterToApply;
     newFilter.right = this.model.filter;

@@ -23,6 +23,8 @@ import ColorField from "./colorField";
 import CodeField from "./codeField";
 import RadioField from "./radioField";
 import AgreementCheckboxField from "./agreementCheckboxField";
+import TimeRangeField from "./timeRangeField";
+import DateRangeField from "./dateRangeField";
 
 const InputField: React.FC<any> = (props) => {
   const {
@@ -40,6 +42,8 @@ const InputField: React.FC<any> = (props) => {
       {props.type === "withCode" && <CodeField {...pureProps} />}
       {props.type === "date" && <DateField {...pureProps} />}
       {props.type === "time" && <TimeField {...pureProps} />}
+      {props.type === "timerange" && <TimeRangeField {...pureProps} />}
+      {props.type === "daterange" && <DateRangeField {...pureProps} />}
       {props.type === "agreementCheckbox" && (
         <AgreementCheckboxField {...pureProps} />
       )}
