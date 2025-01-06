@@ -30,7 +30,7 @@ import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
-import { insertToIndex } from "../../Extensions";
+import { base64ToArrayBuffer, insertToIndex } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
 export class CollectionBinderProps{
   config?: Config
@@ -377,8 +377,39 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           xlsExporter.Export();
         }
       }
-      else if(this.Options.Export?.Mode == "remote" && this.Options.Export?.Callback){
-        var dataArray = await this.Options.Export.Callback(option);
+      else if(this.Options.Export?.Mode == "remote"){
+        option.entity = this.Config.Entity;
+        option.schema = this.Config.Schema;
+        option.columns = this.Config.Table?.Columns.filter((col) => !!col.PropertyName).map((col) => col.PropertyName)
+        var queryData = new QueryData()
+        if(this.Config.Table?.Columns)
+          queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter, this.props.manualFilters)
+        option.queryData = queryData.model;
+
+        var initialFilters = this.props.initialFilters ?? {};
+        if(this.state.filter && this.props.manualFilters && this.props.manualFilters.length > 0){
+          var manualFilters: any = {};
+          for (let index = 0; index < Object.keys(this.state.filter).length; index++) {
+            const key = Object.keys(this.state.filter)[index];
+            if(this.props.manualFilters.indexOf(key) > -1){
+              manualFilters[key] = this.state.filter[key];
+            }            
+          }
+          initialFilters = {...initialFilters, ...manualFilters};
+        }
+        option.filterEntity = initialFilters;
+
+        var dataArray: ArrayBuffer | undefined;
+        raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("PleaseWaitWhileExporting")  })
+        if(this.Options.Export.Callback) dataArray = await this.Options.Export.Callback(option);
+        else {
+          var base64 = (await this.props.AppClient?.CreateService().CreateEndpoint(this.getExportCallbackUrl(), { Payload: {data: option} } ).call())?.data
+          if(!base64){
+            raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotExport")  })
+            return;
+          }
+          dataArray = base64ToArrayBuffer(base64);
+        }
         if(dataArray){
           var type = resolveMimeType(option.extension);
           if(typeof type == "string"){
@@ -389,6 +420,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         }
       }
     }
+  }
+  getExportCallbackUrl(){
+    return "configuration/export"
   }
   getViewUrl (id = 0){
     if (this.Options?.ViewURL)

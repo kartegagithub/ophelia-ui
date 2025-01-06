@@ -1,4 +1,5 @@
 import { FileData } from "../Models";
+import { QueryDataModel } from "./CollectionBinder";
 
 export default class BinderOptions {
   PageTitle?: string = undefined;
@@ -48,5 +49,5 @@ export default class BinderOptions {
   } = { FileTypes: "*.xlsx,*.csv" };
 }
 
-var exportType: { extension?: string; name?: string; icon?: string | any };
+var exportType: { extension?: string; name?: string; icon?: string | any, columns?: Array<string | undefined>, schema?: string, entity?: string, queryData?: QueryDataModel, filterEntity?: any };
 export type ExportOption = typeof exportType;
