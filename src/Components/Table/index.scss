@@ -43,6 +43,9 @@
     &-row {
       @apply border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100;
 
+      &.totals{
+        @apply bg-slate-300 font-bold text-base;
+      }
       &.selected {
         @apply px-4 py-2 whitespace-nowrap bg-gray-100;
       }
@@ -72,9 +75,13 @@
         @apply text-right;
       }
 
+      &.numeric{
+        @apply text-right;
+      }
       &.password {
         @apply hidden;
       }
+
     }
   }
 

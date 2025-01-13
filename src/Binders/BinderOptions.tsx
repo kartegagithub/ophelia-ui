@@ -16,6 +16,7 @@ export default class BinderOptions {
   AllowSettings?: boolean = true;
   AllowRefresh?: boolean = true;
   AllowDelete?: boolean = true;
+  AllowColumnSummarize?: boolean = false;
   AllowCopyAndSave?: boolean = false;
   AllowDetailNavigation?: boolean = true;
   SaveButtonVisibility?: boolean = true;

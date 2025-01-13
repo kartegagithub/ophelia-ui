@@ -33,6 +33,7 @@ import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
 import { findInArray } from "../../Extensions";
 import CheckboxInput from "../Inputs/CheckboxInput";
+import { getCurrentRegionSetting } from "../../Localization";
 const Table: React.FC<TableProps> = React.memo(
   ({
     refreshKey,
@@ -54,7 +55,8 @@ const Table: React.FC<TableProps> = React.memo(
     emptyColumnToBeginning = false,
     emptyColumnToEnd = false,
     checkboxes = false,
-    checkedItems = undefined
+    checkedItems = undefined,
+    columnData
   }) => {
     var [selectedRow, setSelectedRow] = useState(-1);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
@@ -472,6 +474,32 @@ const Table: React.FC<TableProps> = React.memo(
     const onItemCheckedChange = (e: any, row: any, rowIndex: number) => {
       var checked = e.target.checked;
       if(listener?.setCheckedItems) listener?.setCheckedItems(row, rowIndex, checked);
+    }
+
+    const renderColumnData = () => {
+      if(!columnData) return <></>;
+      var keys = Object.keys(columnData);
+      if(keys.length == 0) return <></>
+      var columns = table.Columns.filter(op => isColumnVisible(op))
+      var getData = (col: TableColumnClass) => {
+        var key = keys.find(k => k.toLocaleLowerCase() == col.PropertyName?.toLocaleLowerCase())
+        if(!key) return <></>
+        if(columnData[key].toLocaleString){
+          return columnData[key].toLocaleString(getCurrentRegionSetting()?.Code, {minimumFractionDigits:2})
+        }
+        return columnData[key];
+      };
+      return (
+        <tr
+        className={`oph-table-body-row totals`}>
+          {checkboxes == true && (<td></td>)}
+          {emptyColumnToBeginning == true && (<td></td>)}
+          {columns.map((col, index) => <td key={index} className="oph-table-body-cell numeric">
+            {getData(col)}
+          </td>)}
+          {emptyColumnToEnd == true && (<td></td>)}
+        </tr>
+      );
     }
 
     const renderRows = (
@@ -930,6 +958,7 @@ const Table: React.FC<TableProps> = React.memo(
               <thead className="oph-table-header">{renderColumns()}</thead>
               <tbody className="oph-table-body">
                 {renderRows()}
+                {renderColumnData()}
               </tbody>
             </table>
           </div>
@@ -971,6 +1000,7 @@ var tableProps: {
   emptyColumnToBeginning?: boolean
   checkboxes?: boolean
   checkedItems?: Array<any>
+  columnData?: any
   listener?: {
     onCellClick?: Function;
     // onRowClick?: Function;

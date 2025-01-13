@@ -2,6 +2,7 @@ import ServiceResult from "./serviceResult"
 
 export default class ServiceCollectionResult extends ServiceResult{
     data?: Array<any>
+    columnData?: any
     message?: string
     totalDataCount: number = 0
     SetData<T>(data: T, count: number | undefined = undefined): void {

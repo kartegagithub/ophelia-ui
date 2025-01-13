@@ -15,6 +15,7 @@ export default class TableColumnClass{
     AllowSorting?: boolean = true
     AllowFiltering?: boolean = true
     AllowEditing?: boolean = false
+    AllowSummarize?: boolean = false
     AllowEditingOnNewRow?: boolean = true
     InputProps?: any = undefined
     IsSorted?: boolean = false

@@ -6,6 +6,7 @@ import {
   findInArray,
   getFileName,
   isImageFile,
+  raiseCustomEvent,
   removeAtIndex,
   removeFileFromFileList,
   selectDefaultValues,
@@ -23,10 +24,12 @@ const FileInput: React.FC<
     iconText?: string;
     fileTypeWithButton?: boolean;
     id?: string;
+    validateFile: ((file: File) => boolean)
   }
 > = ({
   onChange = undefined,
   placeholder = "Select file",
+  validateFile = undefined,
   value = undefined,
   defaultValue = undefined,
   previewSize = "Original",
@@ -43,12 +46,16 @@ const FileInput: React.FC<
   const [selectedFiles, setSelectedFiles] = useState(new Array<FileData>());
   const FileRef: React.RefObject<HTMLInputElement> =
     React.createRef<HTMLInputElement>();
+
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) onChange(e);
     if (e.target.files && e.target.files.length > 0) {
       var arr = new Array<FileData>();
       for (let index = 0; index < e.target.files.length; index++) {
         const file = e.target.files[index];
+        if(validateFile && !validateFile(file)){
+          return;
+        }
         convertToFileData(file, (data) => {
           arr.push(data);
           setSelectedFiles(arr);
@@ -56,6 +63,7 @@ const FileInput: React.FC<
       }
     } else setSelectedFiles([]);
   };
+
   useEffect(() => {
     var fileParameter: Array<any> = selectDefaultValues(value, "");
     if (!fileParameter || fileParameter.length == 0)

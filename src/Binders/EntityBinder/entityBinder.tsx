@@ -118,6 +118,9 @@ export default class EntityBinder<P> extends React.Component<
     }
     return `Update${this.Entity}`;
   };
+  validateFileUpload(file: File){
+    return true;
+  }
   useTabs(...children: React.ReactNode[]){
     return <Tabs key={this.Entity + "-tabs"} id={this.Entity + "-tabs"}>{children}</Tabs>
   }
@@ -136,6 +139,11 @@ export default class EntityBinder<P> extends React.Component<
       props.text = this.props.AppClient?.Translate(pascalize(removeLastPropName(props.name, "ID")))
     if(props.type == "file"){
       props.accept = this.getAllowedFileExtensions(props.name)
+      if(!props.validateFile){
+        props.validateFile = (file: File) => {
+          return this.validateFileUpload(file);
+        }
+      }
     }
     if(props.type == "richtext"){
       props.imageHandler = (fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined) => this.ImageUploadHandler(fileName, size, buffer, base64)

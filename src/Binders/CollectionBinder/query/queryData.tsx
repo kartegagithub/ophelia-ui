@@ -10,7 +10,7 @@ export default class QueryData {
   constructor() {
     this.model = new QueryDataModel();
   }
-  processQuery(columns: Array<TableColumnClass>, filters: any, sorter: QuerySorter, disabledFilters?: Array<string>) {
+  processQuery(columns: Array<TableColumnClass>, filters: any, sorter: QuerySorter, disabledFilters?: Array<string>, allowSummarize: boolean = false) {
     //console.log(filters);
     var internalFilters = [];
     var internalSorters = [];
@@ -61,10 +61,20 @@ export default class QueryData {
       internalSorters.push(sorter);
     }
 
-    if (internalSorters.length === 0 && internalFilters.length === 0)
-      return null;
-
     this.model = new QueryDataModel();
+    if(allowSummarize == true){
+      this.model.functions = [];
+      for (let index = 0; index < columns.length; index++) {
+        const column = columns[index];
+        if(column.AllowSummarize == true){
+          this.model.functions.push({ manualProcess: true, name: column.PropertyName ?? "", functionName: "Sum"})
+        }
+      }
+    }
+
+    if (internalSorters.length === 0 && internalFilters.length === 0)
+      return { queryData: this.model };
+
     this.model.sorters = internalSorters;
     if (internalFilters.length > 0) {
       for (let i = 0; i < internalFilters.length; i++) {

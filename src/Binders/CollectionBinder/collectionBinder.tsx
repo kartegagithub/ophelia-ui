@@ -64,6 +64,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   showingSettingsModal?: boolean,
   rerenderKey?: any,
   checkedItems?: Array<any>
+  columnData?: any, 
+  summarizeState?: boolean,
   importState: {
     data?: any, 
     isImporting?: boolean, 
@@ -255,10 +257,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           this.onAfterSetData();
           if(data && data.data){
             this.ValidateColumns(data.data)
-            this.setState({dataIndex: this.state.dataIndex + 1, checkedItems: [], path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
+            this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: [], path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
           }
           else if(data)
-            this.setState({dataIndex: this.state.dataIndex + 1, checkedItems: [], path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
+            this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: [], path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
         })
       }
       else{
@@ -303,7 +305,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       try {
         var queryData = new QueryData()
         if(this.Config.Table?.Columns)
-          queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter, this.props.manualFilters)
+          queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter, this.props.manualFilters, this.Options.AllowColumnSummarize && this.state.summarizeState)
         
         var initialFilters = this.props.initialFilters ?? {};
         if(this.state.filter && this.props.manualFilters && this.props.manualFilters.length > 0){
@@ -335,16 +337,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
           var msg = new ServiceMessage();
           msg.description = this.props.AppClient?.Translate("CouldNotRetrieveData") ?? ""
-          return {data: [], totalDataCount: 0, messages: [ msg]}
+          return {data: [], columnData: undefined, totalDataCount: 0, messages: [ msg]}
         }
-        else this.props.parent?.onChildAction("ListChanged", {newData: data.data, key: this.props.viewId});
+        else this.props.parent?.onChildAction("ListChanged", {newData: data.data, columnData: data.columnData, key: this.props.viewId});
         return data;
       } catch (error) {
         raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
         this.setState({loadingState: LoadingState.Failed })
         var msg = new ServiceMessage();
         msg.description = this.props.AppClient?.Translate("CouldNotRetrieveData") ?? ""
-        return {data: [], totalDataCount: 0, messages: [ msg]}
+        return {data: [], columnData: undefined, totalDataCount: 0, messages: [ msg]}
       }
     }
     return undefined
@@ -455,6 +457,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           this.AddNewRow("ButtonClick");
         }
       }
+    }
+    else if(key == "Summarize"){
+      this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting, summarizeState: !this.state.summarizeState})
     }
     else if(key == "Reload"){
       if(this.Options.AllowRefresh != false)
@@ -980,6 +985,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             <div className="oph-collectionBinders-body">
               <div ref={this.RootElementRef}>
                 <Table 
+                 columnData={this.state.columnData}
                  checkboxes={this.Config.Checkboxes}
                  checkedItems={this.state.checkedItems}
                  emptyColumnToBeginning={this.Config.EmptyColumnSelection == "Beginning" || this.Config.EmptyColumnSelection == "Both"}
