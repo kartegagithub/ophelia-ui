@@ -2,7 +2,7 @@ import FileData from "../Models/FileData";
 import { clone, camelize, isNullOrEmpty } from "../Extensions/StringExtensions";
 import APIService from "../Service/apiService";
 import ServiceResult from "../Service/serviceResult";
-import { validateKeyName, setObjectValue, getObjectValue } from "../Extensions/ReflectionExtensions";
+import { validateKeyName, setObjectValue, getObjectValue, isEqualValue } from "../Extensions/ReflectionExtensions";
 import { readUploadedFile } from "../Extensions/InputExtensions";
 import { removeAtIndex } from "../Extensions";
 
@@ -135,8 +135,10 @@ export class EntityOperations{
       }
       getI18NData(data: any, languageID: number){
         if(this.i18nProperty && this.UseI18n && data && data[this.i18nProperty]){
-          var data = (data[this.i18nProperty] as Array<any>).find((item) => item.languageID == languageID)
-          return data;
+          var i18nData: Array<any> = data[this.i18nProperty]
+          var tmpData = i18nData.filter((item) => isEqualValue(item, "languageID", languageID))
+          if(tmpData.length > 0)
+            return tmpData[0];
         }
         return undefined
       }
@@ -144,7 +146,7 @@ export class EntityOperations{
       addI18NData(parentData: any, name: string, languageID: number){
         if(this.i18nProperty && this.UseI18n && parentData){
           var list = parentData[this.i18nProperty] as Array<any> ?? new Array<any>();
-          var data = list.find((item) => item.languageID == languageID)
+          var data = list.find((item) => isEqualValue(item, "languageID", languageID))
           if(data) return data;
     
           var data:any = {};

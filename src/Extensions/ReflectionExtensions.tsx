@@ -119,6 +119,14 @@ export const validateKeyName = (obj: any, key?: string) => {
   if(existingKey) return existingKey
   return key;
 }
+
+export const isEqualValue = (obj: any, key: string, value?: any): boolean => {
+  var keyName = validateKeyName(obj, key);
+  if(!keyName) return false;
+
+  return obj[keyName] == value;
+}
+
 export const setObjectValue = (obj: any, propName?: string, value?: any) => {
   if (!propName || !obj) return
 
