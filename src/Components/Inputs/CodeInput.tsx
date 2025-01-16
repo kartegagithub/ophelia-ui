@@ -50,12 +50,12 @@ const CodeInput: React.FC<CodeInputProps> = ({
           style={style}
         />
         {rightIcon && (
-          <button className="oph-codeInput-rightIcon" onClick={iconOnClick}>
+          <button type="button" className="oph-codeInput-rightIcon" onClick={iconOnClick}>
             {getImageComponent(rightIcon)}
           </button>
         )}
         {rightIcon2 && (
-          <button className="oph-codeInput-rightIcon2" onClick={iconOnClick}>
+          <button type="button" className="oph-codeInput-rightIcon2" onClick={iconOnClick}>
             {getImageComponent(rightIcon2)}
           </button>
         )}

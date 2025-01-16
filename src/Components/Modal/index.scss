@@ -2,7 +2,7 @@
   @apply fixed left-0 top-10 w-full overflow-y-auto overflow-x-hidden outline-none z-40;
 
   &.center {
-    @apply flex items-center justify-center h-screen overflow-y-hidden top-0;
+    @apply flex items-center justify-center h-svh overflow-y-hidden top-0;
   }
   &-subclass {
     @apply pointer-events-none relative flex min-h-[calc(100%-1rem)] w-full translate-y-[-50px] items-center transition-all duration-300 ease-in-out sm:mx-auto sm:mt-15 sm:min-h-[calc(100%-3.5rem)] sm:max-w-[800px];

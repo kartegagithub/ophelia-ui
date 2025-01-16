@@ -20,7 +20,8 @@ const Accordion: React.FC<AccordionProps> = ({
       <details
         id={id}
         className={`oph-accordion ${isOpen ? "open" : ""}`}
-        open={defaultOpen}
+        //open={defaultOpen}
+        open={isOpen}
         onToggle={(e) => setIsOpen(e.currentTarget.open)}
       >
         <summary className="oph-accordion-summary">

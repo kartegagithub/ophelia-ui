@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import "moment/locale/az";
 import { getCurrentRegionSetting } from "../Localization/RegionSetting";
 import sanitizer from "sanitize-html";
@@ -54,6 +54,13 @@ export function phoneMasking(val?: any) {
 }
 
 export function validateRange(val?: any, max?: any, min?: any) {
+  if (
+    !val ||
+    (min && min.setHours && val < min.setHours(0, 0, 0, 0)) ||
+    (max && max.setHours && val > max.setHours(0, 0, 0, 0))
+  ) {
+    return false;
+  }
   if (!val || (min && val < min) || (max && val > max)) {
     return false;
   }
@@ -227,25 +234,43 @@ export function characterCountInString(str?: string, char?: string) {
   const regex = new RegExp(char, "g");
   return (str.match(regex) || []).length;
 }
-export function convertToDate(value?: string) {
+export function convertToDate(
+  value?: string | Date | number | (string | number)[]
+): moment.Moment {
   if (!value) return moment(new Date());
-  if ((value as any).getDate) {
+
+  if (Array.isArray(value)) {
+    value = value[0];
+  }
+
+  if (value instanceof Date) {
     return moment(value);
   }
-  var setting = getCurrentRegionSetting();
-  moment.locale(setting?.Code.toLowerCase());
-  if (
-    value.indexOf(".") == -1 &&
-    value.indexOf("/") == -1 &&
-    value.indexOf("-") == -1 &&
-    (value.split(":").length == 2 || value.split(":").length == 3)
-  ) {
-    value = "1/1/1970 " + value;
+
+  if (typeof value === "number") {
+    return moment(value);
   }
-  return moment(value);
+
+  if (typeof value === "string") {
+    var setting = getCurrentRegionSetting();
+    moment.locale(setting?.Code.toLowerCase());
+
+    if (
+      value.indexOf(".") === -1 &&
+      value.indexOf("/") === -1 &&
+      value.indexOf("-") === -1 &&
+      (value.split(":").length === 2 || value.split(":").length === 3)
+    ) {
+      value = "1/1/1970 " + value;
+    }
+
+    return moment(value, "DD.MM.YYYY");
+  }
+  throw new Error("Invalid input: Expected string, Date, or number");
 }
+
 export function getFormattedDateString(
-  value?: string,
+  value?: any,
   toFormat?: string,
   type:
     | "month"
@@ -256,10 +281,11 @@ export function getFormattedDateString(
     | undefined
     | string = "datetime"
 ) {
-  var setting = getCurrentRegionSetting();
+  const setting = getCurrentRegionSetting();
   moment.locale(setting?.Code.toLowerCase());
 
-  var date = convertToDate(value);
+  const date = parseDate(value);
+  if (!date.isValid()) return "";
   if (!toFormat) {
     if (type === "date" && setting?.DateFormat?.ShortDateFormat)
       toFormat = setting?.DateFormat?.ShortDateFormat;
@@ -272,9 +298,84 @@ export function getFormattedDateString(
     if (type === "week" && setting?.DateFormat?.WeekFormat)
       toFormat = setting?.DateFormat?.WeekFormat;
   }
-  if (!toFormat) toFormat = "MM/DD/YYYY";
-  var returnValue = moment(date).format(toFormat);
-  return returnValue;
+  if (!toFormat) toFormat = "MM/DD/YYYY HH:mm";
+
+  // Dil bazlı saat dilimi ayarı
+  let timezone = "UTC"; // Varsayılan olarak UTC
+  if (setting?.Code.toLowerCase() === "az") {
+    timezone = "Asia/Baku"; // Azerbaycan saat dilimi (UTC+4)
+  } else if (setting?.Code.toLowerCase() === "en") {
+    timezone = "UTC"; // İngilizce için varsayılan UTC
+  }
+
+  // UTC'den belirlenen timezone'a çeviri
+  return date.tz(timezone).format(toFormat);
+}
+
+function parseDate(value: any) {
+  if (!value) return moment.invalid();
+
+  // ISO formatı (YYYY-MM-DD)
+  if (moment(value, moment.ISO_8601, true).isValid()) {
+    return moment(value);
+  }
+
+  // Lokal format (DD.MM.YYYY)
+  if (moment(value, "DD.MM.YYYY", true).isValid()) {
+    return moment(value, "DD.MM.YYYY");
+  }
+
+  return moment(value);
+}
+
+// azerbaycan date format
+export const formatToAzerbaijani = (dateRange: string): string => {
+  const months: Record<string, string> = {
+    Ocak: "Yanvar",
+    Şubat: "Fevral",
+    Mart: "Mart",
+    Nisan: "Aprel",
+    Mayıs: "May",
+    Haziran: "İyun",
+    Temmuz: "İyul",
+    Ağustos: "Avqust",
+    Eylül: "Sentyabr",
+    Ekim: "Oktyabr",
+    Kasım: "Noyabr",
+    Aralık: "Dekabr",
+  };
+
+  const [startDate, endDate] = dateRange.split(" - ");
+  const replaceMonth = (date: string) => {
+    const [day, month, year] = date.split(" ");
+    const azerbaijaniMonth = months[month] || month;
+    return `${day} ${azerbaijaniMonth} ${year}`;
+  };
+
+  return `${replaceMonth(startDate)} - ${replaceMonth(endDate)}`;
+};
+
+// bugün ile verilen gün farkını bul timeStamp cinsinden
+export function getRemainingDays(timestamp: number) {
+  const targetDate = new Date(timestamp);
+  const today = new Date();
+
+  const targetDateUTC = new Date(
+    targetDate.getFullYear(),
+    targetDate.getMonth(),
+    targetDate.getDate()
+  );
+  const todayUTC = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const differenceInTime = targetDateUTC.getTime() - todayUTC.getTime();
+
+  const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
+
+  return Math.max(0, differenceInDays);
 }
 
 export function stringToDateInputValue(
@@ -807,7 +908,16 @@ export const formatTimeTotalSecond = (totalSeconds: number) => {
 };
 export function getTimeUntil(nextDrawTime: string): string {
   const now = new Date();
-  const [targetHours, targetMinutes] = nextDrawTime?.split(":").map(Number);
+
+  if (!nextDrawTime || !nextDrawTime.includes(":")) {
+    throw new Error("Invalid nextDrawTime format. Expected 'HH:mm' string.");
+  }
+
+  const [targetHours, targetMinutes] = nextDrawTime.split(":").map(Number);
+
+  if (isNaN(targetHours) || isNaN(targetMinutes)) {
+    throw new Error("Invalid time values. Ensure 'HH:mm' format.");
+  }
 
   // Hedef zamanı oluştur
   const targetTime = new Date();

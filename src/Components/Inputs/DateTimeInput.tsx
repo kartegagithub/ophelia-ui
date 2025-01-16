@@ -33,6 +33,8 @@ const DateTimeInput: React.FC<
       } ${labelType && labelType === "floating" ? "floating" : ""}`}
       onClick={handleFocus}
       defaultValue={formattedValue}
+      min="1900-01-01T00:00"
+      max="2100-12-31T23:59"
       {...props}
       style={style}
     />

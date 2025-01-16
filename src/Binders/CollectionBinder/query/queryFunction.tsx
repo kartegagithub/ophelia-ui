@@ -1,5 +1,5 @@
 export default class QueryFunction {
-    name: string = "";
-    manualProcess?: boolean;
-    functionName: string = "";
-  }
+  name: string = "";
+  manualProcess?: boolean;
+  functionName: string = "";
+}

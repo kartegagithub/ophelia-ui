@@ -24,8 +24,7 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
   );
 
   const handleFocus = (e: any) => {
-    if(showPickerOnFocus)
-      e.target.showPicker(); 
+    if (showPickerOnFocus) e.target.showPicker();
   };
   return (
     <input
@@ -36,6 +35,8 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
       }`}
       onClick={handleFocus}
       defaultValue={formattedValue}
+      min="1900-01-01T00:00"
+      max="2100-12-31T23:59"
       {...props}
       style={style}
     />

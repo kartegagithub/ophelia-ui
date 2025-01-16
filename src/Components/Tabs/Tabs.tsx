@@ -14,6 +14,7 @@ const Tabs: React.FC<{
   InlineTabContentClass?: string;
   defaultSelected?: string;
   noContent?: boolean;
+  noScroll?: boolean;
 }> = ({
   id,
   children,
@@ -23,6 +24,7 @@ const Tabs: React.FC<{
   InlineTabContentClass = "",
   defaultSelected,
   noContent = false,
+  noScroll = false,
 }) => {
   const [selectedTab, setSelectedTab] = useState(defaultSelected || "0");
   const tabHeaderRef = useRef<HTMLUListElement>(null);
@@ -118,7 +120,9 @@ const Tabs: React.FC<{
     >
       {tabs.length > 1 && (
         <ul
-          className={`oph-tabs-header ${InlineTabHeaderClass} scrollable-tabs`}
+          className={`oph-tabs-header ${InlineTabHeaderClass} ${
+            noScroll ? "" : "scrollable-tabs"
+          }`}
           key="nav-tabs"
           ref={tabHeaderRef}
           onTouchStart={handleTouchStart}

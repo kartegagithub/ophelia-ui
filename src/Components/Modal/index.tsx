@@ -128,7 +128,7 @@ const Modal: React.FC<{
         onClick={(e) => {
           checkMouseInBoundByRef(e, ModalRef, (inside) => {
             dismissOnBackdropClick && !inside
-              ? (onCurrentValue(false), setOpen(false))
+              ? (onCurrentValue && onCurrentValue(false), setOpen(false))
               : undefined;
           });
         }}

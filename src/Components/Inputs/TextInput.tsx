@@ -29,6 +29,7 @@ const TextInput: React.FC<TextInputProps> = ({
   rightIcon2,
   iconOnClick,
   value,
+  className,
   ...props
 }) => {
   return (
@@ -37,19 +38,19 @@ const TextInput: React.FC<TextInputProps> = ({
       <input
         type="text"
         onKeyDown={(e) => maskHandler(mask, e, props.onChange, maskRule)}
-        className={`oph-textInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-textInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""} ${className}`}
         {...props}
         style={style}
         onChange={props.onChange}
         value={value}
       />
       {rightIcon && (
-        <button className="oph-textInputRightIcon" onClick={iconOnClick}>
+        <button type="button" className="oph-textInputRightIcon" onClick={iconOnClick}>
           {getImageComponent(rightIcon)}
         </button>
       )}
       {rightIcon2 && (
-        <button className="oph-textInputRightIcon2" onClick={iconOnClick}>
+        <button type="button" className="oph-textInputRightIcon2" onClick={iconOnClick}>
           {getImageComponent(rightIcon2)}
         </button>
       )}

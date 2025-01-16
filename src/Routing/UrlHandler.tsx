@@ -40,12 +40,13 @@ export class UrlHandlerClass {
   }
 
   Push(
-    destination: string | undefined,
-    lang: number | string | undefined,
+    destination?: string | undefined,
+    lang?: number | string | undefined,
     onSuccess?: Function
   ) {
-    destination = this.Get(destination, lang);
-    return Router.push(destination ?? "").then(() => onSuccess && onSuccess());
+    const url = this.Get(destination, lang);
+    if (url === Router.asPath) return;
+    return Router.push(url).then(() => onSuccess?.());
   }
 
   Get(
@@ -262,10 +263,14 @@ export class UrlHandlerClass {
     } catch (error) {
       console.error(error);
     }
-    if(path == this.DefaultLanguage){
-      return {destination: "/", source: path, permanent: true}
+    if (path == this.DefaultLanguage) {
+      return { destination: "/", source: path, permanent: true };
     }
-    if (item && (item.destination == "/" + this.DefaultLanguage || item.source == item.destination)) {
+    if (
+      item &&
+      (item.destination == "/" + this.DefaultLanguage ||
+        item.source == item.destination)
+    ) {
       this.Log("Route reset-1: " + path + " => " + JSON.stringify(item));
       item = undefined;
     }
