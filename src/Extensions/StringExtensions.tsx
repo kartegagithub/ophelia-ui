@@ -285,7 +285,10 @@ export function getFormattedDateString(
   const setting = getCurrentRegionSetting();
   moment.locale(setting?.Code.toLowerCase());
 
-  const date = parseDate(value);
+  //const date = parseDate(value);
+  var date = convertToDate(value);
+  if (!date.isValid()) return "";
+
   if (!date.isValid()) return "";
   if (!toFormat) {
     if (type === "date" && setting?.DateFormat?.ShortDateFormat)
