@@ -812,7 +812,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return index > -1;
   }
   CreateEntity(): any{
-    return {id: 0, isNewRow: true};
+    if(this.Config.NewEntityMethod == "Row")
+      return {id: 0, isNewRow: true};
+    return {id: 0};
   }
   renderChildBinder(){
     var data: any = this.CreateEntity();
