@@ -451,7 +451,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           if(this.Config.RowClickOption == "showEntityBinder")
             this.setState({clickedRowIndex: -1})
           else
-            Router.push(this.getLink({id: 0}))
+            Router.push(this.getLink(this.CreateEntity()))
         }
         else{
           this.AddNewRow("ButtonClick");
@@ -543,7 +543,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!list) list = this.state.data;
     var newData = clone(list) as Array<any>
     if(this.CanAddNewRow(action, list) && this.Config.NewEntityMethod == "Row"){
-      var newRow = this.OnNewRowAdded({id: 0, isNewRow: true});
+      var newRow = this.OnNewRowAdded(this.CreateEntity());
       newRow.hasUnsavedChanges = true;
       if(this.props.initialFilters) newRow = {...this.props.initialFilters, ...newRow}
       var index = 0;
@@ -811,8 +811,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     var index = this.state.checkedItems.indexOf(uniqueID);
     return index > -1;
   }
+  CreateEntity(): any{
+    return {id: 0, isNewRow: true};
+  }
   renderChildBinder(){
-    var data: any = {id: 0};
+    var data: any = this.CreateEntity();
     if(this.state.clickedRowIndex >= 0) {
       data = this.state.data[this.state.clickedRowIndex];
     }
