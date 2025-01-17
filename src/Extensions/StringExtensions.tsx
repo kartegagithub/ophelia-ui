@@ -185,8 +185,7 @@ export function queryAsObject(url: string) {
   var params = new URLSearchParams(searchParams);
   var returnValues: any = {};
   for (let [item, value] of Array.from(params.entries())) {
-    if(item)
-      returnValues[item] = value;
+    if (item) returnValues[item] = value;
   }
   return returnValues;
 }
@@ -239,6 +238,10 @@ export function convertToDate(
 ): moment.Moment {
   if (!value) return moment(new Date());
 
+  if (moment(value, moment.ISO_8601, true).isValid()) {
+    return moment(value);
+  }
+
   if (Array.isArray(value)) {
     value = value[0];
   }
@@ -264,7 +267,7 @@ export function convertToDate(
       value = "1/1/1970 " + value;
     }
 
-    return moment(value, "DD.MM.YYYY");
+    return moment(value);
   }
   throw new Error("Invalid input: Expected string, Date, or number");
 }
@@ -306,8 +309,8 @@ export function getFormattedDateString(
 
   // Dil bazlı saat dilimi ayarı
   let timezone = tz; // Varsayılan olarak UTC
-  if(!timezone && setting?.TimeZone) timezone = setting?.TimeZone;
-  if(!timezone) timezone = "UTC"
+  if (!timezone && setting?.TimeZone) timezone = setting?.TimeZone;
+  if (!timezone) timezone = "UTC";
 
   // UTC'den belirlenen timezone'a çeviri
   return date.tz(timezone).format(toFormat);
