@@ -3,6 +3,7 @@ import { RegionSetting } from "./RegionSetting";
 export const Region_TR: RegionSetting = {
     Code: "tr",
     Tag: "en_TR",
+    TimeZone: "Asia/Istanbul",
     DateFormat: {
         FirstDayOfWeek: "Monday",
         LongDateFormat: "DD.MM.YYYY HH:mm",

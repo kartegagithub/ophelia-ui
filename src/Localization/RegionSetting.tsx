@@ -5,6 +5,7 @@ import { Region_AZ } from "./Region_AZ"
 var RegionSettingTypeDef: {
     Code: string,
     Tag: string,
+    TimeZone: string,
     DateFormat?: {
         ShortDateFormat?: string,
         LongDateFormat?: string,

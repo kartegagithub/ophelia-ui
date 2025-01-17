@@ -279,7 +279,8 @@ export function getFormattedDateString(
     | "time"
     | "datetime"
     | undefined
-    | string = "datetime"
+    | string = "datetime",
+  tz: string | undefined = undefined
 ) {
   const setting = getCurrentRegionSetting();
   moment.locale(setting?.Code.toLowerCase());
@@ -301,12 +302,9 @@ export function getFormattedDateString(
   if (!toFormat) toFormat = "MM/DD/YYYY HH:mm";
 
   // Dil bazlı saat dilimi ayarı
-  let timezone = "UTC"; // Varsayılan olarak UTC
-  if (setting?.Code.toLowerCase() === "az") {
-    timezone = "Asia/Baku"; // Azerbaycan saat dilimi (UTC+4)
-  } else if (setting?.Code.toLowerCase() === "en") {
-    timezone = "UTC"; // İngilizce için varsayılan UTC
-  }
+  let timezone = tz; // Varsayılan olarak UTC
+  if(!timezone && setting?.TimeZone) timezone = setting?.TimeZone;
+  if(!timezone) timezone = "UTC"
 
   // UTC'den belirlenen timezone'a çeviri
   return date.tz(timezone).format(toFormat);

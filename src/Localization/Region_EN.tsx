@@ -3,6 +3,7 @@ import { RegionSetting } from "./RegionSetting";
 export const Region_EN: RegionSetting = {
     Code: "en",
     Tag: "en_US",
+    TimeZone: "UTC",
     DateFormat: {
         FirstDayOfWeek: "Sunday",
         LongDateFormat: "MM/DD/YYYY HH:mm",

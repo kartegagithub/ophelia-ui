@@ -3,6 +3,7 @@ import { RegionSetting } from "./RegionSetting";
 export const Region_AZ: RegionSetting = {
     Code: "az",
     Tag: "az_AZ",
+    TimeZone: "Asia/Baku",
     DateFormat: {
         FirstDayOfWeek: "Monday",
         LongDateFormat: "DD.MM.YYYY HH:mm",
