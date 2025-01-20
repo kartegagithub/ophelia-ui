@@ -50,9 +50,11 @@ const Dropdown: React.FC<DropdownProps> = ({
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [uniqueID, setUniqueID] = useState(randomKey(5));
   const [page, setPage] = useState(1);
+  const [loadedPage, setLoadedPage] = useState(0);
   const [timer, setTimer] = useState<any>(setTimeout(() => 0, 0));
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [searchText, setSearchText] = useState<string | undefined>("");
   const RootRef = React.createRef<HTMLDivElement>();
   const ListRef = React.createRef<HTMLUListElement>();
   const { pathname, events } = useRouter();
@@ -66,39 +68,42 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, [pathname]);
 
   const onSearchKeyup = async (
-    e?: React.KeyboardEvent<HTMLInputElement>,
-    searchedPage: number = 1
+    e?: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (e?.key == "Escape") {
       setSearching(false);
       setOpen(false);
       if (visibilityCallback) visibilityCallback(false);
     }
-    if (searching) return;
-    setSearching(true);
+    if(e?.target){
+      setSearchText((e.target as any).value ?? "");
+    }
+  };
+
+  useEffect(() => {
+    if (searching || !open || (!onSearch && !options)) return;
 
     if (timer){
       clearTimeout(timer)
-      setTimer(undefined);
     }
     var Timer = setTimeout(async () => {
-      var elem = document.getElementById(`${uniqueID}-search-input`) as HTMLInputElement; 
-      if(!elem) return;
+      setSearching(true);
       var result: Array<any> | undefined = undefined;
       if (onSearch) {
-        result = await onSearch(elem.value, searchedPage);
+        result = await onSearch(searchText, page);
+        setLoadedPage(page)
       }
       if (!onSearch || result == undefined) {
-        result = filterInArray(options, elem.value, displayProp);
+        result = filterInArray(options, searchText ?? "", displayProp);
       }
       if (result != undefined) {
-        if (searchedPage > 1) result = filteredOptions.concat(result);
+        if (page > 1) result = filteredOptions.concat(result);
         setFilteredOptions(result);
       }
       setSearching(false);
     }, 500);
     setTimer(Timer)
-  };
+  }, [searchText, page, open]);
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -179,8 +184,8 @@ const Dropdown: React.FC<DropdownProps> = ({
         ListRef.current.scrollTop + ListRef.current.offsetHeight + 20 >=
         ListRef.current.scrollHeight
       ) {
-        onSearchKeyup(undefined, page + 1);
-        setPage(page + 1);
+        if(!searching)
+          setPage(loadedPage + 1);
       }
     }
   };
@@ -223,19 +228,14 @@ const Dropdown: React.FC<DropdownProps> = ({
     setOpen(visible);
     setPage(1);
     if (visibilityCallback) visibilityCallback(visible);
-    if (
-      visible &&
-      (!filteredOptions || filteredOptions.length == 0 || refreshSearchList || refreshKey)
-    )
-      onSearchKeyup();
     if (enableSearch && visible && refreshSearchList != true) {
       setTimeout(function () {
         var elem = document.getElementById(`${uniqueID}-search-input`) as HTMLInputElement; 
         if(!elem) return;
         elem.focus();
-      }, 200);
+      }, 500);
     }
-  }, [setOpen, visible, refreshSearchList, refreshKey]);
+  }, [visible, refreshSearchList, refreshKey]);
 
   return (
     <>
@@ -274,16 +274,20 @@ const Dropdown: React.FC<DropdownProps> = ({
               <input
                 onKeyUp={(e) => {
                   setPage(1);
-                  onSearchKeyup(e, 1);
+                  onSearchKeyup(e);
                 }}
                 id={`${uniqueID}-search-input`}
                 type="text"
                 className="oph-dropdown-search-container-searchInput"
                 placeholder={searchPlaceholder}
               />
-              <div className="oph-dropdown-search-container-content">
+              {!searching && <div className="oph-dropdown-search-container-content">
                 <Icon name="azSearch" color="#0D222E" size={24} />
-              </div>
+              </div>}
+              {searching && <div className="oph-dropdown-search-container-content"><svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg></div>}
             </div>
           </div>
         )}
@@ -346,7 +350,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           </ul>
         )}
         {children}
-        {buttons && buttons.length > 0 && (
+        {!searching && buttons && buttons.length > 0 && (
           <div className={"oph-dropdown-footerbutton"}>
             {buttons.map((button, i) => (
               <a key={i} href="#" onClick={(e) => onButtonClick(e, button)}>

@@ -14,6 +14,8 @@ export default class ServiceResult{
     responseStatusCode: number = 0
     MessageCallback?: (item: ServiceMessage) => void
     Error(e: Error){
+        this.hasFailed = true;
+
         var message = new ServiceMessage();
         message.code = "SYSERR";
         message.type = 1;
@@ -23,6 +25,7 @@ export default class ServiceResult{
         if(this.MessageCallback) this.MessageCallback(message);
     }
     Fail(code: string, desc: string){
+        this.hasFailed = true;
         if(!this.messages) this.messages = [];
 
         var message = new ServiceMessage();

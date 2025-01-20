@@ -746,7 +746,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       else{
         if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
         setObjectValue(filters, fieldName, column.Filtering.Value)
-        url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, column.Filtering.Value, url)
+        if(Array.isArray(column.Filtering.Value))
+          url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, JSON.stringify(column.Filtering.Value), url)
+        else
+          url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, column.Filtering.Value, url)
         if(column.IsFiltered === true) {
           if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
         }

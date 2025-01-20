@@ -48,20 +48,24 @@ const FileInput: React.FC<
     React.createRef<HTMLInputElement>();
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) onChange(e);
     if (e.target.files && e.target.files.length > 0) {
       var arr = new Array<FileData>();
-      for (let index = 0; index < e.target.files.length; index++) {
+
+      for (let index = e.target.files.length - 1; index >= 0; index--) {
         const file = e.target.files[index];
         if(validateFile && !validateFile(file)){
-          return;
+          removeFileFromFileList(FileRef.current, file.name);
         }
-        convertToFileData(file, (data) => {
-          arr.push(data);
-          setSelectedFiles(arr);
-        });
+        else{
+          convertToFileData(file, (data) => {
+            arr.push(data);
+            setSelectedFiles(arr);
+          });
+        }
       }
     } else setSelectedFiles([]);
+
+    if (onChange) onChange(e);
   };
 
   useEffect(() => {
