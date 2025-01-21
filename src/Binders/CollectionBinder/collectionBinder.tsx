@@ -82,6 +82,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   EntityOperations: EntityOperations
   Mounted: boolean = false;
   PersistentSettings?: PersistentConfig
+  private exPersistentSettings?: PersistentConfig
   constructor(props: P & CollectionBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
@@ -612,7 +613,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   private async SaveSettings(): Promise<PersistentConfig | undefined>{
     if(!this.PersistentSettings) return undefined;
-
+    this.exPersistentSettings = undefined;
     var data = await this.OnSaveSettings(this.PersistentSettings);
     if(data) this.ApplySettings(data)
     this.setState({showingSettingsModal: false, rerenderKey: randomKey(5)});
@@ -861,6 +862,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     e.preventDefault();
     if(!this.PersistentSettings) return;
     
+    if(!this.exPersistentSettings)
+      this.exPersistentSettings = clone(this.PersistentSettings)
+
     var elem = document.querySelectorAll(`.dragging`)[0] as HTMLDivElement
     elem.classList.remove("dragging");
     if(!elem.parentElement?.classList.contains("oph-collectionBinders-settings-columns")) return;
@@ -909,6 +913,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       });
       var newSettings = clone(this.PersistentSettings);
       newSettings.Columns = newColumns;
+      this.PersistentSettings = newSettings;
       this.setState({rerenderKey: randomKey(5)});
       this.ApplySettings(newSettings);
     }
@@ -923,8 +928,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     e.currentTarget.classList.remove("dragging")
   }
   async CancelSettingsModal(){
-    var setting = await this.GetPersistentSetting(this.state.path);
-    this.PersistentSettings = setting ?? {PageURL: this.state.path, Columns: [], BinderName: this.Config.DataSourcePath};
+    this.PersistentSettings = this.exPersistentSettings ?? (await this.GetPersistentSetting(this.state.path)) ?? {PageURL: this.state.path, Columns: [], BinderName: this.Config.DataSourcePath};
+    this.exPersistentSettings = undefined;
+    this.ApplySettings(this.PersistentSettings);
     this.setState({showingSettingsModal: false, rerenderKey: randomKey(5) })
   }
   renderSettingsModal(){
