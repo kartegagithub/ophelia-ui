@@ -102,11 +102,17 @@ export const getObjectValue = (obj: any, propName?: string, defaultValue: any = 
   if(propName.indexOf(".") > -1){
     var names = propName.split(".");
     var tmpObj = obj
+    var hasBrokenIndex = false;
     for (let index = 0; index < names.length - 1; index++) {
       const indexedName = names[index];
-      if(tmpObj[indexedName]) tmpObj = tmpObj[indexedName];
+      if(tmpObj[indexedName]) 
+        tmpObj = tmpObj[indexedName];
+      else {
+        hasBrokenIndex = true
+        break;
+      } 
     }
-    if(tmpObj && tmpObj != obj) value = tmpObj[names[names.length - 1]]
+    if(tmpObj && tmpObj != obj && !hasBrokenIndex) value = tmpObj[names[names.length - 1]]
   }
   else value = obj[propName];
   return value ?? defaultValue;

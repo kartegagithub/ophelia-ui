@@ -881,13 +881,17 @@ const Table: React.FC<TableProps> = React.memo(
           ? "selected"
           : "");
       if (column.TextFormatter) value = column.TextFormatter(value);
+
+      var unwrappedValue: string | undefined = undefined;
       if (
         column.MaxTextLength &&
         column.MaxTextLength > 0 &&
         value &&
         value.length > column.MaxTextLength
-      )
+      ){
+        unwrappedValue = value;
         value = value.toString().substring(0, column.MaxTextLength);
+      }
 
       var cellProps: {className?: string} = {};
       if(listener && listener.getCellProps) cellProps = listener?.getCellProps(row, column, rowIndex, columnIndex);
@@ -901,6 +905,7 @@ const Table: React.FC<TableProps> = React.memo(
           className={`oph-table-body-cell ${className} ${predefinedClassName} col-${columnIndex} ${column.Freeze ? "sticky-cell" : ""}`}
           onClick={(e) => onCellClick(e, row, column, rowIndex, columnIndex)}
           {...otherProps}
+          title={unwrappedValue}
         >
           {renderCellValue(row, column, value, rowIndex, columnIndex)}
         </td>

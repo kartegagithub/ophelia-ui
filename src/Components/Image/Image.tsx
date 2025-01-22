@@ -30,7 +30,7 @@ const Image: React.FC<
     const target = e.target as HTMLImageElement;
 
     // Eğer src boşsa veya "default" içermiyorsa ve fallback resmi varsa
-    if (!target.src || (!target.src.includes("default") && defaultImage)) {
+    if (defaultImage && (!target.src.includes(defaultImage) || !target.src)) {
       target.src = defaultImage;
     }
   };
@@ -39,8 +39,9 @@ const Image: React.FC<
     <NextImage
       {...(id && { id })}
       src={src || defaultImage}
-      alt={alt || "Image Default Alt"}
+      alt={alt || "Image"}
       onError={handleError}
+      loading={props.loading ?? "lazy"}
       {...props}
     />
   );
