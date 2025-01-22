@@ -28,6 +28,7 @@ export class EntityBinderProps{
   useI18N?: boolean = false
   parent?: EntityBinder<{}> | CollectionBinder<{}>
   pageTitle?: string
+  initialFilters?: any
 }
 export default class EntityBinder<P> extends React.Component<
   P & EntityBinderProps,
@@ -41,6 +42,7 @@ export default class EntityBinder<P> extends React.Component<
     rerenderCounter: number,
     processing: boolean,
     rerenderKey?: any,
+    customStateData?: any
 }
 > {
   Key: number = 0;
@@ -296,7 +298,7 @@ export default class EntityBinder<P> extends React.Component<
   }
   async GetEntity(id: any, data: any): Promise<any>{
     this.setState({loadingState: LoadingState.Loading})
-    var result = await this.EntityOperations.GetEntity(id, data)
+    var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters)
     this.UploadFiles = [];
     if(result.data){
       this.setState({loadingState: LoadingState.Loaded, id: this.props.id, data: result.data, messages: result.messages, languageID: this.DefaultLanguageID})
@@ -460,7 +462,10 @@ export default class EntityBinder<P> extends React.Component<
   }
 
   async CreateEntity(): Promise<any>{
-    return { id: 0 };
+    if(this.props.initialFilters)
+      return {...this.props.initialFilters, ...{ id: 0 }};
+    else
+      return { id: 0 };
   }
   async componentDidMount(){
     this.Options = new BinderOptions();

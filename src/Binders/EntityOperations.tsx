@@ -219,12 +219,12 @@ export class EntityOperations{
             return result;
         }
     }
-    async GetEntity(id: any, data: any){
+    async GetEntity(id: any, data: any, extraFilters?: any){
         if(id && !data){
             try {
                 let postData = {
                     ...{
-                    Data: { id: id },
+                    Data: {...extraFilters, ...{ id: id }},
                     id: id          
                     }
                 };
