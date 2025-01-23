@@ -29,6 +29,7 @@ export class EntityBinderProps{
   parent?: EntityBinder<{}> | CollectionBinder<{}>
   pageTitle?: string
   initialFilters?: any
+  onDataChange?: ((data: any) => void)
 }
 export default class EntityBinder<P> extends React.Component<
   P & EntityBinderProps,
@@ -419,6 +420,8 @@ export default class EntityBinder<P> extends React.Component<
     }
     this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n, () => this.imageParsed())
     this.checkFieldVisibilities();
+    if(this.props.onDataChange)
+      this.props.onDataChange(this.state.data);
   }
   setFileDeleted(deletedFile: FileData){
     var existing = this.UploadFiles.find((file) => file.FileName == deletedFile.FileName)
