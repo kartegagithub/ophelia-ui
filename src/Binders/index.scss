@@ -16,6 +16,7 @@
 }
 
 .oph-collectionBinders{
+  @apply overflow-auto;
   .oph-drawer {
     @apply  bg-white w-2/4 h-full overflow-y-scroll shadow-lg;
   }

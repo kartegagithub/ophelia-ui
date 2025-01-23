@@ -17,6 +17,7 @@ export default class Config {
   Checkboxes?: boolean = false
   HideSelectAll?: boolean = false
   HierarchicalDisplay?: boolean = false
+  StickyHeader?: boolean = false
   HierarchyPropertyName?: string = ""
   HierarchyParentValue?: string = ""
   EmptyColumnSelection?: "Both" | "Beginning" | "End" | "None" = "None"

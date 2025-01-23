@@ -15,7 +15,6 @@ export default class ServiceResult{
     MessageCallback?: (item: ServiceMessage) => void
     Error(e: Error){
         this.hasFailed = true;
-
         var message = new ServiceMessage();
         message.code = "SYSERR";
         message.type = 1;

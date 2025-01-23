@@ -999,6 +999,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             <div className="oph-collectionBinders-body">
               <div ref={this.RootElementRef}>
                 <Table 
+                 isHeaderSticky={this.Config.StickyHeader}
                  columnData={this.state.columnData}
                  checkboxes={this.Config.Checkboxes}
                  checkedItems={this.state.checkedItems}
