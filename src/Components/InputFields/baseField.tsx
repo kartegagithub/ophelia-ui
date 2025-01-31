@@ -28,6 +28,7 @@ export default class BaseField<P> extends React.Component<
     errorDisplayFn?: (name: string, msg?: string) => React.JSX.Element;
     validateCallback?: (isValid: boolean, value: any) => boolean;
     setDataCallback?: (value: any) => any | undefined;
+    valueFormatter?: (value: any) => any;
     format?: string;
     listener?: any;
     type?: string;
@@ -430,6 +431,7 @@ export default class BaseField<P> extends React.Component<
       languageKey,
       visible,
       errorClassName,
+      valueFormatter,
       type,
       listener,
       onChange,
@@ -440,6 +442,9 @@ export default class BaseField<P> extends React.Component<
     }) => others)(this.props);
     var checked = this.props.checked ?? false;
     var value = this.GetValue();
+    if(this.props.valueFormatter)
+      value = this.props.valueFormatter(value);
+
     if (
       value !== undefined &&
       value !== null &&
