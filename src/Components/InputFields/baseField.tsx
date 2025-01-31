@@ -188,8 +188,9 @@ export default class BaseField<P> extends React.Component<
       lowValue = e.rawValue.low
       highValue = e.rawValue.high
     }
-    if (this.props.onChange)
-      this.props.onChange({ name: this.props.name, value, rawValue: e.rawValue });
+    if (this.props.onChange) {
+      this.props.onChange({ name: this.props.name, value: value ?? this.props.value, rawValue: e.rawValue });
+    }
 
     var isValid = true;
     if(this.props.lowValueName) {

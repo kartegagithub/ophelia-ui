@@ -37,13 +37,13 @@ export const checkMouseInBound = (
 
 export const maskHandler = (
   mask?: string,
-  e?: React.KeyboardEvent<HTMLInputElement>,
+  e?: any,
   onChange?: Function,
   rules?: Array<string | Function>
 ) => {
   if (mask && e) {
     // Eğer Ctrl veya Cmd tuşu basılıysa (örneğin Ctrl+V), maskHandler çalışmasın
-    if (e.ctrlKey || e.metaKey || (e.key.length > 1 && e.key !== " ")) {
+    if (e.ctrlKey || e.metaKey || (e?.key?.length > 1 && e.key !== " ")) {
       return;
     }
 
@@ -69,7 +69,12 @@ export const maskHandler = (
     }
 
     // Maskeli yeni değeri oluştur
-    const tmpValue = maskText(newValue, mask, undefined, rules);
+    let tmpValue = maskText(newValue, mask, undefined, rules);
+
+    const [hh, mm] = tmpValue.split(":");
+    if (mm && mm.length > 2) {
+      tmpValue = `${hh}:${mm.slice(0, 2)}`;
+    }
 
     e.preventDefault();
     input.value = tmpValue;

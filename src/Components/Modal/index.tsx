@@ -28,6 +28,7 @@ const Modal: React.FC<{
   children?: React.ReactNode;
   onCurrentValue?: Function | any;
   onBottomScroll?: Function;
+  onClose?: Function;
 }> = ({
   dismissOnBackdropClick = true,
   id = undefined,
@@ -43,6 +44,7 @@ const Modal: React.FC<{
   backdrop = true,
   className = undefined,
   children,
+  onClose = undefined,
 }) => {
   const ModalRef = React.createRef<HTMLDivElement>();
   const ModalBodyRef = React.createRef<HTMLDivElement>();
@@ -124,13 +126,16 @@ const Modal: React.FC<{
     <>
       <div
         id={id}
-        className={`oph-modal ${className} ${center && "center"} ${!open && "hidden"}`}
+        className={`oph-modal ${className} ${center && "center"} ${
+          !open && "hidden"
+        }`}
         onClick={(e) => {
           checkMouseInBoundByRef(e, ModalRef, (inside) => {
             dismissOnBackdropClick && !inside
               ? (onCurrentValue && onCurrentValue(false), setOpen(false))
               : undefined;
           });
+          onClose && onClose();
         }}
         style={{ transform: `translateY(${currentY}px)` }}
         onMouseMove={handleMouseMove}
@@ -147,6 +152,7 @@ const Modal: React.FC<{
                 onClick={(e: any) => {
                   closeModal(e);
                   onCurrentValue && onCurrentValue(false);
+                  onClose && onClose();
                 }}
               >
                 <Icon
@@ -190,7 +196,10 @@ const Modal: React.FC<{
                       onClick={(e) => buttonClick(e, item)}
                       type={item.type ?? "button"}
                       className={
-                        (item.className + " " + "oph-modal-subclass-container-footer-button") + " " +
+                        item.className +
+                        " " +
+                        "oph-modal-subclass-container-footer-button" +
+                        " " +
                         (item.disabled &&
                           "oph-modal-subclass-container-footer-buttonDisabled")
                       }

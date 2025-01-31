@@ -49,10 +49,11 @@ export const onlyAlphanumeric = (event: any) => {
     (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
   var isDigit = charCode >= 48 && charCode <= 57;
   var isBackspace = charCode === 8;
+  var isTab = charCode === 9;
   var isArrowLeft = charCode === 37;
   var isArrowRight = charCode === 39;
 
-  if (!isLetter && !isDigit && !isBackspace && !isArrowLeft && !isArrowRight) {
+  if (!isLetter && !isDigit && !isBackspace && !isTab && !isArrowLeft && !isArrowRight) {
     event.preventDefault();
   }
 };

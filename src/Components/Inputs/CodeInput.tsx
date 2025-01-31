@@ -38,7 +38,7 @@ const CodeInput: React.FC<CodeInputProps> = ({
         className={`oph-codeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       >
         <div
-          className={`oph-codeInput-content ${props.errorClassName && "error"}`}
+          className={`oph-codeInput-content ${props.errorClassName ? "error" : ""}`}
         >
           <p className="oph-codeInput-content-text">{codeText}</p>
         </div>

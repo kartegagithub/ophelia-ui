@@ -39,6 +39,9 @@
   &.floating {
     @apply placeholder-transparent;
   }
+  &.error {
+    @apply border-red-600;
+  }
   &-content {
     @apply flex items-center pl-5 h-10 md:h-12 w-20 bg-blue-200 bg-opacity-30 border-r border-blue-300;
     &.error {

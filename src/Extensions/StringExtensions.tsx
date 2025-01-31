@@ -854,6 +854,13 @@ export function checkRules(
       splitter
     );
   }
+  if (formatRule === "HH:MM") {
+    const parts = value.split(":");
+    if (parts.length === 2) {
+      let [hour, minute] = parts.map(Number);
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return "";
+    }
+  }
   return value;
 }
 export const dataUrlToFile = (
