@@ -1,6 +1,14 @@
 import { isNullOrEmpty } from "./StringExtensions";
 import { getObjectValue } from "./ReflectionExtensions";
 
+var CaseLocale = "en-US";
+export function setCaseLocale(locale: string) {
+  CaseLocale = locale;
+}
+export function getCaseLocale() {
+  return CaseLocale;
+}
+
 /**
  * Compares case insensitive array items via given key with value.
  * 
@@ -18,7 +26,7 @@ export function findData(data: Array<any>, propOne: string, value: any, resultTy
   var index = -1;
   if (data && propOne && value) {
     result = data.find((item, i) => {
-      var isEqual = String(item[propOne])?.toLocaleLowerCase() === String(value).toLocaleLowerCase()
+      var isEqual = String(item[propOne])?.toLocaleLowerCase(getCaseLocale()) === String(value).toLocaleLowerCase(getCaseLocale())
       if(isEqual) index = i
       return isEqual
     });
@@ -35,8 +43,8 @@ export function findData(data: Array<any>, propOne: string, value: any, resultTy
  */
 export function findKeyInObject(data: any, key: string) {
     if(!data) return "";
-    key = key.toLocaleLowerCase();
-    var originalKey = Object.keys(data).find((item) => item.toLocaleLowerCase() === key);
+    key = key.toLocaleLowerCase(getCaseLocale());
+    var originalKey = Object.keys(data).find((item) => item.toLocaleLowerCase(getCaseLocale()) === key);
     return originalKey;
 }
 
@@ -60,13 +68,13 @@ export function filterData(
     return data.filter((item) => {
       if (equals) {
         return (
-          String(item[propOne])?.toLocaleLowerCase() ===
-          String(value).toLocaleLowerCase()
+          String(item[propOne])?.toLocaleLowerCase(getCaseLocale()) ===
+          String(value).toLocaleLowerCase(getCaseLocale())
         );
       }
       return (
-        String(item[propOne])?.toLocaleLowerCase() !==
-        String(value).toLocaleLowerCase()
+        String(item[propOne])?.toLocaleLowerCase(getCaseLocale()) !==
+        String(value).toLocaleLowerCase(getCaseLocale())
       );
     });
   }
@@ -138,14 +146,14 @@ export const selectDefaultValues = (selectedValue: any, prop: string, allValues?
 
 export const filterInArray = (arr: Array<any>, find: string, prop?: string): Array<any> => {
   if(!find) return arr;
-  find = find.toLocaleLowerCase();
+  find = find.toLocaleLowerCase(getCaseLocale());
 
   var result = new Array<any>();
   arr.forEach((item, i) => {
     var text: string = "";
     if(typeof item == "string" || typeof item == "boolean" || typeof item == "number") text = item.toString()
     if(prop) text = getObjectValue(item, prop, "");
-    if(text && text.toLocaleLowerCase().indexOf(find) > -1)
+    if(text && text.toLocaleLowerCase(getCaseLocale()).indexOf(find) > -1)
       result.push(item);
   });
   return result;

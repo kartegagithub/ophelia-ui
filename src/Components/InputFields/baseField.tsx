@@ -40,14 +40,18 @@ export default class BaseField<P> extends React.Component<
     rules?: InputValidationRule | Array<InputValidationRule>;
     rootStyle?: any;
     errorMessageText?: string;
+    disabledFn?: Function;
+    disabled?: boolean;
   },
   {
     hasValidationError: boolean;
+    rerenderCount: number;
     message: any;
     messageDisplayFn: Function | undefined;
   }
 > {
   Visibility: boolean = true;
+  Disabled: boolean = false;
   ID: string = randomId();
   constructor(props: any) {
     super(props);
@@ -55,6 +59,7 @@ export default class BaseField<P> extends React.Component<
       hasValidationError: false,
       message: undefined,
       messageDisplayFn: undefined,
+      rerenderCount: 0
     };
     if (this.props.listener?.registerField) {
       this.props.listener?.registerField(this);
@@ -78,7 +83,18 @@ export default class BaseField<P> extends React.Component<
     if (setLocalvalue) this.Visibility = visibility;
     return visibility;
   };
+  checkDisabled = (setLocalvalue: boolean = true) => {
+    var disabled: boolean = false;
+    if (this.props.disabled != undefined)
+      disabled = this.props.disabled == true;
+    if(this.props.disabledFn)
+      disabled = this.props.disabledFn();
+
+    if (setLocalvalue) this.Disabled = disabled;
+    return disabled;
+  };
   getVisibility = () => this.Visibility;
+  getDisabled = () => this.Disabled;
   render(): React.ReactNode {
     if (!this.checkVisibility()) return <></>;
     return (
@@ -437,6 +453,8 @@ export default class BaseField<P> extends React.Component<
       onChange,
       value,
       rootStyle,
+      disabledFn,
+      disabled,
       errorMessageText = "FieldIsRequired",
       ...others
     }) => others)(this.props);
@@ -460,10 +478,11 @@ export default class BaseField<P> extends React.Component<
       else if (parseFloatIfCan(value) > 0) checked = true;
       value = undefined;
     }
+    var disabled = this.checkDisabled();;
     var props: any = {
       ...{
         id: otherProps.name,
-        key: `${this.props.languageKey}_${this.props.name}`,
+        key: `${this.props.languageKey}_${this.props.name}_${this.state.rerenderCount}`,
         errorClassName: this.state.hasValidationError
           ? "oph-inputField-inputError"
           : undefined,
@@ -471,6 +490,7 @@ export default class BaseField<P> extends React.Component<
         value: undefined,
         defaultChecked: checked,
         checked: undefined,
+        disabled: disabled,
         onChange: (e: any) => {
           this.onValueChange(e);
         },

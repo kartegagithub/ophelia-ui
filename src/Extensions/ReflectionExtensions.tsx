@@ -1,6 +1,7 @@
 import { Children } from "react";
 import { clone, isNullOrEmpty, isNumeric, parseFloatIfCan } from "./StringExtensions";
 import { FileSizeUnit } from "../Enums";
+import { getCaseLocale } from "./ArrayExtensions";
 
 export function getKeyByValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -120,8 +121,8 @@ export const getObjectValue = (obj: any, propName?: string, defaultValue: any = 
 
 export const validateKeyName = (obj: any, key?: string) => {
   if(!key) return key;
-  var tmpKey = key.toLocaleLowerCase();
-  var existingKey = Object.keys(obj).find((key) => key.toLocaleLowerCase() == tmpKey)
+  var tmpKey = key.toLocaleLowerCase(getCaseLocale());
+  var existingKey = Object.keys(obj).find((key) => key.toLocaleLowerCase(getCaseLocale()) == tmpKey)
   if(existingKey) return existingKey
   return key;
 }
@@ -196,9 +197,9 @@ export const convertToBool = (val?: any) => {
   if(typeof val == "number") return val > 0
   if(typeof val == "bigint") return val > 0
   if(typeof val == "string"){
-    if(val.toLocaleLowerCase() == "true") return true;
-    if(val.toLocaleLowerCase() == "false") return false;
-    if(val.toLocaleLowerCase() == "on") return true;
+    if(val.toLocaleLowerCase(getCaseLocale()) == "true") return true;
+    if(val.toLocaleLowerCase(getCaseLocale()) == "false") return false;
+    if(val.toLocaleLowerCase(getCaseLocale()) == "on") return true;
     return parseFloatIfCan(val) > 0
   }
   return false;

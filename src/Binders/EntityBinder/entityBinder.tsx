@@ -17,7 +17,7 @@ import CollectionBinder from "../CollectionBinder/collectionBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import FileData from "../../Models/FileData";
 import { EntityOperations } from "../EntityOperations";
-import { findInArray, getObjectValue, removeAtIndex } from "../../Extensions";
+import { findInArray, getCaseLocale, getObjectValue, removeAtIndex, setObjectValue } from "../../Extensions";
 import ContentLoading from "../../Components/ContentLoading";
 export class EntityBinderProps{
   Options?: BinderOptions
@@ -62,6 +62,7 @@ export default class EntityBinder<P> extends React.Component<
   EntityOperations: EntityOperations
   AfterSaveAction: "BackToList" | "RefreshData" = "RefreshData"
   RefreshDataOnLoad: boolean = false;
+  PreviousStateData: any;
 
   constructor(props: P & EntityBinderProps){
     super(props)
@@ -164,10 +165,10 @@ export default class EntityBinder<P> extends React.Component<
     return <InputField key={this.Entity + "-field-" + props.name} {...props} listener={this}/>
   }
   getAllowedFileExtensions(name: string){
-    if(name.toLocaleLowerCase().indexOf("image") > -1){
+    if(name.toLocaleLowerCase(getCaseLocale()).indexOf("image") > -1){
       return ".jpg,.jpeg,.png,.webp"
     }
-    else if(name.toLocaleLowerCase().indexOf("video") > -1){
+    else if(name.toLocaleLowerCase(getCaseLocale()).indexOf("video") > -1){
       return "video/*"
     }
     else
@@ -281,25 +282,34 @@ export default class EntityBinder<P> extends React.Component<
     return validForm;
   }
 
-  checkFieldVisibilities(){
-    var rerender: boolean = false;
-    this.InputFields.forEach((field: any) => {
-      if(field.getVisibility == undefined) return;
-
-      var visibility = true;
-      if(typeof field.getVisibility == "function") visibility = field.getVisibility();
-      else visibility = field.getVisibility;
-
-      if(visibility != field.checkVisibility(false)){
-        rerender = true;
-        //console.log("getVisibility", field.getVisibility, field.checkVisibility(false));
-      }
-    })
-    if(rerender) this.setState({rerenderCounter: this.state.rerenderCounter + 1})
-  }
+  // checkFieldVisibilities(){
+  //   var rerender: boolean = false;
+  //   this.InputFields.forEach((field: any) => {
+  //     if(field.getVisibility != undefined){
+  //       var visibility = true;
+  //       if(typeof field.getVisibility == "function") visibility = field.getVisibility();
+  //       else visibility = field.getVisibility;
+  
+  //       if(visibility != field.checkVisibility(false)){
+  //         rerender = true;
+  //         //console.log("getVisibility", field.getVisibility, field.checkVisibility(false));
+  //       }
+  //     }
+  //     if(field.getDisabled != undefined){
+  //       if(field.getDisabled() != field.checkDisabled()){
+  //         rerender = true;
+  //         //console.log("getVisibility", field.getVisibility, field.checkVisibility(false));
+  //       }
+  //     }
+      
+  //   })
+  //   if(rerender) this.setState({rerenderCounter: this.state.rerenderCounter + 1})
+  // }
   async GetEntity(id: any, data: any): Promise<any>{
     this.setState({loadingState: LoadingState.Loading})
     var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters)
+    this.PreviousStateData = clone(result.data);
+
     this.UploadFiles = [];
     if(result.data){
       this.setState({loadingState: LoadingState.Loaded, id: this.props.id, data: result.data, messages: result.messages, languageID: this.DefaultLanguageID})
@@ -413,13 +423,48 @@ export default class EntityBinder<P> extends React.Component<
   imageParsed(){
     this.setState({ rerenderCounter: this.state.rerenderCounter + 1})
   }
-  setFieldData(name: string, value: any, field: any){
+  async goBack(){
+    if(this.state.data?.hasUnsavedChanges){
+      if(!confirm(this.props.AppClient?.Translate("AreYouSureToGoBackWithoutSaving")))
+        return;
+      else{
+        if(this.props.shownInParent == true) {
+          this.props.parent?.onChildAction("back", this.PreviousStateData)
+          return;
+        }
+        else Router.back();
+      }
+      return;
+    }
+    if(this.props.shownInParent == true) {
+      this.props.parent?.onChildAction("back")
+      return;
+    }
+    else Router.back();
+  }
+  setFieldData(name: string, value: any, field: any, rawValue?: any){
     if(name == "selectedLanguageID"){
       this.setState({languageID: parseInt(value)})
       return;
     }
+    setObjectValue(this.state.data, "hasUnsavedChanges", true)
     this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n, () => this.imageParsed())
-    this.checkFieldVisibilities();
+    if(field && field.props.type == "filterbox" && field.props.multipleSelection !== true){
+      var idName = field.props.name;
+      if(idName.indexOf("ID") > -1) 
+        idName = idName.substring(0, idName.length - 2);
+      if(Array.isArray(rawValue))
+      {
+        if(rawValue.length > 0)
+          this.EntityOperations.setFieldData(this.state.data, idName, rawValue[0], this.state.languageID, [], field?.props?.multiple, field?.props?.i18n)
+        else
+          this.EntityOperations.setFieldData(this.state.data, idName, undefined, this.state.languageID, [], field?.props?.multiple, field?.props?.i18n)
+      }
+      else
+        this.EntityOperations.setFieldData(this.state.data, idName, rawValue, this.state.languageID, [], field?.props?.multiple, field?.props?.i18n)
+    }
+    //this.checkFieldVisibilities();
+    this.setState({rerenderCounter: this.state.rerenderCounter + 1})
     if(this.props.onDataChange)
       this.props.onDataChange(this.state.data);
   }
@@ -461,6 +506,9 @@ export default class EntityBinder<P> extends React.Component<
         this.Options.IsNewEntity = data?.id == 0
     }
     this.setState({loadingState: data? LoadingState.Loaded: LoadingState.Waiting, id: id, data: data, messages: [], languageID: this.DefaultLanguageID})
+    if(data){
+      this.PreviousStateData = clone(data);
+    }
     if(data) this.onAfterSetData(data);
   }
 
@@ -505,7 +553,7 @@ export default class EntityBinder<P> extends React.Component<
     return (<>
         <ContentLoading appClient={this.props.AppClient} loading={this.state.processing || (this.state.loadingState != LoadingState.Failed && this.state.loadingState != LoadingState.Loaded)}>
           {this.renderHeader()}
-          <div className="oph-entityBinders" key="entity-binder" ref={this.RootElementRef}>
+          <div className={`oph-entityBinders ${this.state.data.hasUnsavedChanges? "modified": ""}`} key="entity-binder" ref={this.RootElementRef}>
             {this.state.processing === true && <div className="oph-entityBinders-label">
               <label>{this.props.AppClient?.Translate("ProcessingPleaseWait")}</label>
             </div>}

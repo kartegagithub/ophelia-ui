@@ -31,7 +31,7 @@ import {
 import Checkbox from "../Inputs/CheckboxInput";
 import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
-import { findInArray } from "../../Extensions";
+import { findInArray, getCaseLocale } from "../../Extensions";
 import CheckboxInput from "../Inputs/CheckboxInput";
 import { getCurrentRegionSetting } from "../../Localization";
 const Table: React.FC<TableProps> = React.memo(
@@ -141,6 +141,38 @@ const Table: React.FC<TableProps> = React.memo(
         defaultFor: ["text"],
       },
     ];
+
+    const onKeyDown = (e: any) => {
+      if(!table || selectedCell[0] == -1 || (e.key != "Escape" && e.key != "Enter")) return;
+
+      var rowIndex = selectedCell[0];
+      var columnIndex = selectedCell[1];
+
+      var row = data?.find((item) => item.viewOrderIndex == rowIndex);
+      var column = table.Columns.filter((column) => isColumnVisible(column)).find((column, index) => index == columnIndex)
+
+      setEditingCell(undefined);
+      setSelectedCell([-1, -1]);
+      if (e.key == "Escape"){
+        if (listener && listener.onCellValueCancelled)
+          listener.onCellValueCancelled(row, column, rowIndex, columnIndex);
+      }
+      else if (e.key == "Enter") {
+        if (listener && listener.onCellValueChanged)
+          listener.onCellValueChanged(
+            row,
+            column,
+            rowIndex,
+            columnIndex,
+            e.key
+          );
+      }
+    };
+    useEffect(() => {
+      window.addEventListener("keydown", onKeyDown, true);
+      return () => window.removeEventListener("keydown", onKeyDown, true);
+    }, [onKeyDown]);
+
     const recalculateHeight = () => {
       if (adjustHeight && containerRef.current) {
         if (selectedColumnToFilter && selectedColumnToFilter.PropertyName)
@@ -531,7 +563,7 @@ const Table: React.FC<TableProps> = React.memo(
       var columns = table.Columns.filter((op) => isColumnVisible(op));
       var getData = (col: TableColumnClass) => {
         var key = keys.find(
-          (k) => k.toLocaleLowerCase() == col.PropertyName?.toLocaleLowerCase()
+          (k) => k.toLocaleLowerCase(getCaseLocale()) == col.PropertyName?.toLocaleLowerCase(getCaseLocale())
         );
         if (!key) return <></>;
         if (columnData[key].toLocaleString) {
@@ -607,7 +639,7 @@ const Table: React.FC<TableProps> = React.memo(
         return (
           <>
             <tr
-              key={`${row.viewOrderIndex}${refreshKey}`}
+              key={`${row.viewOrderIndex}${refreshKey}${index}`}
               className={`oph-table-body-row ${className} ${
                 selectedRow === row.viewOrderIndex ? "selected" : ""
               } ${
@@ -763,34 +795,7 @@ const Table: React.FC<TableProps> = React.memo(
       }, 150);
       return true;
     };
-    const cellEditableControlKeyUp = (
-      e: any,
-      row: any,
-      column: TableColumnClass,
-      rowIndex: number,
-      columnIndex: number
-    ) => {
-      if (e) {
-        if (e.key == "Escape") {
-          setEditingCell(undefined);
-          setSelectedCell([-1, -1]);
-          if (listener && listener.onCellValueCancelled)
-            listener.onCellValueCancelled(row, column, rowIndex, columnIndex);
-        } else if (e.key == "Enter") {
-          setSelectedCell([-1, -1]);
-          setEditingCell(undefined);
-          if (listener && listener.onCellValueChanged)
-            listener.onCellValueChanged(
-              row,
-              column,
-              rowIndex,
-              columnIndex,
-              e.key
-            );
-        }
-      } else if (listener && listener.onCellValueChanged)
-        listener.onCellValueChanged(row, column, rowIndex, columnIndex, "");
-    };
+
     const cellValueChanging = (
       row: any,
       name?: string,
@@ -853,9 +858,6 @@ const Table: React.FC<TableProps> = React.memo(
             {...column.InputProps}
             id={`${fieldName}${rowIndex}`}
             switchbox={column.Type == "checkbox"}
-            onKeyUp={(e: any) =>
-              cellEditableControlKeyUp(e, row, column, rowIndex, columnIndex)
-            }
             labelVisible={false}
             valueName={column.Filtering?.ValueName}
             valueProp={
@@ -918,15 +920,7 @@ const Table: React.FC<TableProps> = React.memo(
                   );
                 }
                 if (column.OnAfterSetData)
-                  column.OnAfterSetData(row, value, field, rawValue);
-                if (column.Type == "selectbox" || column.Type == "enum")
-                  cellEditableControlKeyUp(
-                    undefined,
-                    row,
-                    column,
-                    rowIndex,
-                    columnIndex
-                  );
+                  column.OnAfterSetData(row, value, field, rawValue);                 
               },
               getFieldData: (field: any) => {
                 if (listener?.getItemPropertyValue)
@@ -1075,6 +1069,7 @@ const Table: React.FC<TableProps> = React.memo(
       var { className, ...otherProps } = cellProps;
       return (
         <td
+          key={`${rowIndex}${columnIndex}`}
           onMouseOver={() =>
             onMouseOverCell(row, column, rowIndex, columnIndex)
           }

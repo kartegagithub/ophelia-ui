@@ -1,3 +1,4 @@
+import { getCaseLocale } from "../../Extensions"
 import AppClient from "../../AppClient"
 import MenuItemClass from "./MenuItemClass"
 
@@ -17,7 +18,7 @@ export default class MenuClass{
         menu.SearchInProgress = true;
         if(!key) menu.SearchInProgress = false;
         if(menu.SearchInProgress){
-            key = key.toLocaleLowerCase();
+            key = key.toLocaleLowerCase(getCaseLocale());
             menu.Items?.forEach((item) => this.SearchItem && this.SearchItem(AppClient, item, key))
         }
         return menu;
@@ -28,8 +29,8 @@ export default class MenuClass{
             if(item.Text){
                 var translatedText: string | undefined = item.Text;
                 if(AppClient && AppClient?.Translate) translatedText = AppClient?.Translate(item.Text);
-                if(translatedText && translatedText.toLocaleLowerCase().indexOf(key) > -1) item.SearchVisiblity = true;
-                else item.SearchVisiblity = item.Text.toLocaleLowerCase().indexOf(key) > -1;
+                if(translatedText && translatedText.toLocaleLowerCase(getCaseLocale()).indexOf(key) > -1) item.SearchVisiblity = true;
+                else item.SearchVisiblity = item.Text.toLocaleLowerCase(getCaseLocale()).indexOf(key) > -1;
             }
             if(item.SubItems){
                 item.SubItems.forEach((subItem) => this.SearchItem && this.SearchItem(AppClient, subItem, key))

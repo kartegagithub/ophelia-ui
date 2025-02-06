@@ -383,7 +383,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       else if(this.Options.Export?.Mode == "remote"){
         option.entity = this.Config.Entity;
         option.schema = this.Config.Schema;
-        option.columns = this.Config.Table?.Columns.filter((col) => !!col.PropertyName).map((col) => col.PropertyName)
+        option.columns = this.Config.Table?.Columns.filter((col) => ((typeof col.Visible != "function" && col.Visible != false) || (typeof col.Visible == "function" && col.Visible())) && !!col.PropertyName).map((col) => col.PropertyName)
         var queryData = new QueryData()
         if(this.Config.Table?.Columns)
           queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter, this.props.manualFilters)
@@ -445,6 +445,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else
       return this.getEditUrl(record.id)
   };
+  goBack(){
+    if(this.props.shownInParent == true) {
+      this.props.parent?.onChildAction("back")
+      return;
+    }
+    else Router.back();
+  }
   async onButtonClicked(key: string){
     if(key == "AddNew"){
       if(this.Options.AllowNew != false){
@@ -674,6 +681,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   onChildAction(type: string, param?: any){
     if(type == "back"){
+      if(param)
+        this.refreshData(param);
       this.setState({clickedRowIndex: -2})
     }
     else if(type == "refreshData"){

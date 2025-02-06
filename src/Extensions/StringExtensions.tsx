@@ -4,6 +4,7 @@ import { getCurrentRegionSetting } from "../Localization/RegionSetting";
 import sanitizer from "sanitize-html";
 import { getDaysInMonth } from "./DateExtensions";
 import { randomId } from "./ReflectionExtensions";
+import { getCaseLocale } from "./ArrayExtensions";
 
 export function capitalizeFirstLetter(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -1051,7 +1052,7 @@ export const isImageFile = (fileName?: string): boolean => {
   var extension = fileName
     .substring(fileName.indexOf("."), fileName.length)
     .replaceAll(".", "")
-    .toLocaleLowerCase();
+    .toLocaleLowerCase(getCaseLocale());
   return imgExtensions.indexOf(extension) > -1;
 };
 

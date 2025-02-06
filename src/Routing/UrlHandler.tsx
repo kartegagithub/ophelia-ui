@@ -1,5 +1,5 @@
 import Router from "next/router";
-import { randomId, trimChars } from "../Extensions";
+import { getCaseLocale, randomId, trimChars } from "../Extensions";
 
 export class UrlHandlerClass {
   Initialized: boolean = false;
@@ -65,10 +65,10 @@ export class UrlHandlerClass {
       console.log("URL Mapping: Routes not registered: " + this.InstanceID);
       return destination;
     }
-    if (lang) lang = lang.toString().toLocaleLowerCase();
+    if (lang) lang = lang.toString().toLocaleLowerCase(getCaseLocale());
 
     // console.log("destination: " + destination)
-    var obj = this.RouteData[trimChars(destination.toLocaleLowerCase(), "/")];
+    var obj = this.RouteData[trimChars(destination.toLocaleLowerCase(getCaseLocale()), "/")];
     if (obj) {
       var item = obj[lang ?? this.DefaultLanguage ?? "default"] as RouteItem;
       //if(!item) item = obj[Object.keys(obj)[0]]
@@ -109,7 +109,7 @@ export class UrlHandlerClass {
       if (search && search.indexOf("?") == -1) search = "?" + search;
       if (!search) search = "";
 
-      path = trimChars(path.toLocaleLowerCase(), "/");
+      path = trimChars(path.toLocaleLowerCase(getCaseLocale()), "/");
 
       var item: RouteItem | undefined = this.ReverseRouteData[
         path
@@ -143,7 +143,7 @@ export class UrlHandlerClass {
           const key = keys[index];
           var tmpItem: RouteItem = this.ReverseRouteData[key];
           if (tmpItem.language == userLang) {
-            if (tmpItem.destination.toLocaleLowerCase() == path) {
+            if (tmpItem.destination.toLocaleLowerCase(getCaseLocale()) == path) {
               this.Log(
                 "Redirecting-1: " + path + " => " + JSON.stringify(tmpItem)
               );
@@ -274,7 +274,7 @@ export class UrlHandlerClass {
       this.Log("Route reset-1: " + path + " => " + JSON.stringify(item));
       item = undefined;
     }
-    if (item && item.destination.toLocaleLowerCase() == path) {
+    if (item && item.destination.toLocaleLowerCase(getCaseLocale()) == path) {
       this.Log("Route reset-2: " + path + " => " + JSON.stringify(item));
       item = undefined;
     }
@@ -286,7 +286,7 @@ export class UrlHandlerClass {
     if (!item) return;
     if (!item.source) return;
 
-    item.source = trimChars(item.source.toLocaleLowerCase(), "/");
+    item.source = trimChars(item.source.toLocaleLowerCase(getCaseLocale()), "/");
     if (item.source.indexOf("?") > -1)
       item.plainSource = item.source.substring(0, item.source.indexOf("?"));
     else item.plainSource = item.source;
@@ -323,7 +323,7 @@ export class UrlHandlerClass {
     };
     this.ReverseRouteData[item.source] = simpleItem;
 
-    var destination = item.destination.toLocaleLowerCase();
+    var destination = item.destination.toLocaleLowerCase(getCaseLocale());
     if (!this.RouteData[destination]) this.RouteData[destination] = {};
     this.RouteData[destination][
       item.language ?? this.DefaultLanguage ?? "default"
