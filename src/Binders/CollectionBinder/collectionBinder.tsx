@@ -597,13 +597,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
     if(!name) return;
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
+    row.hasUnsavedChanges = true;
   }
   onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
     if(row.isNewRow == true && key != "Enter") return;
     if(this.Config.SaveActionType == "EnterKey")
       this.SaveEntity(row, rowIndex)
     else {
-      row.hasUnsavedChanges = true;
       raiseCustomEvent("notification", { type: "warning", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("PleaseUseSaveButtonToSaveChanges")  })
     }
   }
