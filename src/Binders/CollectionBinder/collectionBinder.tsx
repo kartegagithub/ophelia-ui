@@ -32,6 +32,7 @@ import { Button, CheckboxInput, getImageComponent, Label } from "../../Component
 import { Bars3Icon } from "@heroicons/react/24/solid";
 import { base64ToArrayBuffer, insertToIndex } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
+import moment from "moment";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -367,7 +368,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   };
 
   getExportFileName(){
-    return this.Options.PageTitle ?? "File";
+    if(this.Options.PageTitle)
+      return this.Options.PageTitle + "_" + moment(new Date()).format("YYYYMMDD_HHmm");
+    else 
+      return "File";
   }
 
   async onExportButtonClicked(option: ExportOption){
@@ -418,7 +422,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           if(typeof type == "string"){
             var blob = new Blob([dataArray], { type: type });
             var url = URL.createObjectURL(blob);
-            window.open(url);
+
+            var fileName = this.getExportFileName() + "." + option.extension;
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style.display = "none";
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
           }
         }
       }
