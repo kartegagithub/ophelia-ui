@@ -268,6 +268,14 @@ var AppThemeConfig: any = {
           return `<svg width="${size}" class="${className}" height="${size}" viewBox="0 0 24 24" fill="${fillColor}" xmlns="http://www.w3.org/2000/svg">
           <path d="m6 18-2.756-2.47a.698.698 0 0 1 0-1.06L6 12" stroke="${strokeColor}" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M3 6h18M10 12h11M10 18h11" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+        case "collapsedMenu":
+          return `<svg width="${size}" class="${className}" height="${size}" viewBox="0 0 25 25" fill="${fillColor}" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.5 18.5L21.2559 16.0303C21.5814 15.7386 21.5814 15.2614 21.2559 14.9697L18.5 12.5" stroke="${strokeColor}" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21.5 6.5L3.5 6.5" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M14.5 12.5H3.5" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M14.5 18.5H3.5" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          `;
         case "search":
           return `<svg  width="${size}" class="${className}" height="${size}" viewBox="0 0 24 24" fill="${fillColor}" xmlns="http://www.w3.org/2000/svg">
           <circle cx="10.429" cy="10.429" r="7.179" stroke="${strokeColor}" stroke-width="1.5"/>

@@ -6,6 +6,7 @@ export default class SidebarMenuClass extends MenuClass {
   Name?: string = "Sidebar";
   EnableSearch?: boolean = true;
   AppIcon?: string | React.JSX.Element;
+  CollapsedMenuIcon?: string | React.JSX.Element = "collapsedMenu";
   ToggleButtonIcon?: string | React.JSX.Element = "menu";
   AppTitle?: string | React.JSX.Element;
   SearchIcon?: string | React.JSX.Element = (

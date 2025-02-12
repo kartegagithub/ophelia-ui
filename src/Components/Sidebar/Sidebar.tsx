@@ -89,7 +89,7 @@ const Sidebar: React.FC<{
           setMobile(!mobile), setMenuCollapsed(false);
         }}
       >
-        <Icon name="menu" color="black" />
+        <Icon name="collapsedMenu" color="black" />
       </button>
       <div
         className={`oph-sidebar ${!menuCollapsed ? "open" : "collapsed"} ${mobile && "mobile"}`}
@@ -97,10 +97,10 @@ const Sidebar: React.FC<{
         id={id}
       >
         <div className="oph-sidebar-linksContainer">
-          <Link href="/" className="oph-sidebar-linksContainer-link">
+          <button className="oph-sidebar-linksContainer-link" onClick={() => setMenuCollapsed(false)}>
             {menu.AppIcon && typeof menu.AppIcon == "string" && (
               <Icon
-                name={menu.AppIcon}
+                name={menuCollapsed ? menu.CollapsedMenuIcon : menu.AppIcon}
                 className="oph-sidebar-linksContainer-link-appIcon"
                 size={24}
               />
@@ -117,7 +117,7 @@ const Sidebar: React.FC<{
               menu.AppTitle &&
               typeof menu.AppTitle !== "string" &&
               menu.AppTitle}
-          </Link>
+          </button>
           {!menuCollapsed &&
             menu.ToggleButtonIcon &&
             typeof menu.AppTitle == "string" && (
