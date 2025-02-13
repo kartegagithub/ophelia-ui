@@ -642,7 +642,7 @@ const Table: React.FC<TableProps> = React.memo(
               key={`${row.viewOrderIndex}${refreshKey}${index}`}
               className={`oph-table-body-row ${className} ${
                 selectedRow === row.viewOrderIndex ? "selected" : ""
-              } ${
+              } ${isChecked? "checked": ""}${
                 applyRowValidation && row.isValid === false ? "inValid" : ""
               } ${row.hasUnsavedChanges === true ? "has-dirty-data" : ""} ${
                 additionalClassName ?? ""

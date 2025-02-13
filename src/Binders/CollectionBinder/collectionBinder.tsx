@@ -44,6 +44,10 @@ export class CollectionBinderProps{
   pageTitle?: string
   parent?: EntityBinder<{}> | CollectionBinder<{}>
   viewId?: string
+  listener?: {
+    onCheckedItemsChanged?: (items: Array<any>) => void,
+    onCellClick?: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => void
+  }
 }
 export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {
   dataIndex: number, 
@@ -684,6 +688,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         return;
       }
       this.setState({clickedRowIndex: rowIndex})
+      if(this.props.listener?.onCellClick)
+        this.props.listener?.onCellClick(e, row, column, rowIndex, columnIndex);
     }
   }
   onRowClick(e: any, index: number){
@@ -810,20 +816,29 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return <></>
   }
   setCheckedItems(row: any, rowIndex: number, state: "ALL" | "NONE" | boolean){
-    if(state == "ALL") this.setState({checkedItems: this.state.data.map((item: any) => this.getUniqueID(item))});
-    else if(state == "NONE") this.setState({checkedItems: []});
+    var checkedItems: any
+    if(state == "ALL") {
+      checkedItems = this.state.data.map((item: any) => this.getUniqueID(item));
+    }
+    else if(state == "NONE") checkedItems = [];
     else if(row && !row.isNewRow && this.state.checkedItems){
       var uniqueID = this.getUniqueID(row);
       var index = this.state.checkedItems.indexOf(uniqueID);
       if(state == false && index > -1){
         var newItems: Array<any> = clone(this.state.checkedItems);
         newItems.splice(index, 1);
-        this.setState({checkedItems: newItems});
+        checkedItems = newItems;
       }
       else if(state == true && index == -1){
         var newItems: Array<any> = clone(this.state.checkedItems);
         newItems.push(uniqueID);
-        this.setState({checkedItems: newItems});
+        checkedItems = newItems;
+      }
+    }
+    if(checkedItems){
+      this.setState({checkedItems: checkedItems});
+      if(this.props.listener?.onCheckedItemsChanged){
+        this.props.listener?.onCheckedItemsChanged(checkedItems)
       }
     }
   }
