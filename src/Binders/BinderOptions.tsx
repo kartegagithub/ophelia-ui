@@ -35,7 +35,7 @@ export default class BinderOptions {
   } = {
     Types: [
       {
-        extension: "xls",
+        extension: "xlsx",
         name: "Excel",
         icon: { name: "excel", fill: "#5B6782" },
       },
