@@ -237,8 +237,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         if(column){
           if(item.Width) column.Width = item.Width;
           if(item.SortOrder) column.SortOrder = item.SortOrder;
-          if(typeof column.Visible == "boolean") column.Visible = item.Visible != false? true : false;
-          else if(column.Visible != undefined && column.Visible()) column.Visible = item.Visible;
+          if(item.Visible != undefined) column.Visible = item.Visible;
           else column.Visible = true;
           item.Text = column.HeaderText;
         }
@@ -608,7 +607,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async rejectImport(): Promise<any>{
       
   }
-  async uploadFiles(data: any, files: Array<FileData>){
+  async uploadFiles(data: any, files: Array<FileData>, isValid: boolean){
  
   }
   onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
@@ -883,7 +882,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             title={this.props.AppClient?.Translate("UploadFile")}
             fileName="FilePath" 
             AppClient={this.props.AppClient} 
-            onSubmit={(data, files) => this.uploadFiles(data, files)}
+            onSubmit={(data, files, isValid) => this.uploadFiles(data, files, isValid)}
             onVisibilityChange={(val) => this.setImportState(false)}
             sampleFilePath={this.Options.Import?.SampleFile}
             message={this.Options.Import?.Message}

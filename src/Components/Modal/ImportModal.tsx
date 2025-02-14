@@ -16,7 +16,7 @@ import {
     message?: string | React.JSX.Element;
     accept?: string;
     multiple?: boolean;
-    onSubmit: (data: any, files: Array<FileData>) => void;
+    onSubmit: (data: any, files: Array<FileData>, isValid: boolean) => void;
     children?: React.ReactNode;
     title?: string;
     AppClient?: AppClient;
@@ -33,7 +33,7 @@ import {
     onSubmit,
     children,
   }) => {
-      const onFormSubmit = async (e: any, data: any) => {
+      const onFormSubmit = async (e: any, data: any, isValid: boolean, fieldStates: Array<any>) => {
         if (fileName) {
           var files = data[fileName];
           if (files && files.constructor && files.constructor.name == "FileList") {
@@ -42,7 +42,7 @@ import {
               const file = files[index];
               convertToFileData(file, (data) => {
                 arr.push(data);
-                if (index == files.length - 1 && onSubmit) onSubmit(data, arr);
+                if (index == files.length - 1 && onSubmit) onSubmit(data, arr, isValid);
               })
             }
             delete data[fileName];
@@ -61,7 +61,7 @@ import {
       return (
         <Form
           formData={{}}
-          onSubmit={(e: any, data: any) => onFormSubmit(e, data)}
+          onSubmit={(e: any, data: any, isValid: boolean, fieldStates: Array<any>) => onFormSubmit(e, data, isValid, fieldStates)}
           translateFn={(key) => AppClient?.Translate(key) ?? key}
         >
           <Modal

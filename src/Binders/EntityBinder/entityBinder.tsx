@@ -60,7 +60,7 @@ export default class EntityBinder<P> extends React.Component<
   RootElementRef = React.createRef<HTMLDivElement>();
   UploadFiles: Array<FileData> = new Array<FileData>();
   EntityOperations: EntityOperations
-  AfterSaveAction: "BackToList" | "RefreshData" = "RefreshData"
+  AfterSaveAction: "BackToList" | "PreviousPage" | "RefreshData" = "RefreshData"
   RefreshDataOnLoad: boolean = false;
   PreviousStateData: any;
 
@@ -349,6 +349,9 @@ export default class EntityBinder<P> extends React.Component<
                 if(this.AfterSaveAction == "RefreshData"){
                   await this.GetEntity(result.data.id, undefined)
                 }
+                if(this.AfterSaveAction == "PreviousPage"){
+                  Router.back();
+                }
                 else
                   Router.push(this.getBackUrl())
               }
@@ -382,7 +385,10 @@ export default class EntityBinder<P> extends React.Component<
         if (!result.hasFailed) {
           this.UploadFiles = [];
           if (this.props.shownInParent !== true) {
-            Router.push(this.getBackUrl())
+            if(this.AfterSaveAction == "BackToList")
+              Router.push(this.getBackUrl())
+            else
+              Router.back();
           }
           else if(this.props.parent != null)
           {
