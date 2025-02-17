@@ -610,10 +610,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async uploadFiles(data: any, files: Array<FileData>, isValid: boolean){
  
   }
+  CellValueChangeTimer: any
   onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
     if(!name) return;
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
     row.hasUnsavedChanges = true;
+    if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
+      if(this.CellValueChangeTimer)
+         clearTimeout(this.CellValueChangeTimer)
+      this.CellValueChangeTimer = setTimeout(() => this.SaveEntity(row, rowIndex), 300);
+    }
   }
   onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
     if(row.isNewRow == true && key != "Enter") return;

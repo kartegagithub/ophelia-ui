@@ -13,6 +13,7 @@ export default class Config {
   NewEntityMethod?: "Default" | "Row" = "Default";
   NewEntityLocation?: "Beginning" | "End" = "Beginning"
   SaveActionType?: "EnterKey" | "SaveButtonClick" = "EnterKey"
+  SaveOnCellValueChange?: boolean = false
   ChildBinderContainer?: "modal" | "drawer" = "drawer";
   Checkboxes?: boolean = false
   HideSelectAll?: boolean = false

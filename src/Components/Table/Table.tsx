@@ -691,8 +691,8 @@ const Table: React.FC<TableProps> = React.memo(
                           "id",
                           undefined
                         );
-                        setSelectedRow(result.index);
-                      } else setSelectedRow(-1);
+                        onSelectedRowChange(result.index);
+                      } else onSelectedRowChange(-1);
                     }
                   }}
                   className={`px-4 py-2`}
@@ -751,6 +751,20 @@ const Table: React.FC<TableProps> = React.memo(
         (row.isNewRow == true && column.AllowEditingOnNewRow !== false)
       );
     };
+    const onSelectedRowChange = (index: number) => {
+      if(selectedRow != index){
+        setSelectedRow(index)
+        if(listener?.onSelectedRowChange) listener?.onSelectedRowChange(index);
+      }
+    }
+    const onSelectedCellChange = (rowIndex: number, columnIndex: number) => {
+      if(rowIndex != selectedRow || columnIndex != selectedColumn){
+        setSelectedCell([rowIndex, columnIndex]);
+        setSelectedColumn(columnIndex);
+        onSelectedRowChange(rowIndex);
+      }
+    }
+
     const onCellClick = (
       e: React.MouseEvent<HTMLTableCellElement> | undefined,
       row: any,
@@ -760,9 +774,8 @@ const Table: React.FC<TableProps> = React.memo(
     ) => {
       if (listener?.onCellClick && column)
         listener?.onCellClick(e, row, column, rowIndex, columnIndex);
-      setSelectedCell([rowIndex, columnIndex]);
-      setSelectedColumn(columnIndex);
-      setSelectedRow(rowIndex);
+
+      onSelectedCellChange(rowIndex, columnIndex);
 
       if (column) {
         var willShowEdit = canEditCell(row, column);
@@ -977,6 +990,7 @@ const Table: React.FC<TableProps> = React.memo(
     ) => {
       setHoveredCell([-1, -1]);
     };
+    
     const renderCell = (
       row: any,
       column: TableColumnClass,
@@ -1200,6 +1214,7 @@ var tableProps: {
     onCellValueChanged?: Function;
     onCellValueCancelled?: Function;
     onCellValueChanging?: Function;
+    onSelectedRowChange?: Function;
     getItemPropertyValue?: Function;
     getRowProps?: Function;
     getCellProps?: Function;
