@@ -674,10 +674,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         newData.splice(rowIndex, 1, result.data);
         if(data.isNewRow == true && canExecuteAdditionalActions) this.AddNewRow("AfterSaveEntity", newData, true);
         if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
-      } else {
+      } else { 
         data.isValid = false;
         this.setState({rerenderKey: randomKey(5)})
-        raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
+        if (result.messages && result.messages.length > 0) {
+          raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: result.messages[0].description  })
+        }
+        else
+          raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
       }
     } catch (error) {}
     return;
