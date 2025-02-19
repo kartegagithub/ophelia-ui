@@ -542,9 +542,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
     }
     else if(key == "Save"){
-      if(this.Config.SaveActionType == "SaveButtonClick"){
-        var unsavedItems = this.state.data.filter((item: any) => item.hasUnsavedChanges == true)
-        var length = unsavedItems.length;
+      var unsavedItems = this.state.data.filter((item: any) => item.hasUnsavedChanges == true)
+      var length = unsavedItems.length;
+      if(this.Config.SaveActionType == "SaveButtonClick" || length > 0){
         if(length >= 2) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
         for (let index = 0; index < unsavedItems.length; index++) {
           const item = unsavedItems[index];
