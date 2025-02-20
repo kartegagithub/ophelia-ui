@@ -21,6 +21,31 @@ export default class APIService {
     return (this.RootURL + url);
   }
 
+  private getUploaderStream(endpoint: Endpoint){
+    var data = endpoint.Options.Payload? JSON.stringify(endpoint.Options.Payload): null;
+    if(!endpoint.OnUploadProgress) return data;
+    if(!data) return null;
+    
+    const blob = new Blob([data]);
+    endpoint.TotalDataLength = blob.size;
+    var pipe = blob.stream().pipeThrough(new TransformStream({
+      transform(chunk, controller) {
+        controller.enqueue(chunk);
+        endpoint.UploadedDataLength += chunk.byteLength;
+        if(endpoint.TotalDataLength > 0){
+          var progress = endpoint.UploadedDataLength / endpoint.TotalDataLength;
+          //console.log(endpoint.URL + ": on upload progress:" + progress);
+          if(endpoint.OnUploadProgress)
+            endpoint.OnUploadProgress(endpoint.UploadedDataLength, progress)
+        }
+      },
+      flush(controller) {
+        //console.log("Upload completed: " + endpoint.URL);
+      },
+    }));
+    return pipe;
+  }
+
   async invokeEndpoint(endpoint: Endpoint) : Promise<any>{
     if(this.Locker?.IsLocked === true){
       endpoint.Status = ServiceStatus.Abort
@@ -40,13 +65,16 @@ export default class APIService {
     
     //console.log(endpoint.URL + " " + JSON.stringify(endpoint.Options.Headers))
     var options: RequestInit | any = {
-      body: endpoint.Options.Payload? JSON.stringify(endpoint.Options.Payload): null,
+      body: this.getUploaderStream(endpoint),
       cache: "no-cache",
       headers: endpoint.Options.Headers,
       credentials: "same-origin",
       method: endpoint.Options.Method,
-      agent: httpsAgent
+      agent: httpsAgent,
     }
+    if(endpoint.OnUploadProgress)
+      options.duplex = "half";
+
     options = {...options, ...this.GetRequestOptions(endpoint)}
 
     var url = getQueryString(endpoint.Options.Parameters, endpoint.URL);

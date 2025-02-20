@@ -11,6 +11,9 @@ export default class Endpoint{
     RetreivedFromCache?: boolean = false
     RequestID: string = ""
     Data: any = {}
+    UploadedDataLength: number = 0
+    TotalDataLength: number = 0
+    OnUploadProgress?: (value: number, percentage: number) => void
 
     call(): Promise<ServiceResult> {
         return this.Service.invokeEndpoint(this);

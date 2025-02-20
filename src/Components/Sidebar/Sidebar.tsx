@@ -12,6 +12,7 @@ import Icon from "../Icon";
 import { getImageComponent } from "../Image/Extensions";
 import MenuClass from "../Menu/MenuClass";
 import AppClient from "../../AppClient";
+import { useRouter } from "next/router";
 
 const Sidebar: React.FC<{
   menu: SidebarMenuClass;
@@ -28,6 +29,7 @@ const Sidebar: React.FC<{
   const [menuCollapsed, setMenuCollapsed] = useState<boolean>(false);
   const [mobile, setMobile] = useState<boolean>(false);
   const path = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setCurrentState({
@@ -57,7 +59,9 @@ const Sidebar: React.FC<{
         <label className="oph-sidebarSearch-label">
           {currentState.menu.SearchIconPosition === "left" && (
             <span
-              className={`oph-sidebarSearch-label-searchIcon ${menuCollapsed && "collapsed"}`}
+              className={`oph-sidebarSearch-label-searchIcon ${
+                menuCollapsed && "collapsed"
+              }`}
               onClick={() => setMenuCollapsed(false)}
             >
               {iconComponent}
@@ -67,7 +71,9 @@ const Sidebar: React.FC<{
             type="text"
             onKeyUp={searchTextInMenu}
             placeholder="Search"
-            className={`oph-sidebarSearch-label-input ${menuCollapsed && "collapsed"}`}
+            className={`oph-sidebarSearch-label-input ${
+              menuCollapsed && "collapsed"
+            }`}
           />
           {currentState.menu.SearchIconPosition === "right" && (
             <span className="oph-sidebarSearch-label-right">
@@ -92,12 +98,19 @@ const Sidebar: React.FC<{
         <Icon name="collapsedMenu" color="black" />
       </button>
       <div
-        className={`oph-sidebar ${!menuCollapsed ? "open" : "collapsed"} ${mobile && "mobile"}`}
+        className={`oph-sidebar ${!menuCollapsed ? "open" : "collapsed"} ${
+          mobile && "mobile"
+        }`}
         key={id}
         id={id}
       >
         <div className="oph-sidebar-linksContainer">
-          <button className="oph-sidebar-linksContainer-link" onClick={() => setMenuCollapsed(false)}>
+          <button
+            className="oph-sidebar-linksContainer-link"
+            onClick={() =>
+              menuCollapsed ? setMenuCollapsed(false) : router.push("/")
+            }
+          >
             {menu.AppIcon && typeof menu.AppIcon == "string" && (
               <Icon
                 name={menuCollapsed ? menu.CollapsedMenuIcon : menu.AppIcon}

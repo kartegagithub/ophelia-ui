@@ -16,7 +16,10 @@
           @apply left-full;
         }
         &-center {
-          @apply right-1/2 left-1/2;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          margin-bottom: 8px;
         }
       }
       &.bottom-left {

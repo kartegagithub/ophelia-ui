@@ -5,6 +5,7 @@ const Popover: React.FC<PopoverProps> = ({
   trigger,
   position = "top-center",
   id,
+  triggerType = "click", // Default olarak "click"
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -19,22 +20,29 @@ const Popover: React.FC<PopoverProps> = ({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    if (triggerType === "click") {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [triggerType]);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  // Trigger eventlerini belirle
+  const eventHandlers =
+    triggerType === "hover"
+      ? {
+          onMouseEnter: () => setIsVisible(true),
+          onMouseLeave: () => setIsVisible(false),
+        }
+      : {
+          onClick: () => setIsVisible((prev) => !prev),
+        };
 
   return (
-    <div id={id} className="oph-popover">
+    <div id={id} className="oph-popover" {...eventHandlers}>
       <div className="oph-popover-container" ref={popoverRef}>
-        <div
-          className="oph-popover-container-trigger"
-          onClick={() => setIsVisible(!isVisible)}
-        >
-          {trigger}
-        </div>
+        <div className="oph-popover-container-trigger">{trigger}</div>
         {isVisible && (
           <div className={`oph-popover-container-content ${position}`}>
             <div className="py-1">{content}</div>
@@ -60,5 +68,6 @@ var popoverProps: {
     | "bottom-right"
     | "right"
     | "left";
+  triggerType?: "click" | "hover"; // Yeni eklenen prop
 };
 export type PopoverProps = typeof popoverProps;
