@@ -50,5 +50,5 @@ export default class BinderOptions {
   } = { FileTypes: "*.xlsx,*.csv" };
 }
 
-var exportType: { extension?: string; name?: string; icon?: string | any, columns?: Array<string | undefined>, schema?: string, entity?: string, queryData?: QueryDataModel, filterEntity?: any };
+var exportType: { extension?: string; name?: string; icon?: string | any, columns?: Array<string | undefined>, columnProperties?: Array<{name: string, type: string, enumValues?: Array<{text?: string, value?: string}>}>, schema?: string, entity?: string, queryData?: QueryDataModel, filterEntity?: any };
 export type ExportOption = typeof exportType;

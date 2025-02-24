@@ -30,7 +30,7 @@ import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
-import { base64ToArrayBuffer, insertToIndex } from "../../Extensions";
+import { base64ToArrayBuffer, enumToArray, insertToIndex } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
 import moment from "moment";
 export class CollectionBinderProps{
@@ -391,6 +391,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         option.entity = this.Config.Entity;
         option.schema = this.Config.Schema;
         option.columns = this.Config.Table?.Columns.filter((col) => ((typeof col.Visible != "function" && col.Visible != false) || (typeof col.Visible == "function" && col.Visible())) && !!col.PropertyName).map((col) => col.PropertyName)
+        option.columnProperties = this.Config.Table?.Columns.filter((col) => ((typeof col.Visible != "function" && col.Visible != false) || (typeof col.Visible == "function" && col.Visible())) && !!col.PropertyName).map((col) => {
+          return {
+          name: col.PropertyName ?? "",
+          type: col.Type ?? "",
+          enumValues: col.Filtering?.EnumSelectionType? enumToArray(col.Filtering.EnumSelectionType, this.props.AppClient?.Translate): undefined
+        }});
         var queryData = new QueryData()
         if(this.Config.Table?.Columns)
           queryData.processQuery(this.Config.Table?.Columns, this.state.filter, this.state.sorter, this.props.manualFilters)

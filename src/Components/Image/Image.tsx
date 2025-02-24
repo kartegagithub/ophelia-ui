@@ -41,7 +41,7 @@ const Image: React.FC<
       src={src || defaultImage}
       alt={alt || "Image"}
       onError={handleError}
-      loading={props.loading ?? "lazy"}
+      loading={props?.loading ?? ("priority" in props ? undefined : "lazy")}
       {...props}
     />
   );
