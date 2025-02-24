@@ -395,7 +395,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           return {
           name: col.PropertyName ?? "",
           type: col.Type ?? "",
-          enumValues: col.Filtering?.EnumSelectionType? enumToArray(col.Filtering.EnumSelectionType, this.props.AppClient?.Translate): undefined
+          enumValues: col.Filtering?.EnumSelectionType? enumToArray(col.Filtering.EnumSelectionType, (key: string) => this.props.AppClient?.Translate(key)): undefined
         }});
         var queryData = new QueryData()
         if(this.Config.Table?.Columns)
