@@ -53,7 +53,8 @@ export default class APIService {
       return undefined
     }
     this.OnBeforeRequest(endpoint)
-    this.Locker?.Lock();
+    if(endpoint.Options.EnableConcurrentRequests != true)
+      this.Locker?.Lock();
     var httpsAgent: any = undefined
     if(endpoint.Options.ByPassHttpsAgent != true && endpoint.URL.startsWith("https")){
       const https = require('https');

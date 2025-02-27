@@ -43,6 +43,7 @@ export class EndpointOptions{
     ValidateCache?: Function = undefined
     ValidateSSL?: boolean = false
     ByPassHttpsAgent?: boolean = false
+    EnableConcurrentRequests?: boolean = false;
     toString? = (apiURL: string) => {
         return `${apiURL}_${this.Method}_${JSON.stringify(this.Parameters)}`
     }

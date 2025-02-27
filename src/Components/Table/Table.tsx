@@ -866,6 +866,9 @@ const Table: React.FC<TableProps> = React.memo(
             ...row,
           };
         }
+        var type = column.Filtering?.Type ?? column.Type;
+        if (type == "richtext" || type == "url") type = "text";
+
         return (
           <InputField
             {...column.InputProps}
@@ -946,7 +949,7 @@ const Table: React.FC<TableProps> = React.memo(
               },
             }}
             text={column.HeaderText}
-            type={column.Filtering?.Type ?? column.Type}
+            type={type}
             enumSelectionType={column.Filtering?.EnumSelectionType}
             remoteDataSource={column.Filtering?.RemoteDataSource}
             multipleSelection={multipleSelection}

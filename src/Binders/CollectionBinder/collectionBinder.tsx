@@ -30,7 +30,7 @@ import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
-import { base64ToArrayBuffer, enumToArray, insertToIndex } from "../../Extensions";
+import { base64ToArrayBuffer, enumToArray, getObjectValue, insertToIndex } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
 import moment from "moment";
 export class CollectionBinderProps{
@@ -548,17 +548,28 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
     }
     else if(key == "Save"){
-      var unsavedItems = this.state.data.filter((item: any) => item.hasUnsavedChanges == true)
+      if(this.Config.SaveActionType == "SaveButtonClick"){
+        this.SaveUnsavedItems();
+      }
+    }
+  }
+  SaveTimer: any
+  SaveTimerInterval: number = 1000
+  SaveUnsavedItems(){
+    var saveFn = () => {
+      var unsavedItems = clone(this.state.data.filter((item: any) => item.hasUnsavedChanges == true))
       var length = unsavedItems.length;
-      if(this.Config.SaveActionType == "SaveButtonClick" || length > 0){
+      if(length > 0){
         if(length >= 2) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
         for (let index = 0; index < unsavedItems.length; index++) {
           const item = unsavedItems[index];
-          await this.SaveEntity(item, item.viewOrderIndex, length)
+          this.SaveEntity(item, item.viewOrderIndex, length)
           length--; 
         }
       }
     }
+    if(this.SaveTimer) clearTimeout(this.SaveTimer);
+    this.SaveTimer = setTimeout(saveFn, this.SaveTimerInterval);
   }
   SetAsDeleted(data: any){
     data.isDeleted = true;
@@ -616,15 +627,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async uploadFiles(data: any, files: Array<FileData>, isValid: boolean){
  
   }
-  CellValueChangeTimer: any
-  onCellValueChanging(row: any, name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
+  onCellValueChanging(row: any,  name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
     if(!name) return;
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
     row.hasUnsavedChanges = true;
     if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
-      if(this.CellValueChangeTimer)
-         clearTimeout(this.CellValueChangeTimer)
-      this.CellValueChangeTimer = setTimeout(() => this.SaveEntity(row, rowIndex), 300);
+      this.SaveUnsavedItems();
     }
   }
   onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
@@ -665,15 +673,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   async SaveEntity(data: any, rowIndex: number, updateQueueLength: number = 0){
     try {
+      //console.log("SAving", data)
       var canExecuteAdditionalActions = updateQueueLength <= 1;
       if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("ProcessingPleaseWait")  })
       var canSaveResult = await this.CanSaveEntity(data);
       if(canSaveResult && !canSaveResult.canSave){
         if(canSaveResult.showMessage != false)
           raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate(canSaveResult.message ?? "EntityCouldNotBeSaved")  })
+        //console.log("not SAving", data)
         return;
       }
 
+      //console.log("calling SAving 2", data)
       var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
       if (!result.hasFailed && result.data) {
         var newData = clone(this.state.data) as Array<any>;

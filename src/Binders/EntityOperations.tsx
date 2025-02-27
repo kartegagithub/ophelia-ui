@@ -192,7 +192,7 @@ export class EntityOperations{
         let postData: any = { data: data, languageID: languageID, files: files };
         try {
           const result = await this.Service.CreateEndpoint(this.UpdateURL,
-            { Payload: postData }
+            { Payload: postData, EnableConcurrentRequests: true }
           ).call();
           return result;
         } catch (error) {
