@@ -549,13 +549,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     else if(key == "Save"){
       if(this.Config.SaveActionType == "SaveButtonClick"){
-        this.SaveUnsavedItems();
+        this.SaveUnsavedItems("SaveButtonClick");
       }
     }
   }
   SaveTimer: any
   SaveTimerInterval: number = 1000
-  SaveUnsavedItems(){
+  SaveUnsavedItems(sender: string){
     var saveFn = () => {
       var unsavedItems = clone(this.state.data.filter((item: any) => item.hasUnsavedChanges == true))
       var length = unsavedItems.length;
@@ -566,6 +566,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           this.SaveEntity(item, item.viewOrderIndex, length)
           length--; 
         }
+      }
+      else if(sender == "SaveButtonClick"){
+        raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
       }
     }
     if(this.SaveTimer) clearTimeout(this.SaveTimer);
@@ -637,7 +640,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     row.hasUnsavedChanges = true;
     
     if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
-      this.SaveUnsavedItems();
+      this.SaveUnsavedItems("onCellValueChanging");
     }
   }
   onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
