@@ -702,9 +702,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             const changeKey = changes[index];
             var savedValue = this.EntityOperations.getPropertyValue(result.data, changeKey, this.state.languageID, true, true);
             var change = data.dataTracker.changes[changeKey];
-            if(change && change.newValue != savedValue){
-              console.log("Could not save value", changeKey, data, result.data);
-              raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Warning"), description: this.props.AppClient?.Translate("CouldNotSaveValue")  })
+            if(change){
+              var isDifferent = this.isDifferentValues(savedValue, change.newValue);
+              if(isDifferent){
+                console.log("Could not save value", changeKey, data, result.data);
+                raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Warning"), description: this.props.AppClient?.Translate("CouldNotSaveValue")  })
+              }
             }
           }
         }
@@ -719,6 +722,15 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
     } catch (error) {}
     return;
+  }
+  isDifferentValues(value1: any, value2: any){
+    var isDifferent = false;
+    if(!value1 && value2) isDifferent = true;
+    else if (value1 && !value2) isDifferent = true;
+    else if (typeof value1 == "string" && value1.indexOf(":") > -1 && value1.indexOf(value2) == -1) isDifferent = true;
+    else if (typeof value2 == "string" && value2.indexOf(":") > -1 && value2.indexOf(value1) == -1) isDifferent = true;
+    else isDifferent = value2 != value1;
+    return isDifferent;
   }
   async onCellClick(e: React.MouseEvent<HTMLTableCellElement> | undefined, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
     if(!this.isImporting() && this.state.clickedRowIndex > 0 && this.state.data[this.state.clickedRowIndex].isNewRow == true && this.state.clickedRowIndex != rowIndex){
