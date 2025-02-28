@@ -629,8 +629,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   onCellValueChanging(row: any,  name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
     if(!name) return;
+    if(!row.dataTracker) row.dataTracker = { changes: {}};
+
+    row.dataTracker.changes[name] = {oldValue: this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true), newValue: value};
+
     this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
     row.hasUnsavedChanges = true;
+    
     if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
       this.SaveUnsavedItems();
     }
@@ -691,6 +696,18 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         newData.splice(rowIndex, 1, result.data);
         if(data.isNewRow == true && canExecuteAdditionalActions) this.AddNewRow("AfterSaveEntity", newData, true);
         if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
+        if(data.dataTracker && data.dataTracker.changes){
+          var changes = Object.keys(data.dataTracker.changes);
+          for (let index = 0; index < changes.length; index++) {
+            const changeKey = changes[index];
+            var savedValue = this.EntityOperations.getPropertyValue(result.data, changeKey, this.state.languageID, true, true);
+            var change = data.dataTracker.changes[changeKey];
+            if(change && change.newValue != savedValue){
+              console.log("Could not save value", changeKey, data, result.data);
+              raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Warning"), description: this.props.AppClient?.Translate("CouldNotSaveValue")  })
+            }
+          }
+        }
       } else { 
         data.isValid = false;
         this.setState({rerenderKey: randomKey(5)})
