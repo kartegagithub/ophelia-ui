@@ -728,7 +728,6 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!value1 && value2) isDifferent = true;
     else if (value1 && !value2) isDifferent = true;
     else if (typeof value1 == "string" && value1.indexOf(":") > -1 && value1.indexOf(value2) == -1) isDifferent = true;
-    else if (typeof value2 == "string" && value2.indexOf(":") > -1 && value2.indexOf(value1) == -1) isDifferent = true;
     else isDifferent = value2 != value1;
     return isDifferent;
   }
