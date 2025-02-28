@@ -695,6 +695,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
         if(data.isNewRow == true && canExecuteAdditionalActions) this.AddNewRow("AfterSaveEntity", newData, true);
+        else this.setState({data: newData});
+
         if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
         if(data.dataTracker && data.dataTracker.changes){
           var changes = Object.keys(data.dataTracker.changes);
@@ -723,11 +725,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     } catch (error) {}
     return;
   }
-  isDifferentValues(value1: any, value2: any){
+  isDifferentValues(value1: any, value2: any) {
     var isDifferent = false;
-    if(!value1 && value2) isDifferent = true;
+    if (!value1 && value2) isDifferent = true;
     else if (value1 && !value2) isDifferent = true;
-    else if (typeof value1 == "string" && value1.indexOf(":") > -1 && value1.indexOf(value2) == -1) isDifferent = true;
+    else if (typeof value1 == "string" && value1.indexOf(":") > -1) isDifferent = !value1.startsWith(value2) && !value2.startsWith(value1);
     else isDifferent = value2 != value1;
     return isDifferent;
   }
