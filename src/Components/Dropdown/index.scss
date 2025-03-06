@@ -1,5 +1,8 @@
 .oph-dropdown {
   @apply absolute z-10 bg-white shadow drop-shadow-xl min-w-50 dark:bg-gray-700 transition delay-150 opacity-0 max-h-0 overflow-hidden;
+  &.oph-dropdown-table{
+    @apply min-w-100;
+  }
   &.top {
     @apply bottom-0;
   }
@@ -34,6 +37,9 @@
     @apply overflow-y-auto text-sm text-gray-700 dark:text-gray-200 opacity-100;
     &.open {
       @apply opacity-0 max-h-0;
+    }
+    &-allowchecked {
+      @apply flex justify-end underline text-xs text-darkSky cursor-pointer mr-1;
     }
     &-item {
       @apply flex ps-2 items-center rounded hover:bg-gray-100 dark:hover:bg-gray-600;

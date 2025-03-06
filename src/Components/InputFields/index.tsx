@@ -1,4 +1,5 @@
 export { default as BaseField } from "./baseField";
+export * from "./baseField";
 export { default as BoolField } from "./boolField";
 export { default as DateField } from "./dateField";
 export { default as DateTimeField } from "./dateTimeField";

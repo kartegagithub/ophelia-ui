@@ -1,7 +1,8 @@
-import React, { Children, useState } from "react";
+import React, { Children, useEffect, useState } from "react";
 import { convertToBool, deepMap, getObjectValue, setObjectValue, typeCheck } from "../../Extensions/ReflectionExtensions";
 import { BaseField } from "../InputFields";
 import { findInArray, removeAtIndex } from "../../Extensions";
+import { setFormListener } from "../InputFields/baseField";
 const Form: React.FC<{
     action?: string;
     method?: "get" | "post";
@@ -25,6 +26,12 @@ const Form: React.FC<{
       SetData(formData)
     }
     const listener = {
+      errorDisplayFn: (name?: string, msg?: string)=>{
+        if(showSeperateFieldError == false ){
+          return "";
+        }
+        return "Skip"
+      },
       getData: () => {
         return data;
       },
@@ -43,7 +50,6 @@ const Form: React.FC<{
         fields.push(field)
       },
       setFieldData: (name: string, value: any) => {
-        //debugger;
         setObjectValue(data, name, value);
         if(onFormDataChange) onFormDataChange(data, name)
       },
@@ -55,6 +61,14 @@ const Form: React.FC<{
         else if (onFormDataChange) onFormDataChange(data, name, value, isValid)
       }
     };
+    useEffect(() => {
+      if(keepDataChanges)
+        setFormListener(listener);
+      return () => {
+        setFormListener(undefined);
+      };
+    }, []);
+
     const onSubmitFn = (e: React.FormEvent) => {
         if(preventSubmitEvent === true)
             e.preventDefault();
@@ -74,33 +88,9 @@ const Form: React.FC<{
         }
         return false;
     }
-    const processChildren = (c?: any): any =>{
-      if(!c) return <></>
-
-      return <>
-        {React.Children.map(c, (child: any) => {
-          if(!child) return child;
-          if(typeCheck(child, ["InputField"])){
-            var newData: any = {listener: listener};
-            if(showSeperateFieldError == false && !newData.errorDisplayFn){
-              newData.errorDisplayFn = (name: string, msg: string)=> "";
-            }
-            var childProps = {...newData, ...child.props};
-            return React.cloneElement(child, childProps);
-          }
-          else if(child.props && child.props.children && typeof child.props.children === 'object'){
-            var childProps = {...child.props, ...{children: processChildren(child.props.children)}};
-            return React.cloneElement(child, childProps);
-          }
-          return child;
-        })}
-      </>;
-    }
-    //keepDataChanges = false;
     return (
       <form action={action} target={target} method={method} onSubmit={(e) => onSubmitFn(e)} className={`oph-form ${className}`} encType={encType} autoComplete="off">
-        {keepDataChanges === true && processChildren(children)}
-        {keepDataChanges !== true && children}
+        {children}
       </form>
     );
   };

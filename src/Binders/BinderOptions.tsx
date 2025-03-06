@@ -28,6 +28,7 @@ export default class BinderOptions {
   UpdateContent?: string = undefined;
   Visible?: boolean = true;
   PageTitleVisibility?: boolean = true;
+  HeaderVisibility?: boolean = true;
   Export?: {
     Types?: Array<ExportOption>;
     Mode?: "remote" | "screenshot" | "custom";

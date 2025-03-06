@@ -61,9 +61,14 @@ export default class BaseField<P> extends React.Component<
       messageDisplayFn: undefined,
       rerenderCount: 0
     };
-    if (this.props.listener?.registerField) {
-      this.props.listener?.registerField(this);
+    if (this.getListener()?.registerField) {
+      this.getListener()?.registerField(this);
     }
+  }
+  getListener = () => {
+    if(this.props.listener) return this.props.listener;
+    var listener = getFormListener();
+    return listener
   }
   checkVisibility = (setLocalvalue: boolean = true) => {
     var visibility: boolean = true;
@@ -93,6 +98,27 @@ export default class BaseField<P> extends React.Component<
     if (setLocalvalue) this.Disabled = disabled;
     return disabled;
   };
+  showError = () => {
+    var errFn = this.props.errorDisplayFn ?? this.getListener()?.errorDisplayFn;
+    if(errFn && this.state.hasValidationError){
+      var msg = errFn(this.props.name, this.state.message)
+      if(msg !== "Skip")
+        return msg;
+    }
+    if(!errFn && !this.state.messageDisplayFn && this.state.hasValidationError){
+      return (<span className="oph-inputField-errorMessage">
+        {this.state.message}
+      </span>)
+    }
+    
+    if(!errFn && this.state.messageDisplayFn && this.state.hasValidationError){
+      return <>
+        {this.state.messageDisplayFn(this.props.name, this.state.message)}
+      </>
+    }
+      
+    return <></>;
+  }
   getVisibility = () => this.Visibility;
   getDisabled = () => this.Disabled;
   render(): React.ReactNode {
@@ -127,23 +153,7 @@ export default class BaseField<P> extends React.Component<
           )}
         </div>
 
-        {!this.props.errorDisplayFn &&
-          !this.state.messageDisplayFn &&
-          this.state.hasValidationError && (
-            <span className="oph-inputField-errorMessage">
-              {this.state.message}
-            </span>
-          )}
-        {!this.props.errorDisplayFn &&
-          this.state.messageDisplayFn &&
-          this.state.hasValidationError && (
-            <>
-              {this.state.messageDisplayFn(this.props.name, this.state.message)}
-            </>
-          )}
-        {this.props.errorDisplayFn &&
-          this.state.hasValidationError &&
-          this.props.errorDisplayFn(this.props.name, this.state.message)}
+        {this.showError()}
       </div>
     );
   }
@@ -166,8 +176,8 @@ export default class BaseField<P> extends React.Component<
     else if (e.currentTarget) target = e.currentTarget;
 
     var parentData =
-      this.props.listener && typeof this.props.listener["getData"] == "function"
-        ? this.props.listener?.getData()
+      this.getListener() && typeof this.getListener()["getData"] == "function"
+        ? this.getListener()?.getData()
         : undefined;
     if (target) {
       value = target.value;
@@ -212,8 +222,8 @@ export default class BaseField<P> extends React.Component<
     var isValid = true;
     if(this.props.lowValueName) {
       isValid = this.Validate(lowValue, this.props.lowValueName);
-      if (this.props.listener?.onChangeRequest){
-        this.props.listener?.onChangeRequest(
+      if (this.getListener()?.onChangeRequest){
+        this.getListener()?.onChangeRequest(
           this.props.lowValueName,
           lowValue,
           isValid,
@@ -221,14 +231,14 @@ export default class BaseField<P> extends React.Component<
         );
       }
       if (isValid) {
-        if (this.props.listener?.setFieldData) {
+        if (this.getListener()?.setFieldData) {
           if(this.props.setDataCallback){
             var tmpVal = this.props.setDataCallback(lowValue)
             if(tmpVal != undefined && tmpVal != null){
               lowValue = tmpVal;
             }
           }
-          this.props.listener?.setFieldData(
+          this.getListener()?.setFieldData(
             this.props.lowValueName,
             lowValue,
             this,
@@ -239,8 +249,8 @@ export default class BaseField<P> extends React.Component<
     }
     if(this.props.highValueName){
       isValid = this.Validate(highValue, this.props.highValueName);
-      if (this.props.listener?.onChangeRequest){
-        this.props.listener?.onChangeRequest(
+      if (this.getListener()?.onChangeRequest){
+        this.getListener()?.onChangeRequest(
           this.props.highValueName,
           highValue,
           isValid,
@@ -248,14 +258,14 @@ export default class BaseField<P> extends React.Component<
         );
       }
       if (isValid) {
-        if (this.props.listener?.setFieldData) {
+        if (this.getListener()?.setFieldData) {
           if(this.props.setDataCallback){
             var tmpVal = this.props.setDataCallback(highValue)
             if(tmpVal != undefined && tmpVal != null){
               highValue = tmpVal;
             }
           }
-          this.props.listener?.setFieldData(
+          this.getListener()?.setFieldData(
             this.props.highValueName,
             highValue,
             this,
@@ -266,8 +276,8 @@ export default class BaseField<P> extends React.Component<
     }
     if(!this.props.lowValueName && !this.props.highValueName){
       isValid = this.Validate(value);
-      if (this.props.listener?.onChangeRequest){
-        this.props.listener?.onChangeRequest(
+      if (this.getListener()?.onChangeRequest){
+        this.getListener()?.onChangeRequest(
           this.props.valueName ?? this.props.name,
           value,
           isValid,
@@ -275,18 +285,18 @@ export default class BaseField<P> extends React.Component<
         );
       }
       if (isValid) {
-        if (this.props.listener?.setFileDeleted && deletedFile) {
+        if (this.getListener()?.setFileDeleted && deletedFile) {
           deletedFile.KeyName = this.props.name;
-          this.props.listener?.setFileDeleted(deletedFile);
+          this.getListener()?.setFileDeleted(deletedFile);
         }
-        if (this.props.listener?.setFieldData) {
+        if (this.getListener()?.setFieldData) {
           if(this.props.setDataCallback){
             var tmpVal = this.props.setDataCallback(value)
             if(tmpVal != undefined && tmpVal != null){
               value = tmpVal;
             }
           }
-          this.props.listener?.setFieldData(
+          this.getListener()?.setFieldData(
             this.props.valueName ?? this.props.name,
             value,
             this,
@@ -331,7 +341,7 @@ export default class BaseField<P> extends React.Component<
         val,
         rule.max,
         rule.min,
-        this.props.listener?.translate
+        this.getListener()?.translate
       );
     }
     if (isValid) {
@@ -347,13 +357,13 @@ export default class BaseField<P> extends React.Component<
           if (_rule && _rule.constructor.name == "RegExp") {
             _IsValid = (_rule as RegExp).test(val);
           } else if (typeof _rule == "function") {
-            _IsValid = _rule(val, this.props.listener?.getData());
+            _IsValid = _rule(val, this.getListener()?.getData());
           }
           if (!_IsValid) isValid = false;
           if (rule.ruleSatisfaction) rule.ruleSatisfaction(index, _IsValid);
         }
       } else if (rule.rule && typeof rule.rule == "function") {
-        isValid = rule.rule(val, this.props.listener?.getData());
+        isValid = rule.rule(val, this.getListener()?.getData());
         if (rule.ruleSatisfaction) rule.ruleSatisfaction(0, isValid);
       }
       if (
@@ -402,20 +412,20 @@ export default class BaseField<P> extends React.Component<
     }
 
     if (!msg) msg = this.props.errorMessageText ?? "FieldIsRequired";
-    if (this.props.listener && this.props.listener.translate)
-      msg = this.props.listener.translate(msg);
+    if (this.getListener() && this.getListener().translate)
+      msg = this.getListener().translate(msg);
 
     if (msg && msg.indexOf("{") > -1 && msg.indexOf("}") > -1) {
       if (!rule.format) rule.format = (val: any) => val;
       if (rule.min)
         msg = msg.replace(
           "{min}",
-          rule.format(rule.min, this.props.listener?.translate)
+          rule.format(rule.min, this.getListener()?.translate)
         );
       if (rule.max)
         msg = msg.replace(
           "{max}",
-          rule.format(rule.max, this.props.listener?.translate)
+          rule.format(rule.max, this.getListener()?.translate)
         );
     }
 
@@ -433,8 +443,8 @@ export default class BaseField<P> extends React.Component<
   };
   GetValue() {
     var value =
-      this.props.listener && this.props.listener.getFieldData
-        ? this.props.listener.getFieldData(this)
+    this.getListener() && this.getListener().getFieldData
+        ? this.getListener().getFieldData(this)
         : undefined;
     return value ?? this.props.value ?? this.props.defaultValue;
   }
@@ -499,4 +509,14 @@ export default class BaseField<P> extends React.Component<
     };
     return props;
   }
+}
+
+var FormListener: any
+export const setFormListener = (listener: any) => {
+  if(globalThis.window){
+    FormListener = listener;
+  }
+}
+export const getFormListener = () => {
+  return FormListener;
 }

@@ -16,6 +16,7 @@ import { getObjectValue, randomKey, setObjectValue } from "../../Extensions";
 import Navigation from "../Navigation";
 import Backdrop from "../Backdrop";
 import { useRouter } from "next/router";
+import { TableColumnClass } from "../Table";
 const Dropdown: React.FC<DropdownProps> = ({
   id = "",
   multipleSelection = undefined,
@@ -45,6 +46,9 @@ const Dropdown: React.FC<DropdownProps> = ({
   refreshSearchList = false,
   alwaysOpen = false,
   refreshKey = undefined,
+  selectAllOptions = false,
+  selectAllOptionsTitle = "Select All",
+  getCollectionBinder = undefined
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -55,6 +59,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchText, setSearchText] = useState<string | undefined>("");
+  const [allChecked, setAllChecked] = useState(false);
   const RootRef = React.createRef<HTMLDivElement>();
   const ListRef = React.createRef<HTMLUListElement>();
   const { pathname, events } = useRouter();
@@ -67,15 +72,13 @@ const Dropdown: React.FC<DropdownProps> = ({
     //url değişirse dropdown kapansın.
   }, [pathname]);
 
-  const onSearchKeyup = async (
-    e?: React.KeyboardEvent<HTMLInputElement>
-  ) => {
+  const onSearchKeyup = async (e?: React.KeyboardEvent<HTMLInputElement>) => {
     if (e?.key == "Escape") {
       setSearching(false);
       setOpen(false);
       if (visibilityCallback) visibilityCallback(false);
     }
-    if(e?.target){
+    if (e?.target) {
       setSearchText((e.target as any).value ?? "");
     }
   };
@@ -83,15 +86,15 @@ const Dropdown: React.FC<DropdownProps> = ({
   useEffect(() => {
     if (searching || !open || (!onSearch && !options)) return;
 
-    if (timer){
-      clearTimeout(timer)
+    if (timer) {
+      clearTimeout(timer);
     }
     var Timer = setTimeout(async () => {
       setSearching(true);
       var result: Array<any> | undefined = undefined;
       if (onSearch) {
         result = await onSearch(searchText, page);
-        setLoadedPage(page)
+        setLoadedPage(page);
       }
       if (!onSearch || result == undefined) {
         result = filterInArray(options, searchText ?? "", displayProp);
@@ -102,7 +105,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       }
       setSearching(false);
     }, 500);
-    setTimer(Timer)
+    setTimer(Timer);
   }, [searchText, page, open]);
 
   useEffect(() => {
@@ -184,8 +187,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         ListRef.current.scrollTop + ListRef.current.offsetHeight + 20 >=
         ListRef.current.scrollHeight
       ) {
-        if(!searching)
-          setPage(loadedPage + 1);
+        if (!searching) setPage(loadedPage + 1);
       }
     }
   };
@@ -203,6 +205,21 @@ const Dropdown: React.FC<DropdownProps> = ({
       if (onSelectionChange) onSelectionChange(button);
     }
   };
+  const tableListener = {
+    ID: "DropdowntableListener",
+    onDataChanged: (data?: Array<any>) => {
+      setFilteredOptions(data ?? []);
+    },
+    onCheckedItemsChanged: (items: Array<any>) => {
+      for (let index = 0; index < items.length; index++) {
+        const element = items[index];
+        onOptionSelectionChanged(undefined, element);  
+      }
+    },
+    onCellClick: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => {
+      onOptionSelectionChanged(undefined, row);  
+    }
+  }
   const mouseDown = (inbound: boolean) => {
     if (!alwaysOpen && open && !inbound) {
       setOpen(false);
@@ -230,13 +247,55 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (visibilityCallback) visibilityCallback(visible);
     if (enableSearch && visible && refreshSearchList != true) {
       setTimeout(function () {
-        var elem = document.getElementById(`${uniqueID}-search-input`) as HTMLInputElement; 
-        if(!elem) return;
+        var elem = document.getElementById(
+          `${uniqueID}-search-input`
+        ) as HTMLInputElement;
+        if (!elem) return;
         elem.focus();
       }, 500);
     }
   }, [visible, refreshSearchList, refreshKey]);
+  const handleAllowCheckedService = async () => {
+    var result: Array<any> | undefined = undefined;
+    if (onSearch) {
+      result = await onSearch(searchText, 0, 0);
+      if (result !== undefined) {
+        setFilteredOptions(result);
 
+        // State güncellendikten sonra handleAllowChecked çağrılıyor
+        setTimeout(() => {
+          handleAllowChecked(result);
+        }, 0);
+      }
+    }
+  };
+  const handleAllowChecked = (options = filteredOptions) => {
+    if (options && options.length > 0) {
+      var tmpOptions = JSON.parse(JSON.stringify(selectedOptions));
+      if (tmpOptions.length == options.length) {
+        tmpOptions = [];
+      } else {
+        setAllChecked(true);
+        tmpOptions = [];
+        options.forEach((option) => {
+          var newOption = {};
+          setObjectValue(
+            newOption,
+            selectedItemDisplayProp,
+            getObjectValue(option, displayProp)
+          );
+          setObjectValue(
+            newOption,
+            selectedItemValueProp,
+            getObjectValue(option, valueProp)
+          );
+          tmpOptions.push(newOption);
+        });
+      }
+      setSelectedOptions(tmpOptions);
+      if (onSelectionChange) onSelectionChange(tmpOptions);
+    }
+  };
   return (
     <>
       {button && (
@@ -263,12 +322,12 @@ const Dropdown: React.FC<DropdownProps> = ({
       <div
         id={id}
         key={id}
-        className={`oph-dropdown ${className} ${positionClass || "left"} ${
+        className={`oph-dropdown ${className ?? ""} ${positionClass || "left"} ${
           open ? "open" : ""
-        } `}
+        } ${!getCollectionBinder? '': 'oph-dropdown-table'  }`}
         ref={RootRef}
       >
-        {enableSearch && (
+        {enableSearch && !getCollectionBinder && (
           <div className="oph-dropdown-search">
             <div className="oph-dropdown-search-container">
               <input
@@ -281,25 +340,59 @@ const Dropdown: React.FC<DropdownProps> = ({
                 className="oph-dropdown-search-container-searchInput"
                 placeholder={searchPlaceholder}
               />
-              {!searching && <div className="oph-dropdown-search-container-content">
-                <Icon name="azSearch" color="#0D222E" size={24} />
-              </div>}
-              {searching && <div className="oph-dropdown-search-container-content"><svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg></div>}
+              {!searching && (
+                <div className="oph-dropdown-search-container-content">
+                  <Icon name="azSearch" color="#0D222E" size={24} />
+                </div>
+              )}
+              {searching && (
+                <div className="oph-dropdown-search-container-content">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                </div>
+              )}
             </div>
           </div>
         )}
         {label && <p className="oph-dropdown-label">{label}</p>}
-
-        {filteredOptions && filteredOptions.length > 0 && (
+        {open && visible && getCollectionBinder && <div className="oph-dropdown-options oph-dropdown-options-table">{
+          (getCollectionBinder(tableListener, selectedOptions.map((item) => {
+            return item[selectedItemValueProp];
+          })))  
+        }</div>}
+        {!getCollectionBinder && filteredOptions && filteredOptions.length > 0 && (
           <ul
             ref={ListRef}
-            onScroll={(e) => onListScrolled(e)}
+            onScroll={(e) => !allChecked && onListScrolled(e)}
             className={`oph-dropdown-options ${open ? "" : "open"}`}
             aria-labelledby="dropdownSearchButton"
           >
+            {selectAllOptions && multipleSelection && (
+              <span
+                className="oph-dropdown-options-allowchecked"
+                onClick={handleAllowCheckedService}
+              >
+                {selectAllOptionsTitle}
+              </span>
+            )}
             {filteredOptions.map((option, i) => {
               var checked =
                 findInArray(
@@ -388,7 +481,11 @@ var dropdownProps: {
     btnChildren?: React.JSX.Element;
   };
   newBtn?: React.JSX.Element;
-  onSearch?: (key?: string, page?: number) => Promise<Array<any> | undefined>;
+  onSearch?: (
+    key?: string,
+    page?: number,
+    pageSize?: number
+  ) => Promise<Array<any> | undefined>;
   onSelectionChange?: (value?: any | Array<any>, clickedButton?: any) => void;
   backdrop?: boolean;
   children?: React.ReactNode;
@@ -423,8 +520,11 @@ var dropdownProps: {
   handleOutboundClick?: boolean;
   visibilityCallback?: (open: boolean) => void;
   refreshSearchList?: boolean;
-  refreshKey?: number | string
+  refreshKey?: number | string;
   listHeight?: string;
   alwaysOpen?: boolean;
+  selectAllOptions?: boolean;
+  selectAllOptionsTitle?: string;
+  getCollectionBinder?: (listener: any, checkedItems: Array<any>) => React.ReactNode
 };
 export type DropdownProps = typeof dropdownProps;

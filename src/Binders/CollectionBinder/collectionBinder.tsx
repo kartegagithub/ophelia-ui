@@ -44,9 +44,13 @@ export class CollectionBinderProps{
   pageTitle?: string
   parent?: EntityBinder<{}> | CollectionBinder<{}>
   viewId?: string
+  checkedItems?: Array<any>
+  className?: string
+  readonly?: boolean
   listener?: {
     onCheckedItemsChanged?: (items: Array<any>) => void,
     onCellClick?: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => void
+    onDataChanged?: (data?: Array<any>) => void
   }
 }
 export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {
@@ -112,6 +116,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.EntityOperations.GetEntityURL = `${this.Config.Schema}/get${this.Config.Entity}`
       if(this.Config.Entity) this.EntityOperations.Entity = this.Config.Entity;
       this.EntityOperations.UseI18n = true
+      if(this.props.readonly == true){
+        this.Options.AllowEdit = false;
+        this.Options.AllowSave = false;
+        this.Options.AllowDelete = false;
+        this.Options.AllowSettings = false;
+      }
       this.ProcessColumns();
       this.setInitData(true); 
     } catch (error) {
@@ -128,6 +138,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           column.HeaderText = this.props.AppClient?.Translate(pascalize(removeLastPropName(column.PropertyName, "ID")))
         if(column.AllowFiltering){
           if(!column.Filtering) column.Filtering = {};
+        }
+        if(this.props.readonly == true){
+          column.AllowEditing = false;
         }
       });
     }
@@ -222,11 +235,11 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       loadingState = LoadingState.Loading;
 
     if(!this.props.shownInParent){
-      this.setState({checkedItems: [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      this.setState({checkedItems: this.props.checkedItems ?? [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
     }
     else{
       setTimeout(() => {
-        this.setState({checkedItems: [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+        this.setState({checkedItems: this.props.checkedItems ?? [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
       }, 1000);
     }
   }
@@ -262,10 +275,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           this.onAfterSetData();
           if(data && data.data){
             this.ValidateColumns(data.data)
-            this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: [], path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
+            this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: this.state.checkedItems, path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
           }
           else if(data)
-            this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: [], path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
+            this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: this.state.checkedItems, path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
         })
       }
       else{
@@ -345,6 +358,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           return {data: [], columnData: undefined, totalDataCount: 0, messages: [ msg]}
         }
         else this.props.parent?.onChildAction("ListChanged", {newData: data.data, columnData: data.columnData, key: this.props.viewId});
+        if(this.props.listener && this.props.listener.onDataChanged) this.props.listener.onDataChanged(data.data)
         return data;
       } catch (error) {
         raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
@@ -730,10 +744,21 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   isDifferentValues(value1: any, value2: any) {
     var isDifferent = false;
+ 
+    if (value1 === "" || (Array.isArray(value1) && value1.length === 0)) {
+      value1 = null;
+    }
+    if (value2 === "" || (Array.isArray(value2) && value2.length === 0)) {
+      value2 = null;
+    }
+ 
     if (!value1 && value2) isDifferent = true;
     else if (value1 && !value2) isDifferent = true;
     else if (typeof value1 == "string" && value1.indexOf(":") > -1) isDifferent = !value1.startsWith(value2) && !value2.startsWith(value1);
-    else isDifferent = value2 != value1;
+    else if(typeof value2 == typeof value1 && typeof value2 == "object"){
+      isDifferent = this.getUniqueID(value1) != this.getUniqueID(value2)
+    }
+    else if(typeof value2 == typeof value1) isDifferent = value2 != value1;
     return isDifferent;
   }
   async onCellClick(e: React.MouseEvent<HTMLTableCellElement> | undefined, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
@@ -905,7 +930,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return row.id;
   }
   isChecked(row: any, rowIndex: number){
-    if(!this.state.checkedItems) return false;
+    if(!this.state.checkedItems || this.state.checkedItems.length == 0) return false;
 
     var uniqueID = this.getUniqueID(row);
     var index = this.state.checkedItems.indexOf(uniqueID);
@@ -1088,7 +1113,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setMetaTags(stateData)
       this.OnBeforeRender();
       return <>
-        <div className="oph-collectionBinders" key={this.state.rerenderKey}>
+        <div className={`oph-collectionBinders ${this.props.className ?? ""}`} key={this.state.rerenderKey}>
           <ContentLoading appClient={this.props.AppClient} loading={this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed}>
             {this.renderHeader()}
             {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}

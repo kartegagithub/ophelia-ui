@@ -28,7 +28,8 @@ export default class FilterboxInput<P> extends React.Component<
       defaultValue?: Array<any>;
       searchFn?: (
         key?: string,
-        page?: number
+        page?: number,
+        pageSize?: number
       ) => Promise<Array<any> | undefined>;
       low?: number;
       high?: number;
@@ -58,6 +59,9 @@ export default class FilterboxInput<P> extends React.Component<
       id?: string;
       alwaysOpen?: boolean;
       refreshOnOpen?: boolean;
+      getCollectionBinder?: (listener: any) => React.ReactNode
+      selectAllOptions?: boolean;
+      selectAllOptionsTitle?: string;
     },
   {
     filteredOptions: Array<any>;
@@ -86,9 +90,10 @@ export default class FilterboxInput<P> extends React.Component<
 
   async onSearch(
     key?: string,
-    page: number = 1
+    page: number = 1,
+    pageSize: number = 10
   ): Promise<Array<any> | undefined> {
-    if (this.props.searchFn) return this.props.searchFn(key, page);
+    if (this.props.searchFn) return this.props.searchFn(key, page, pageSize);
     return undefined;
   }
   mouseDown = (inbound: boolean) => {
@@ -151,7 +156,10 @@ export default class FilterboxInput<P> extends React.Component<
   }
   getSelectedOptionDetailUrl(item: any) {
     if (typeof this.props.selectedOptionDetailUrlPattern == "string")
-      return formatString(this.props.selectedOptionDetailUrlPattern, getObjectValue(item, this.props.valueProp));
+      return formatString(
+        this.props.selectedOptionDetailUrlPattern,
+        getObjectValue(item, this.props.valueProp)
+      );
     else if (typeof this.props.selectedOptionDetailUrlPattern == "function")
       return this.props.selectedOptionDetailUrlPattern(item);
     return "";
@@ -370,7 +378,8 @@ export default class FilterboxInput<P> extends React.Component<
               {this.props.multipleSelection == true &&
                 // this.props.allowClear != false && ( // kullanıcı allowclear derse hepsini silebilsin
                 this.props.allowClear &&
-                this.props.disabled != true && (
+                this.props.disabled != true &&
+                this.state.selectedOptions?.length > 0 && (
                   <XMarkIcon
                     onClick={() => this.clear()}
                     width={13}
@@ -388,7 +397,9 @@ export default class FilterboxInput<P> extends React.Component<
                 id={_dropdownTheme as string}
                 enableSearch={true}
                 buttons={this.getButtons()}
-                onSearch={(key, page) => this.onSearch(key, page)}
+                onSearch={(key, page, pageSize) =>
+                  this.onSearch(key, page, pageSize)
+                }
                 onSelectionChange={(value, button) =>
                   this.onSelection(value, button)
                 }
@@ -400,6 +411,7 @@ export default class FilterboxInput<P> extends React.Component<
                 selectedItemDisplayProp={this.props.displayProp}
                 selectedItemValueProp={this.props.valueProp}
                 searchPlaceholder={this.props.searchPlaceholder}
+                getCollectionBinder={this.props.getCollectionBinder}
                 refreshSearchList={
                   this.props.refreshOnOpen != false ||
                   this.state.refreshSearchList
@@ -407,6 +419,8 @@ export default class FilterboxInput<P> extends React.Component<
                 multipleSelection={this.props.multipleSelection ?? false}
                 refreshKey={this.state.refreshKey}
                 handleOutboundClick={true}
+                selectAllOptions={this.props.selectAllOptions}
+                selectAllOptionsTitle={this.props.selectAllOptionsTitle}
               >
                 {this.props.allowNew == true && (
                   <div
