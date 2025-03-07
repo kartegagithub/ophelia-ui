@@ -1,7 +1,7 @@
 import React, { Children, useEffect, useState } from "react";
 import { convertToBool, deepMap, getObjectValue, setObjectValue, typeCheck } from "../../Extensions/ReflectionExtensions";
 import { BaseField } from "../InputFields";
-import { findInArray, removeAtIndex } from "../../Extensions";
+import { clone, findInArray, removeAtIndex } from "../../Extensions";
 import { setFormListener } from "../InputFields/baseField";
 const Form: React.FC<{
     action?: string;
@@ -47,7 +47,9 @@ const Form: React.FC<{
         if(existing.index > -1){
           removeAtIndex(fields, existing.index)
         }
-        fields.push(field)
+        var newFields = Array.from(fields);
+        newFields.push(field)
+        setFields(newFields)
       },
       setFieldData: (name: string, value: any) => {
         setObjectValue(data, name, value);
@@ -62,17 +64,17 @@ const Form: React.FC<{
       }
     };
     useEffect(() => {
-      if(keepDataChanges)
-        setFormListener(listener);
       return () => {
         setFormListener(undefined);
       };
     }, []);
 
+    if(keepDataChanges)
+      setFormListener(listener);
+    
     const onSubmitFn = (e: React.FormEvent) => {
         if(preventSubmitEvent === true)
             e.preventDefault();
-        
         var isValid = true;
         var fieldStates = new Array<{name: string, valid: boolean, msg: string}>();
         if(fields && fields.length > 0){

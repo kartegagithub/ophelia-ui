@@ -35,6 +35,7 @@ export default class FilterboxInput<P> extends React.Component<
       high?: number;
       displayProp?: string;
       valueProp?: string;
+      displayFn?: (item: any) => React.JSX.Element
       dropDownDisplayProp?: string;
       dropDownValueProp?: string;
       valueName?: string;
@@ -166,6 +167,11 @@ export default class FilterboxInput<P> extends React.Component<
   }
   getItemDisplayText(item: any, i: number) {
     this.props.hooks?.onItemDisplayText?.(item, i);
+    var displayComponent: string | React.JSX.Element = ""
+    if(item == "string") displayComponent = item;
+    else if (typeof item != "string" && !this.props.displayFn) displayComponent = getObjectValue(item, this.props.displayProp)
+    else if(item != "string" && this.props.displayFn) displayComponent = this.props.displayFn(item)
+
     return (
       <div
         className="oph-filterboxInput-display"
@@ -191,9 +197,7 @@ export default class FilterboxInput<P> extends React.Component<
                 : "default",
           }}
         >
-          {typeof item == "string" && item}
-          {typeof item != "string" &&
-            getObjectValue(item, this.props.displayProp)}
+          {displayComponent}
         </label>
         {this.props.disabled != true && (
           <XMarkIcon
