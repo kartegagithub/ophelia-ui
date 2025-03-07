@@ -49,6 +49,7 @@ const Form: React.FC<{
         }
         var newFields = Array.from(fields);
         newFields.push(field)
+        fields.push(field)
         setFields(newFields)
       },
       setFieldData: (name: string, value: any) => {
@@ -80,7 +81,7 @@ const Form: React.FC<{
         if(fields && fields.length > 0){
           for (let index = 0; index < fields.length; index++) {
             const field: BaseField<{}> = fields[index];
-            var tmpValid = field.Validate(listener.getFieldData(field))
+            var tmpValid = field.Validate(getObjectValue(data, field.props.valueName ?? field.props.name, ""))
             if(!tmpValid) isValid = false;
             fieldStates.push({name: field.props.name, valid: tmpValid, msg: field.state.message})
           }

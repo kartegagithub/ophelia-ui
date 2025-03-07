@@ -141,9 +141,29 @@ export default class FilterboxInput<P> extends React.Component<
     if (!this.HiddenInputRef.current) return;
     if (Array.isArray(value)) {
       var arr: Array<any> = value.map(
-        (item) =>
-          parseFloatIfCan(getObjectValue(item, this.props.valueProp)) ??
-          parseFloatIfCan(item)
+        (item) =>{
+          if(typeof item == "bigint" || typeof item == "boolean" || typeof item == "number")
+            return item;
+
+          var convertedValue: any;
+          if(typeof item == "string"){
+            convertedValue = parseFloatIfCan(item);
+            if(convertedValue == -1)
+              return item;
+            return convertedValue;
+          }
+
+          if(typeof item == "object"){
+            convertedValue = parseFloatIfCan(getObjectValue(item, this.props.valueProp));
+            if(convertedValue == -1)
+              convertedValue = getObjectValue(item, this.props.valueProp);
+          }
+          
+          if(convertedValue == -1)
+            return item
+          else
+            return convertedValue;
+        }
       );
       if (arr && arr.length > 0) {
         if (this.props.multipleSelection == false)
