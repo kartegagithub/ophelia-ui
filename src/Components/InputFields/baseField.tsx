@@ -105,13 +105,13 @@ export default class BaseField<P> extends React.Component<
       if(msg !== "Skip")
         return msg;
     }
-    if(!errFn && !this.state.messageDisplayFn && this.state.hasValidationError){
+    if(!this.state.messageDisplayFn && this.state.hasValidationError){
       return (<span className="oph-inputField-errorMessage">
         {this.state.message}
       </span>)
     }
     
-    if(!errFn && this.state.messageDisplayFn && this.state.hasValidationError){
+    if(this.state.messageDisplayFn && this.state.hasValidationError){
       return <>
         {this.state.messageDisplayFn(this.props.name, this.state.message)}
       </>
