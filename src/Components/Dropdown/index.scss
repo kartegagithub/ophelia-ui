@@ -39,7 +39,7 @@
       @apply opacity-0 max-h-0;
     }
     &-allowchecked {
-      @apply flex justify-end underline text-xs text-darkSky cursor-pointer mr-1;
+      @apply flex justify-end underline text-xs text-slate-700 cursor-pointer mr-1;
     }
     &-item {
       @apply flex ps-2 items-center rounded hover:bg-gray-100 dark:hover:bg-gray-600;

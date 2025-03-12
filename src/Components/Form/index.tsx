@@ -52,15 +52,29 @@ const Form: React.FC<{
         fields.push(field)
         setFields(newFields)
       },
-      setFieldData: (name: string, value: any) => {
+      setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
         setObjectValue(data, name, value);
+        if(field && field.props.type == "filterbox" && field.props.multipleSelection !== true){
+          var idName = field.props.name;
+          if(idName.indexOf("ID") > -1) 
+            idName = idName.substring(0, idName.length - 2);
+          if(Array.isArray(rawValue))
+          {
+            if(rawValue.length > 0)
+              setObjectValue(data, idName, rawValue[0])
+            else
+              setObjectValue(data, idName, undefined)
+          }
+          else
+            setObjectValue(data, idName, rawValue)
+        }
         if(onFormDataChange) onFormDataChange(data, name)
       },
       getFieldData: (field: any) => {
         return getObjectValue(data, field.props.name, "");
       },
-      onChangeRequest: (name: string, value: any, isValid: boolean) => {
-        if(isValid != true && setFieldsEvenIfNotValid == true) listener.setFieldData(name, value);
+      onChangeRequest: (name: string, value: any, isValid: boolean, field?: any) => {
+        if(isValid != true && setFieldsEvenIfNotValid == true) listener.setFieldData(name, value, field);
         else if (onFormDataChange) onFormDataChange(data, name, value, isValid)
       }
     };
