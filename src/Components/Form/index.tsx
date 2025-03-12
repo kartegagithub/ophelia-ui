@@ -64,12 +64,7 @@ const Form: React.FC<{
         else if (onFormDataChange) onFormDataChange(data, name, value, isValid)
       }
     };
-    useEffect(() => {
-      return () => {
-        setFormListener(undefined);
-      };
-    }, []);
-
+    
     if(keepDataChanges)
       setFormListener(listener);
     

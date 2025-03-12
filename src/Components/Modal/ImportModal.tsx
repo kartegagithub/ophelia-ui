@@ -17,6 +17,7 @@ import {
     accept?: string;
     multiple?: boolean;
     onSubmit: (data: any, files: Array<FileData>, isValid: boolean) => void;
+    onSubmitButtonClicked?: (e: React.MouseEvent<HTMLButtonElement>, data: any) => void;
     children?: React.ReactNode;
     title?: string;
     AppClient?: AppClient;
@@ -32,7 +33,9 @@ import {
     multiple = false,
     onSubmit,
     children,
+    onSubmitButtonClicked = undefined
   }) => {
+      const [modalData, setModalData] = useState<any>({});
       const onFormSubmit = async (e: any, data: any, isValid: boolean, fieldStates: Array<any>) => {
         if (fileName) {
           var files = data[fileName];
@@ -55,12 +58,14 @@ import {
           text: AppClient?.Translate("Upload"),
           closeModalOnClick: false,
           type: "submit",
+          onClick: (e: any) => { onSubmitButtonClicked && onSubmitButtonClicked(e, modalData)},
           className: "bg-blue-500 p-2.5 rounded-lg border border-gray-200 text-white text-sm"
         },
       ];
       return (
         <Form
-          formData={{}}
+          formData={modalData}
+          onFormDataChange={(data) => setModalData(data)}
           onSubmit={(e: any, data: any, isValid: boolean, fieldStates: Array<any>) => onFormSubmit(e, data, isValid, fieldStates)}
           translateFn={(key) => AppClient?.Translate(key) ?? key}
         >
