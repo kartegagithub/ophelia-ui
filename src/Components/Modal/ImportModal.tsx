@@ -43,8 +43,8 @@ import {
             var arr = new Array<FileData>();
             for (let index = 0; index < files.length; index++) {
               const file = files[index];
-              convertToFileData(file, (data) => {
-                arr.push(data);
+              convertToFileData(file, (fileData) => {
+                arr.push(fileData);
                 if (index == files.length - 1 && onSubmit) onSubmit(data, arr, isValid);
               })
             }
