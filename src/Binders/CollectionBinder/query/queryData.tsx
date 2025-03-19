@@ -66,7 +66,7 @@ export default class QueryData {
       this.model.functions = [];
       for (let index = 0; index < columns.length; index++) {
         const column = columns[index];
-        if(column.AllowSummarize == true && ((typeof column.Visible == "function" && column.Visible()) || (typeof column.Visible == "boolean" && column.Visible))){
+        if(column.AllowSummarize == true && ((typeof column.Visible == "function" && column.Visible()) || (typeof column.Visible == "boolean" && column.Visible != false))){
           this.model.functions.push({ manualProcess: true, name: column.PropertyName ?? "", functionName: "Sum"})
         }
       }
