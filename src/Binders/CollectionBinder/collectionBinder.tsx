@@ -268,7 +268,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
         this.setInitData(!this.props.shownInParent && this.state.path != Router.asPath).then(() => this.onAfterSetData());
       }
-      else if(this.state.loadingState === LoadingState.Waiting){
+      else if(this.state.loadingState === LoadingState.Waiting || (prevProps && prevProps.data != this.props.data)){
         // console.log("loading binder data")
         //console.log("Reiniting binder", prevState, this.state)
         this.getData().then((data) => {
