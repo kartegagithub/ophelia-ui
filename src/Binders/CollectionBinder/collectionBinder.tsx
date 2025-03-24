@@ -51,6 +51,7 @@ export class CollectionBinderProps{
     onCheckedItemsChanged?: (items: Array<any>) => void,
     onCellClick?: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => void
     onDataChanged?: (data?: Array<any>) => void
+    renderEmptyCell?: (e: any, row: any) => JSX.Element;
   }
 }
 export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {
@@ -890,8 +891,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     return value;
   }
-  renderEmptyCell(row: any, beginningColumn: boolean, rowIndex?: number) {
-    return <></>
+  renderEmptyCell(
+    e: React.MouseEvent<HTMLTableCellElement> | undefined,
+    row: any
+  ) {
+    if (this?.props?.listener?.renderEmptyCell && this.Config?.EmptyColumnSelection)
+      return this.props.listener.renderEmptyCell(e, row);
+
+    return <></>;
   }
   renderHeader(){
     return <></>
