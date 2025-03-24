@@ -75,7 +75,7 @@ export default class DropdownFilterboxField<P> extends BaseField<
         hideSelections={this.props.hideSelections}
         optionTemplateFn={this.props.optionTemplateFn}
         getCollectionBinder={this.props.getCollectionBinder}
-        displayFn={this.props.disabledFn}
+        displayFn={this.props.displayFn}
         displayProp={
           this.props.displayProp ??
           this.props.remoteDataSource?.DisplayProp ??

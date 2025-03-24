@@ -370,7 +370,7 @@ export default class FilterboxInput<P> extends React.Component<
         <div
           id={this.props?.id}
           ref={this.RootRef}
-          className="oph-filterboxInput"
+          className={`oph-filterboxInput ${this.props.disabled == true? "disabled": ""}`}
           onDrop={(e) => this.onDrop(e)}
           onDragOver={(e) => this.onDragOver(e)}
         >
