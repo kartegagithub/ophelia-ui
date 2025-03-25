@@ -63,6 +63,7 @@ export default class FilterboxInput<P> extends React.Component<
       getCollectionBinder?: (listener: any) => React.ReactNode
       selectAllOptions?: boolean;
       selectAllOptionsTitle?: string;
+      optionTemplateFn?: (item: any) => React.JSX.Element;
     },
   {
     filteredOptions: Array<any>;
@@ -418,6 +419,7 @@ export default class FilterboxInput<P> extends React.Component<
               <Dropdown
                 key={`${this.props.id}${this.props.name}-dropdown`}
                 alwaysOpen={this.props.alwaysOpen}
+                optionTemplateFn={this.props.optionTemplateFn}
                 id={_dropdownTheme as string}
                 enableSearch={true}
                 buttons={this.getButtons()}
