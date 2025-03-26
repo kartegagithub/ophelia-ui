@@ -52,6 +52,7 @@ export default class FilterboxInput<P> extends React.Component<
       hideSelections?: boolean;
       shownInDropdown?: boolean;
       allowNew?: boolean;
+      enableSearch?: boolean;
       allowSorting?: boolean;
       selectedOptionDetailUrlPattern?: string | ((item: any) => string);
       newTextInputPlaceholder?: string;
@@ -421,7 +422,7 @@ export default class FilterboxInput<P> extends React.Component<
                 alwaysOpen={this.props.alwaysOpen}
                 optionTemplateFn={this.props.optionTemplateFn}
                 id={_dropdownTheme as string}
-                enableSearch={true}
+                enableSearch={this.props.enableSearch != false}
                 buttons={this.getButtons()}
                 onSearch={(key, page, pageSize) =>
                   this.onSearch(key, page, pageSize)
