@@ -44,6 +44,7 @@ const Table: React.FC<TableProps> = React.memo(
     appClient,
     adjustHeight = true,
     listener,
+    selectedRowIndex = -1,
     hierarchicalDisplay = false,
     hierarchyPropertyName = undefined,
     hierarchyParentValue = undefined,
@@ -59,7 +60,7 @@ const Table: React.FC<TableProps> = React.memo(
     columnData,
     isHeaderSticky = false,
   }) => {
-    var [selectedRow, setSelectedRow] = useState(-1);
+    var [selectedRow, setSelectedRow] = useState(selectedRowIndex);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
     var [editingCell, setEditingCell] = useState<TableColumnClass>();
     var [hoveredCell, setHoveredCell] = useState([-1, -1]);
@@ -1197,6 +1198,7 @@ var tableProps: {
   hierarchyParentValue?: string | number;
   allowFiltering?: boolean;
   allowSorting?: boolean;
+  selectedRowIndex?: number;
   applyRowValidation?: boolean;
   refreshKey?: string | number | undefined;
   focusForNewRow?: boolean;
