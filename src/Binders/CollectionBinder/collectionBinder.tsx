@@ -48,6 +48,7 @@ export class CollectionBinderProps{
   className?: string
   readonly?: boolean
   listener?: {
+    getSelectedRowIndex?: () => number,
     onCheckedItemsChanged?: (items: Array<any>) => void,
     onCellClick?: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => void
     onDataChanged?: (data?: Array<any>) => void
@@ -1130,6 +1131,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
                  isHeaderSticky={this.Config.StickyHeader}
                  columnData={this.state.columnData}
                  checkboxes={this.Config.Checkboxes}
+                 selectedRowIndex={this.props.listener && this.props.listener.getSelectedRowIndex ? this.props.listener.getSelectedRowIndex(): -1}
                  checkedItems={this.state.checkedItems}
                  emptyColumnToBeginning={this.Config.EmptyColumnSelection == "Beginning" || this.Config.EmptyColumnSelection == "Both"}
                  emptyColumnToEnd={this.Config.EmptyColumnSelection == "End" || this.Config.EmptyColumnSelection == "Both"}
