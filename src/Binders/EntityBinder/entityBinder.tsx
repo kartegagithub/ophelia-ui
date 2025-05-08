@@ -231,7 +231,7 @@ export default class EntityBinder<P> extends React.Component<
   async onExportButtonClicked(option: ExportOption){
     if(this.RootElementRef.current){
       if(this.Options.Export?.Mode == "screenshot"){
-        if(option.extension == "xls"){
+        if(option.extension == "xlsx"){
           var xlsExporter = new ExcelExporter();
           xlsExporter.FileName = this.getExportFileName() + "." + option.extension;
           xlsExporter.HtmlElement = this.RootElementRef.current
