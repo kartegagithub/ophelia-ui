@@ -398,7 +398,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(this.Options.Export?.Mode == "screenshot"){
         if(option.extension == "xlsx"){
           var xlsExporter = new ExcelExporter();
-          xlsExporter.FileName = this.getExportFileName() + "." + option.extension;
+          xlsExporter.FileName = this.getExportFileName() + ".xls";
           xlsExporter.HtmlElement = this.RootElementRef.current
           xlsExporter.Export();
         }
