@@ -1,6 +1,6 @@
 import { isNullOrEmpty } from "../../Extensions/StringExtensions";
 import { getAppTheme } from "../../AppTheme";
-import React, { InputHTMLAttributes, useState } from "react";
+import React, { InputHTMLAttributes, useEffect, useState } from "react";
 
 const CheckboxInput: React.FC<
   InputHTMLAttributes<HTMLInputElement> & {
@@ -30,6 +30,14 @@ const CheckboxInput: React.FC<
   const [checkedValue, setCheckedValue] = useState(
     defaultChecked || checked || false
   );
+
+  // checked prop'u değiştiğinde checkedValue'yu güncelle
+  useEffect(() => {
+    if (checked !== undefined) {
+      setCheckedValue(checked);
+    }
+  }, [checked]);
+
   const onCheckedChange = (e: any) => {
     if (readOnly == true) {
       e.preventDefault();
@@ -38,6 +46,7 @@ const CheckboxInput: React.FC<
     setCheckedValue(!checkedValue);
     if (onChange) onChange(e);
   };
+
   if (switchbox === true) {
     return (
       <label id={id} className="oph-checkboxSwitchbox">
@@ -56,8 +65,7 @@ const CheckboxInput: React.FC<
         <div className="oph-checkboxSwitchbox-switch peer"></div>
         {!isNullOrEmpty(onText) && !isNullOrEmpty(offText) && (
           <span className="oph-checkboxSwitchbox-text">
-            {checkedValue && onText}
-            {!checkedValue && offText}
+            {checkedValue ? onText : offText}
           </span>
         )}
       </label>
