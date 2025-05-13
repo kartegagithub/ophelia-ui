@@ -48,11 +48,13 @@ export class CollectionBinderProps{
   className?: string
   readonly?: boolean
   listener?: {
+    canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
     getSelectedRowIndex?: () => number,
     onCheckedItemsChanged?: (items: Array<any>) => void,
     onCellClick?: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => void
     onDataChanged?: (data?: Array<any>) => void
     renderEmptyCell?: (e: any, row: any) => JSX.Element;
+    getRowProps?: (row: any, index: number) => any;
   }
 }
 export default class CollectionBinder<P> extends React.Component<P & CollectionBinderProps, {
@@ -763,6 +765,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else if(typeof value2 == typeof value1) isDifferent = value2 != value1;
     return isDifferent;
   }
+  async canClickCell(e: React.MouseEvent<HTMLTableCellElement> | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number){
+    if(this.props.listener?.canClickCell){
+      return this.props.listener?.canClickCell(e, row, column, rowIndex, columnIndex);
+    }
+    return true;
+  }
   async onCellClick(e: React.MouseEvent<HTMLTableCellElement> | undefined, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number){
     if(!this.isImporting() && this.state.clickedRowIndex > 0 && this.state.data[this.state.clickedRowIndex].isNewRow == true && this.state.clickedRowIndex != rowIndex){
       if(this.Config.SaveActionType == "EnterKey")
@@ -881,6 +889,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);
   }
   getRowProps(row: any, index: number){
+    if(this.props.listener?.getRowProps)
+      return this.props.listener?.getRowProps(row, index);
     return {className: undefined}
   }
   getCellProps(row: any, column: TableColumnClass, rowIndex?: number, columnIndex?: number){

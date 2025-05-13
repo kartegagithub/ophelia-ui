@@ -766,13 +766,19 @@ const Table: React.FC<TableProps> = React.memo(
       }
     }
 
-    const onCellClick = (
+    const onCellClick = async (
       e: React.MouseEvent<HTMLTableCellElement> | undefined,
       row: any,
       column: TableColumnClass | undefined,
       rowIndex: number,
       columnIndex: number
     ) => {
+      if(listener?.canClickCell){
+        var canClick = await listener?.canClickCell(e, row, column, rowIndex, columnIndex);
+        if(canClick === false){
+          return;
+        }
+      }
       if (listener?.onCellClick && column)
         listener?.onCellClick(e, row, column, rowIndex, columnIndex);
 
@@ -1209,6 +1215,7 @@ var tableProps: {
   columnData?: any;
   isHeaderSticky?: boolean;
   listener?: {
+    canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
     onCellClick?: Function;
     // onRowClick?: Function;
     renderCellValue?: Function;
