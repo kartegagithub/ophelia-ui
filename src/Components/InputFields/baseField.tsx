@@ -309,6 +309,7 @@ export default class BaseField<P> extends React.Component<
   }
   Validate = (val: any, propName?: string) => {
     if(!propName) propName = this.props.name;
+    if(!this.checkVisibility(true)) return true;
 
     var isEmpty = isNullOrEmpty(val);
     var rule: InputValidationRule | undefined = undefined;

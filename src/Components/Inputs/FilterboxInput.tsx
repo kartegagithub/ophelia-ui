@@ -190,7 +190,7 @@ export default class FilterboxInput<P> extends React.Component<
   getItemDisplayText(item: any, i: number) {
     this.props.hooks?.onItemDisplayText?.(item, i);
     var displayComponent: string | React.JSX.Element = ""
-    if(item == "string") displayComponent = item;
+    if(typeof item == "string") displayComponent = item;
     else if (typeof item != "string" && !this.props.displayFn) displayComponent = getObjectValue(item, this.props.displayProp)
     else if(item != "string" && this.props.displayFn) displayComponent = this.props.displayFn(item)
 
