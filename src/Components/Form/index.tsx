@@ -1,7 +1,7 @@
 import React, { Children, useEffect, useState } from "react";
 import { convertToBool, deepMap, getObjectValue, setObjectValue, typeCheck } from "../../Extensions/ReflectionExtensions";
-import { BaseField } from "../InputFields";
-import { clone, findInArray, removeAtIndex } from "../../Extensions";
+import { BaseField, InputField } from "../InputFields";
+import { clone, findInArray, randomId, randomKey, removeAtIndex } from "../../Extensions";
 import { setFormListener } from "../InputFields/baseField";
 const Form: React.FC<{
     action?: string;
@@ -20,6 +20,7 @@ const Form: React.FC<{
     translateFn?: (key: string) => string
   }> = ({ showSeperateFieldError = true, setFieldsEvenIfNotValid = false, onFormDataChange = undefined, translateFn = undefined, target, keepDataChanges = true, formData, preventSubmitEvent = true, encType = "multipart/form-data", method = "post", action, onSubmit, className, children }) => {
     const [data, SetData] = useState(formData ?? {})
+    const [uid, setUID] = useState(randomKey(10))
     const [fields, setFields] = useState(new Array<any>());
 
     if(formData != data){
@@ -80,7 +81,7 @@ const Form: React.FC<{
     };
     
     if(keepDataChanges)
-      setFormListener(listener);
+      setFormListener(listener, uid);
     
     const onSubmitFn = (e: React.FormEvent) => {
         if(preventSubmitEvent === true)
@@ -101,7 +102,7 @@ const Form: React.FC<{
         return false;
     }
     return (
-      <form action={action} target={target} method={method} onSubmit={(e) => onSubmitFn(e)} className={`oph-form ${className}`} encType={encType} autoComplete="off">
+      <form data-uid={uid} action={action} target={target} method={method} onSubmit={(e) => onSubmitFn(e)} className={`oph-form ${className}`} encType={encType} autoComplete="off">
         {children}
       </form>
     );

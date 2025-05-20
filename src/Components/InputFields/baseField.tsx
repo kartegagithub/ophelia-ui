@@ -5,7 +5,7 @@ import {
   validateRange,
   validateEmail,
 } from "../../Extensions/StringExtensions";
-import React, { SyntheticEvent } from "react";
+import React, { Ref, RefObject, SyntheticEvent } from "react";
 import RawHTML from "../RawHTML";
 import { convertToBool, randomId } from "../../Extensions/ReflectionExtensions";
 import InputValidationRule from "./InputValidationRule";
@@ -53,6 +53,7 @@ export default class BaseField<P> extends React.Component<
   Visibility: boolean = true;
   Disabled: boolean = false;
   ID: string = randomId();
+  RootElem: RefObject<HTMLDivElement>
   constructor(props: any) {
     super(props);
     this.state = {
@@ -64,10 +65,11 @@ export default class BaseField<P> extends React.Component<
     if (this.getListener()?.registerField) {
       this.getListener()?.registerField(this);
     }
+    this.RootElem = React.createRef<HTMLDivElement>();
   }
   getListener = () => {
     if(this.props.listener) return this.props.listener;
-    var listener = getFormListener();
+    var listener = getFormListener(this.RootElem);
     return listener
   }
   checkVisibility = (setLocalvalue: boolean = true) => {
@@ -124,7 +126,7 @@ export default class BaseField<P> extends React.Component<
   render(): React.ReactNode {
     if (!this.checkVisibility()) return <></>;
     return (
-      <div id={this.props.id} className="oph-inputField">
+      <div id={this.props.id} className="oph-inputField" ref={this.RootElem}>
         <div
           className={`oph-inputField-field ${
             !this.props.labelType || this.props.labelType == "seperated"
@@ -309,8 +311,6 @@ export default class BaseField<P> extends React.Component<
   }
   Validate = (val: any, propName?: string) => {
     if(!propName) propName = this.props.name;
-    if(!this.checkVisibility(true)) return true;
-    if(!this.checkDisabled(true)) return true;
 
     var isEmpty = isNullOrEmpty(val);
     var rule: InputValidationRule | undefined = undefined;
@@ -514,11 +514,28 @@ export default class BaseField<P> extends React.Component<
 }
 
 var FormListener: any
-export const setFormListener = (listener: any) => {
+var FormListeners: any = {}
+export const setFormListener = (listener: any, uid: string) => {
   if(globalThis.window){
+    FormListeners[uid] = listener
     FormListener = listener;
   }
 }
-export const getFormListener = () => {
+export const getFormListener = (ref?: React.RefObject<any>) => {
+  if(ref && ref.current){
+    var elem = (ref.current as HTMLElement)
+    while (elem.parentElement != null && elem.parentElement?.tagName != "BODY" && elem.parentElement?.tagName != "FORM") {
+      elem = elem.parentElement;
+    }
+    if(elem.parentElement?.tagName == "FORM"){
+      var formElem = elem.parentElement as HTMLFormElement;
+      for (let index = 0; index < formElem.attributes.length; index++) {
+        const element = formElem.attributes[index];
+        if(element.name == "data-uid"){
+          return FormListeners[element.value]
+        }
+      }
+    }
+  }
   return FormListener;
 }
