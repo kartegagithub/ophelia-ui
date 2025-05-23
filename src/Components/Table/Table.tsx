@@ -903,56 +903,33 @@ const Table: React.FC<TableProps> = React.memo(
                 if (column.OnBeforeSetData)
                   column.OnBeforeSetData(row, name, value, field, isValid);
               },
-              setFieldData: (
-                name: string,
-                value: any,
-                field: any,
-                rawValue?: any
-              ) => {
-                if (
-                  rawValue &&
-                  Array.isArray(rawValue) &&
-                  rawValue.length > 0 &&
-                  multipleSelection !== true
-                ) {
+              setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
+                if (rawValue && Array.isArray(rawValue) && rawValue.length > 0 && multipleSelection !== true) {
                   rawValue = rawValue[0];
                 }
-                cellValueChanging(
-                  row,
-                  fieldName,
-                  value,
-                  column.I18n,
-                  rowIndex,
-                  columnIndex,
-                  field,
-                  rawValue
-                );
-                if (
-                  column.Filtering &&
-                  column.Filtering.ValueName &&
-                  column.Filtering.ValueName != column.Filtering?.Name
-                ) {
-                  cellValueChanging(
-                    row,
-                    column.Filtering?.Name,
-                    rawValue,
-                    column.I18n,
-                    rowIndex,
-                    columnIndex,
-                    field
-                  );
+                cellValueChanging(row, fieldName, value, column.I18n, rowIndex, columnIndex, field, rawValue);
+                if (column.Filtering && column.Filtering.Name && column.Filtering.ValueName && column.Filtering.ValueName != column.Filtering.Name) {
+                  var refValue = rawValue;
+                  if(typeof refValue == "object" && Object.hasOwn(value, column.Filtering?.Name)){
+                    refValue = refValue[column.Filtering?.Name];
+                  }
+                  cellValueChanging(row, column.Filtering?.Name, refValue, column.I18n, rowIndex, columnIndex, field);
                 }
                 if (column.OnAfterSetData)
-                  column.OnAfterSetData(row, value, field, rawValue);                 
+                  column.OnAfterSetData(row, value, field, rawValue);
               },
               getFieldData: (field: any) => {
-                if (listener?.getItemPropertyValue)
-                  return listener.getItemPropertyValue(
+                var value: any;
+                if (listener?.getItemPropertyValue){
+                  value = listener.getItemPropertyValue(
                     row,
                     column.PropertyName,
                     column.I18n
                   );
-                return getObjectValue(row, column.Filtering?.Name);
+                }
+                else
+                  value = getObjectValue(row, column.Filtering?.Name);
+                return value;
               },
             }}
             text={column.HeaderText}

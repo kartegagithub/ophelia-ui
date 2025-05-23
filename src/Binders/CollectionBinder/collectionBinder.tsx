@@ -231,6 +231,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!this.PersistentSettings.Columns) this.PersistentSettings.Columns = [];
       if(!this.PersistentSettings.PageURL) this.PersistentSettings.PageURL = path;
       if(!this.PersistentSettings.PageURL) this.PersistentSettings.BinderName = this.Config.DataSourcePath;
+      this.PersistentSettings.Columns.filter(column => !column.Text).map(column => {
+        column.Text = this.Config.Table?.Columns.find(tableColumn => tableColumn.PropertyName?.toLocaleLowerCase() == column.Name?.toLocaleLowerCase())?.HeaderText
+      })
       this.ApplySettings(this.PersistentSettings);
     }
 
@@ -551,6 +554,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             var canDelete = (await this.CanDeleteEntity(item))
             if(canDelete && !item.isNewRow){
               this.SetAsDeleted(item);
+              item.hasUnsavedChanges = true;
               if(!this.props.data)
                 await this.SaveEntity(item, item.viewOrderIndex, length)
               deletedItemCount++;
