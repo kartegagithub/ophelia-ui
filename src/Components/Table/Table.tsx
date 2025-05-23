@@ -910,7 +910,7 @@ const Table: React.FC<TableProps> = React.memo(
                 cellValueChanging(row, fieldName, value, column.I18n, rowIndex, columnIndex, field, rawValue);
                 if (column.Filtering && column.Filtering.Name && column.Filtering.ValueName && column.Filtering.ValueName != column.Filtering.Name) {
                   var refValue = rawValue;
-                  if(typeof refValue == "object" && Object.hasOwn(value, column.Filtering?.Name)){
+                  if(typeof refValue == "object" && Object.hasOwn(refValue, column.Filtering?.Name)){
                     refValue = refValue[column.Filtering?.Name];
                   }
                   cellValueChanging(row, column.Filtering?.Name, refValue, column.I18n, rowIndex, columnIndex, field);
