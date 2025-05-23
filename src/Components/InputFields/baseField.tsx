@@ -54,6 +54,7 @@ export default class BaseField<P> extends React.Component<
   Disabled: boolean = false;
   ID: string = randomId();
   RootElem: RefObject<HTMLDivElement>
+  FormListener: any
   constructor(props: any) {
     super(props);
     this.state = {
@@ -68,9 +69,12 @@ export default class BaseField<P> extends React.Component<
     this.RootElem = React.createRef<HTMLDivElement>();
   }
   getListener = () => {
-    if(this.props.listener) return this.props.listener;
-    var listener = getFormListener(this.RootElem);
-    return listener
+    if(!this.FormListener){
+      if(this.props.listener) this.FormListener = this.props.listener;
+      else this.FormListener = getFormListener(this.RootElem);
+    }
+    else if(!this.props.listener) this.FormListener = getFormListener(this.RootElem, this.FormListener.uid)
+    return this.FormListener;
   }
   checkVisibility = (setLocalvalue: boolean = true) => {
     var visibility: boolean = true;
@@ -518,10 +522,12 @@ var FormListeners: any = {}
 export const setFormListener = (listener: any, uid: string) => {
   if(globalThis.window){
     FormListeners[uid] = listener
+    listener.uid = uid;
     FormListener = listener;
   }
 }
-export const getFormListener = (ref?: React.RefObject<any>) => {
+export const getFormListener = (ref?: React.RefObject<any>, uid?: string) => {
+  if(uid && FormListeners[uid]) return FormListeners[uid];
   if(ref && ref.current){
     var elem = (ref.current as HTMLElement)
     while (elem.parentElement != null && elem.parentElement?.tagName != "BODY" && elem.parentElement?.tagName != "FORM") {
