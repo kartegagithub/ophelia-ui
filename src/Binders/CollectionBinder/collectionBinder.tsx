@@ -46,6 +46,7 @@ export class CollectionBinderProps{
   viewId?: string
   checkedItems?: Array<any>
   className?: string
+  hidePagination?: boolean
   readonly?: boolean
   listener?: {
     canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
@@ -1161,7 +1162,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
                  table={this.Config.Table} 
                  data={stateData} listener={this}/>
               </div>
-              {this.state.totalDatacount > 0 && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
+              {this.props.hidePagination != true && this.state.totalDatacount > 0 && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
             </div>
             {this.renderChildAction()}
             {!this.state.importState?.isImporting && this.state.showingSettingsModal && this.renderSettingsModal()}
