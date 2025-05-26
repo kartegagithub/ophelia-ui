@@ -765,7 +765,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else if (value1 && !value2) isDifferent = true;
     else if (typeof value1 == "string" && value1.indexOf(":") > -1) isDifferent = !value1.startsWith(value2) && !value2.startsWith(value1);
     else if(typeof value2 == typeof value1 && typeof value2 == "object"){
-      isDifferent = this.getUniqueID(value1) != this.getUniqueID(value2)
+      var uq1 = this.getUniqueID(value1);
+      var uq2 = this.getUniqueID(value2);
+      if(uq1 && uq2)
+        isDifferent = uq1 != uq2;
     }
     else if(typeof value2 == typeof value1) isDifferent = value2 != value1;
     return isDifferent;

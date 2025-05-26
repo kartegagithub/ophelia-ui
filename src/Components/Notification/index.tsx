@@ -4,6 +4,7 @@ import { getImageComponent } from "../Image/Extensions";
 import { IconProps } from "../Icon";
 import RawHTML from "../RawHTML";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { listenCustomEvent } from "../../Extensions";
 
 const Notification: React.FC<NotificationProps> = ({
   type = "success",
@@ -13,10 +14,28 @@ const Notification: React.FC<NotificationProps> = ({
   theme,
   autoClose = true,
   duration = 3000,
+  listenEvents = true,
+  defaultVisibility = false,
   onClose,
 }) => {
   const Theme = getAppTheme({ Notification: theme }).Notification;
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(defaultVisibility);
+  const [notifyData, setNotifyData] = useState(undefined);
+
+  const handleNotification = (e: any) => {
+    setNotifyData(e?.detail);
+    setIsVisible(true);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    if(listenEvents){
+      type = type ?? (notifyData as any)?.type;
+      listenCustomEvent("notification", handleNotification);
+    }
+  }, [type, handleNotification, listenEvents]);
 
   useEffect(() => {
     if (autoClose) {
@@ -32,6 +51,10 @@ const Notification: React.FC<NotificationProps> = ({
     setIsVisible(false);
     onClose?.();
   };
+
+  if (notifyData) {
+    type = (notifyData as any).type;
+  }
 
   if (!image) {
     if (type === "success") image = Theme?.SuccessImage;
@@ -52,7 +75,7 @@ const Notification: React.FC<NotificationProps> = ({
             </div>
           )}
           <h3>
-            <RawHTML html={title} />
+            <RawHTML html={title ?? (notifyData as any)?.title} />
           </h3>
         </div>
         <button 
@@ -64,7 +87,7 @@ const Notification: React.FC<NotificationProps> = ({
         </button>
       </div>
       <div className="oph-notification-content">
-        <RawHTML html={content} />
+        <RawHTML html={content ?? (notifyData as any)?.description} />
       </div>
     </div>
   );
@@ -80,6 +103,8 @@ var notificationProps: {
   image?: string | any | React.JSX.Element;
   autoClose?: boolean;
   duration?: number;
+  listenEvents?: boolean
+  defaultVisibility?: boolean
   onClose?: () => void;
 };
 
