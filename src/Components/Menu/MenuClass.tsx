@@ -27,9 +27,8 @@ export default class MenuClass{
         item.SearchVisiblity = false;
         if(!item.Component){
             if(item.Text){
-                var translatedText: string | undefined = item.Text;
-                if(AppClient && AppClient?.Translate) translatedText = AppClient?.Translate(item.Text);
-                if(translatedText && translatedText.toLocaleLowerCase(getCaseLocale()).indexOf(key) > -1) item.SearchVisiblity = true;
+                if(!item.TranslatedText) item.TranslatedText = AppClient?.Translate(item.Text);
+                if(item.TranslatedText && item.TranslatedText.toLocaleLowerCase(getCaseLocale()).indexOf(key) > -1) item.SearchVisiblity = true;
                 else item.SearchVisiblity = item.Text.toLocaleLowerCase(getCaseLocale()).indexOf(key) > -1;
             }
             if(item.SubItems){

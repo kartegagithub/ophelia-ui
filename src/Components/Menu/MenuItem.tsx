@@ -159,7 +159,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
         >
           <div className="oph-menu-item-link-content">
             <div>{LeftIconComponent}</div>
-            {AppClient ? AppClient?.Translate(item.Text) : item.Text}
+            {item.TranslatedText ?? item.Text}
           </div>
           {RightIconComponent}
         </Link>

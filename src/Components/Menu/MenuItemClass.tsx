@@ -6,6 +6,7 @@ import React from "react";
 export default class MenuItemClass {
   ID?: string
   Text?: string = undefined;
+  TranslatedText?: string = undefined;
   LeftIcon?:
     | string
     | React.JSX.Element

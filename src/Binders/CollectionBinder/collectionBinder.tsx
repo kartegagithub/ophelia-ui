@@ -47,6 +47,7 @@ export class CollectionBinderProps{
   checkedItems?: Array<any>
   className?: string
   hidePagination?: boolean
+  showTotalDataCount?: boolean
   readonly?: boolean
   listener?: {
     canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
@@ -85,6 +86,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     isImporting?: boolean, 
     importKey?: string, 
     importRequested?: boolean
+    importStatus?: string
   }}> {
 
   Config: Config = new Config();
@@ -527,14 +529,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     else if(key == "ApproveImport"){
       if(this.Options.AllowImport == true){
+        this.setImportState(this.state.importState.isImporting, this.state.importState.importKey, this.state.importState.data, "Approving");
         await this.approveImport();
-        this.setImportState(false)
+        this.setImportState(false, undefined, undefined, "Approved");
       }
     }
     else if(key == "RejectImport"){
       if(this.Options.AllowImport == true){
+        this.setImportState(this.state.importState.isImporting, this.state.importState.importKey, this.state.importState.data, "Rejecting");
         this.rejectImport();
-        this.setImportState(false)
+        this.setImportState(false, undefined, undefined, "Rejected");
       }
     }
     else if(key == "Delete"){
@@ -639,10 +643,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   isImporting(){
     return this.state && this.state.importState && this.state.importState.isImporting
   }
-  setImportState(isImporting: boolean, importKey?: string, data?: any){
+  setImportState(isImporting: boolean, importKey?: string, data?: any, status?: string){
     //console.log("setImportState", isImporting, importKey)
-    if(isImporting) this.setState({importState: { isImporting: true, importKey, data }, loadingState: LoadingState.Waiting})
-    else this.setState({importState: {isImporting: false, importRequested: false, importKey: undefined, data: undefined}, loadingState: LoadingState.Waiting})
+    if(isImporting) this.setState({importState: { isImporting: true, importKey, data, importStatus: status }, loadingState: LoadingState.Waiting})
+    else this.setState({importState: {isImporting: false, importRequested: false, importKey: undefined, data: undefined, importStatus: status}, loadingState: LoadingState.Waiting})
   }
   async approveImport(): Promise<any>{ 
     
@@ -994,7 +998,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             fileName="FilePath" 
             AppClient={this.props.AppClient} 
             onSubmit={(data, files, isValid) => this.uploadFiles(data, files, isValid)}
-            onVisibilityChange={(val) => this.setImportState(false)}
+            onVisibilityChange={(val) => this.setImportState(false, undefined, undefined, "Cancelled")}
             sampleFilePath={this.Options.Import?.SampleFile}
             message={this.Options.Import?.Message}
             >
@@ -1166,6 +1170,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
                  data={stateData} listener={this}/>
               </div>
               {this.props.hidePagination != true && this.state.totalDatacount > 0 && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
+              {this.props.hidePagination == true && this.props.showTotalDataCount != false && this.state.totalDatacount > 0 && <div className="oph-pagination">
+                <span className="oph-pagination-title">
+                    <span className="oph-pagination-datacount-text">{this.props.AppClient?.Translate("TotalDataCount")}</span>
+                    <span className="oph-pagination-datacount-value">{this.state.totalDatacount}</span>
+                  </span>
+                </div>}
             </div>
             {this.renderChildAction()}
             {!this.state.importState?.isImporting && this.state.showingSettingsModal && this.renderSettingsModal()}

@@ -38,6 +38,7 @@ const Menu: React.FC<MenuProps> = React.memo(
       <div id={id} className={`oph-menu`} key={id}>
         {menu.Items?.map((item, i) => {
           item.Level = 1;
+          if(!item.TranslatedText) item.TranslatedText = AppClient?.Translate(item.Text);
           return (
             <MenuItem
               searchKey={searchKey}
