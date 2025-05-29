@@ -1148,7 +1148,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.OnBeforeRender();
       return <>
         <div className={`oph-collectionBinders ${this.props.className ?? ""}`} key={this.state.rerenderKey}>
-          <ContentLoading appClient={this.props.AppClient} loading={this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed}>
+          <ContentLoading appClient={this.props.AppClient} loading={(this.state.loadingState != LoadingState.Loaded && this.state.loadingState != LoadingState.Failed) || (this.state.importState?.importStatus == "Approving" || this.state.importState?.importStatus == "Rejecting")}>
             {this.renderHeader()}
             {this.state.clickedRowIndex > -2 && this.Config.RowClickOption == "showEntityBinder" && this.renderChildBinder()}
             <div className="oph-collectionBinders-body">
