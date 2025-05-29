@@ -530,15 +530,19 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else if(key == "ApproveImport"){
       if(this.Options.AllowImport == true){
         this.setImportState(this.state.importState.isImporting, this.state.importState.importKey, this.state.importState.data, "Approving");
-        await this.approveImport();
-        this.setImportState(false, undefined, undefined, "Approved");
+        setTimeout(async() => {
+          await this.approveImport();
+          this.setImportState(false, undefined, undefined, "Approved");
+        }, 100)
       }
     }
     else if(key == "RejectImport"){
       if(this.Options.AllowImport == true){
         this.setImportState(this.state.importState.isImporting, this.state.importState.importKey, this.state.importState.data, "Rejecting");
-        this.rejectImport();
-        this.setImportState(false, undefined, undefined, "Rejected");
+        setTimeout(async() => {
+          this.rejectImport();
+          this.setImportState(false, undefined, undefined, "Rejected");
+        }, 100)
       }
     }
     else if(key == "Delete"){
