@@ -110,6 +110,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
     }
     const subMenuItems = item.SubItems?.map((subItem, i) => {
       subItem.Level = (item.Level ?? 0) + 1;
+      if(!subItem.TranslatedText) subItem.TranslatedText = AppClient?.Translate(subItem.Text);
       return (
         <MenuItem
           key={i}
