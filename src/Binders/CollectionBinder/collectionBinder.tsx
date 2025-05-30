@@ -52,6 +52,7 @@ export class CollectionBinderProps{
   listener?: {
     canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
     getSelectedRowIndex?: () => number,
+    canCheckRow?: (row: any, rowIndex: number) => boolean,
     onCheckedItemsChanged?: (items: Array<any>) => void,
     onCellClick?: (e: any, row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => void
     onDataChanged?: (data?: Array<any>) => void
@@ -936,10 +937,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   setCheckedItems(row: any, rowIndex: number, state: "ALL" | "NONE" | boolean){
     var checkedItems: any
     if(state == "ALL") {
-      checkedItems = this.state.data.map((item: any) => this.getUniqueID(item));
+      checkedItems = this.state.data.filter((item: any) => this.canCheckRow(item, item.viewOrderIndex)).map((item: any) => this.getUniqueID(item));
     }
     else if(state == "NONE") checkedItems = [];
-    else if(row && !row.isNewRow && this.state.checkedItems){
+    else if(row && !row.isNewRow && this.state.checkedItems && this.canCheckRow(row, rowIndex)){
       var uniqueID = this.getUniqueID(row);
       var index = this.state.checkedItems.indexOf(uniqueID);
       if(state == false && index > -1){
@@ -959,6 +960,12 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.props.listener?.onCheckedItemsChanged(checkedItems)
       }
     }
+  }
+  canCheckRow(row: any, rowIndex: number){
+    if(this.props.listener?.canCheckRow){
+      return this.props.listener.canCheckRow(row, rowIndex);
+    }
+    return true;
   }
   getUniqueID(row: any){
     return row.id;
