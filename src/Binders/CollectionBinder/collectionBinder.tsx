@@ -960,6 +960,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.props.listener?.onCheckedItemsChanged(checkedItems)
       }
     }
+    else{
+      this.setState({rerenderKey: randomKey(5)});
+    }
   }
   canCheckRow(row: any, rowIndex: number){
     if(this.props.listener?.canCheckRow){
