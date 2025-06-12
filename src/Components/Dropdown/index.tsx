@@ -161,7 +161,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (findResult.index > -1) {
       removeAtIndex(tmpOptions, findResult.index);
     } else {
-      var newOption = {};
+      var newOption: any = {};
       setObjectValue(
         newOption,
         selectedItemDisplayProp,
@@ -174,6 +174,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       );
       tmpOptions.push(newOption);
     }
+    newOption.rawData = option;
     setSelectedOptions(tmpOptions);
     if (onSelectionChange) onSelectionChange(tmpOptions);
     if (multipleSelection == false) {
