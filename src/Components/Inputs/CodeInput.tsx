@@ -18,6 +18,7 @@ export interface CodeInputProps
 }
 
 const CodeInput: React.FC<CodeInputProps> = ({
+  errorClassName,
   dataOptions,
   list,
   labelType,
@@ -35,10 +36,10 @@ const CodeInput: React.FC<CodeInputProps> = ({
       <DataList options={dataOptions} id={list} />
       <div
         id={id}
-        className={`oph-codeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-codeInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       >
         <div
-          className={`oph-codeInput-content ${props.errorClassName ? "error" : ""}`}
+          className={`oph-codeInput-content ${errorClassName ? "error" : ""}`}
         >
           <p className="oph-codeInput-content-text">{codeText}</p>
         </div>

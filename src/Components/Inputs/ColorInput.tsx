@@ -9,6 +9,7 @@ interface ColorInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const ColorInput: React.FC<ColorInputProps & AdditionalHtmlAttributes> = ({
+  errorClassName,
   className,
   style,
   defaultValue,
@@ -91,7 +92,7 @@ const ColorInput: React.FC<ColorInputProps & AdditionalHtmlAttributes> = ({
         <input
           type="text"
           onChange={(e) => onManualColorChange(e)}
-          className={`oph-colorInput-input ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+          className={`oph-colorInput-input ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
           ref={inputRef}
           value={value}
           defaultValue={defaultValue}

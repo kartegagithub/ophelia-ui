@@ -10,6 +10,7 @@ export interface DateInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
+  errorClassName,
   labelType,
   value,
   defaultValue,
@@ -30,7 +31,7 @@ const DateInput: React.FC<DateInputProps & AdditionalHtmlAttributes> = ({
     <input
       id={id}
       type="date"
-      className={`oph-dateInput peer ${props.errorClassName ? "error" : ""} ${
+      className={`oph-dateInput peer ${errorClassName ? "error" : ""} ${
         labelType && labelType === "floating" ? "floating" : ""
       }`}
       onClick={handleFocus}

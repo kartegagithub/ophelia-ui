@@ -8,6 +8,7 @@ export interface WeekInputProps
 }
 
 const WeekInput: React.FC<WeekInputProps> = ({
+  errorClassName,
   className,
   labelType,
   style,
@@ -16,7 +17,7 @@ const WeekInput: React.FC<WeekInputProps> = ({
   return (
     <input
       type="week"
-      className={`oph-weekInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-weekInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       style={style}
       {...props}
     />

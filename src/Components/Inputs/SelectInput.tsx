@@ -6,6 +6,7 @@ const SelectInput: React.FC<
     SelectInputProps &
     AdditionalHtmlAttributes
 > = ({
+  errorClassName,
   onChange = undefined,
   placeholder = undefined,
   value = undefined,
@@ -113,7 +114,7 @@ const SelectInput: React.FC<
           value={value}
           defaultValue={defaultValue}
           {...pureProps}
-          className={`oph-selectInput peer ${className} ${pureProps.errorClassName ? "error" : ""}`}
+          className={`oph-selectInput peer ${className} ${errorClassName ? "error" : ""}`}
           style={style}
         >
           {placeholder && <option>{placeholder}</option>}

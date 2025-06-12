@@ -12,6 +12,7 @@ export interface TimeInputProps
 }
 
 const TimeInput: React.FC<TimeInputProps> = ({
+  errorClassName,
   dataOptions,
   list,
   labelType,
@@ -36,7 +37,7 @@ const TimeInput: React.FC<TimeInputProps> = ({
       <DataList options={dataOptions} id={list} />
       <input
         type="time"
-        className={`oph-timeInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-timeInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         defaultValue={formattedValue}
         {...props}
         onClick={handleFocus}

@@ -9,6 +9,7 @@ export interface URLInputProps
 }
 
 const URLInput: React.FC<URLInputProps> = ({
+  errorClassName,
   dataOptions,
   list,
   className,
@@ -21,7 +22,7 @@ const URLInput: React.FC<URLInputProps> = ({
       <DataList options={dataOptions} id={list} />
       <input
         type="url"
-        className={`oph-urlInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-urlInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         {...props}
       />

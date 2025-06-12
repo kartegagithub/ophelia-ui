@@ -12,6 +12,7 @@ export interface TextAreaInputProps
 }
 
 const TextAreaInput: React.FC<TextAreaInputProps> = ({
+  errorClassName,
   labelType,
   rows,
   style,
@@ -43,7 +44,7 @@ const TextAreaInput: React.FC<TextAreaInputProps> = ({
       {...props}
       onChange={(e) => onValueChanged(e)}
       ref={inputRef}
-      className={`oph-textAreaInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-textAreaInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       rows={rows}
       style={style}
     />

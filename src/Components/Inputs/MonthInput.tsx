@@ -8,6 +8,7 @@ export interface MonthInputProps
 }
 
 const MonthInput: React.FC<MonthInputProps> = ({
+  errorClassName,
   labelType,
   style,
   id,
@@ -25,7 +26,7 @@ const MonthInput: React.FC<MonthInputProps> = ({
     <input
       id={id}
       type="month"
-      className={`oph-monthInput ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+      className={`oph-monthInput ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
       style={style}
       onClick={handleFocus}
       {...props}

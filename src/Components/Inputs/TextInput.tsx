@@ -18,6 +18,7 @@ export interface TextInputProps
 }
 
 const TextInput: React.FC<TextInputProps> = ({
+  errorClassName,
   dataOptions,
   mask,
   maskRule,
@@ -38,7 +39,7 @@ const TextInput: React.FC<TextInputProps> = ({
       <input
         type="text"
         onInput={(e) => maskHandler(mask, e, props.onChange, maskRule)}
-        className={`oph-textInput peer ${props.errorClassName ? "error" : ""} ${
+        className={`oph-textInput peer ${errorClassName ? "error" : ""} ${
           labelType && labelType === "floating" ? "floating" : ""
         } ${className}`}
         {...props}

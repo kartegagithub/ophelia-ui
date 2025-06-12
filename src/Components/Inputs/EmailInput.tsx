@@ -10,6 +10,7 @@ export interface EmailInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
+  errorClassName,
   dataOptions,
   list,
   name,
@@ -25,7 +26,7 @@ const EmailInput: React.FC<EmailInputProps & AdditionalHtmlAttributes> = ({
       <input
         id={id}
         type="email"
-        className={`oph-emailInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-emailInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         {...props}
       />

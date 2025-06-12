@@ -10,6 +10,7 @@ export interface NumberInputProps
 }
 
 const NumberInput: React.FC<NumberInputProps> = ({
+  errorClassName,
   className,
   dataOptions,
   list,
@@ -25,7 +26,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
       <input
         id={id}
         type="number"
-        className={`oph-numberInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-numberInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         {...props}
         style={style}
       />

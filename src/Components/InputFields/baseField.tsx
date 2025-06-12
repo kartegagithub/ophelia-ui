@@ -12,6 +12,7 @@ import InputValidationRule from "./InputValidationRule";
 import { FileData } from "../../Models";
 export default class BaseField<P> extends React.Component<
   P & {
+    key?: any;
     id: string;
     name: string;
     lowValueName?: string;
@@ -456,6 +457,7 @@ export default class BaseField<P> extends React.Component<
   }
   GetProps() {
     var otherProps = (({
+      key,
       rules,
       required,
       text,

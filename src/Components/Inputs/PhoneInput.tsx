@@ -10,6 +10,7 @@ export interface PhoneInputProps
 }
 
 const PhoneInput: React.FC<PhoneInputProps> = ({
+  errorClassName,
   list,
   dataOptions,
   labelType,
@@ -35,7 +36,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         onKeyDown={handleKeyDown}
         onPaste={(e) => pasteHandler(mask, e, props.onChange, maskRule)}
         type="tel"
-        className={`oph-phoneInput peer ${props.errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
+        className={`oph-phoneInput peer ${errorClassName ? "error" : ""} ${labelType && labelType === "floating" ? "floating" : ""}`}
         style={style}
         defaultValue={defaultValue}
         {...props}
