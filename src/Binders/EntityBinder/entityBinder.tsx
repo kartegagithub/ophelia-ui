@@ -154,7 +154,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     if(props.i18n) props.languageKey = `${this.state.languageID}`
     else props.languageKey = "0";
-    return <InputField languageID={this.state.languageID} translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + this.state.id + "-field-" + props.name} {...props} listener={this}/>
+    return <InputField languageID={this.state.languageID} translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + this.state.id + "-field-" + props.name + this.state.rerenderCounter} {...props} listener={this}/>
   }
   async ImageUploadHandler(fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined){
     return undefined
