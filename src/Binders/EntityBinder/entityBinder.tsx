@@ -455,7 +455,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     setObjectValue(this.state.data, "hasUnsavedChanges", true)
     this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n, () => this.imageParsed())
-    if(field && field.props.type == "filterbox" && field.props.multipleSelection !== true){
+    if(field && field.props.type == "filterbox" && field.props.multipleSelection !== true && field.props.valueProp != "itself"){
       var idName = field.props.name;
       if(idName.indexOf("ID") > -1) 
         idName = idName.substring(0, idName.length - 2);
