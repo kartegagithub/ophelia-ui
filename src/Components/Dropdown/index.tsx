@@ -174,7 +174,8 @@ const Dropdown: React.FC<DropdownProps> = ({
       );
       tmpOptions.push(newOption);
     }
-    newOption.rawData = option;
+    if(newOption)
+      newOption.rawData = option;
     setSelectedOptions(tmpOptions);
     if (onSelectionChange) onSelectionChange(tmpOptions);
     if (multipleSelection == false) {
