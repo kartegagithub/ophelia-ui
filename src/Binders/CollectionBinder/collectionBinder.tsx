@@ -664,21 +664,31 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   onCellValueChanging(row: any,  name?: string, value?: any, i18n: boolean = false, rowIndex?: number, columnIndex?: number, field?: any, rawValue?: any){
     if(!name) return;
-    if(!row.dataTracker) row.dataTracker = { changes: {}};
+    
+    var rowID = this.getUniqueID(row);
+    var existing = this.state.data.find((op: any) => this.getUniqueID(op) == rowID);
+    if(!existing)
+      existing = row;
 
-    row.dataTracker.changes[name] = {oldValue: this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true), newValue: value};
+    if(!existing.dataTracker) existing.dataTracker = { changes: {}};
+    existing.dataTracker.changes[name] = {oldValue: this.EntityOperations.getPropertyValue(existing, name, this.state.languageID, i18n, true), newValue: value};
 
-    this.EntityOperations.setFieldData(row, name, value, this.state.languageID, [], undefined, i18n)
-    row.hasUnsavedChanges = true;
+    this.EntityOperations.setFieldData(existing, name, value, this.state.languageID, [], undefined, i18n)
+    existing.hasUnsavedChanges = true;
     
     if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
       this.SaveUnsavedItems("onCellValueChanging");
     }
   }
   onCellValueChanged(row: any, column: TableColumnClass, rowIndex: number, columnIndex: number, key: string){
-    if(row.isNewRow == true && key != "Enter") return;
+    var rowID = this.getUniqueID(row);
+    var existing = this.state.data.find((op: any) => this.getUniqueID(op) == rowID);
+    if(!existing)
+      existing = row;
+
+    if(existing.isNewRow == true && key != "Enter") return;
     if(this.Config.SaveActionType == "EnterKey")
-      this.SaveEntity(row, rowIndex)
+      this.SaveEntity(existing, rowIndex)
     else {
       raiseCustomEvent("notification", { type: "warning", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("PleaseUseSaveButtonToSaveChanges")  })
     }
