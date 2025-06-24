@@ -85,7 +85,12 @@ export default class APIService {
         endpoint.Status = ServiceStatus.Error
       }
       endpoint.StatusCode = res.status
-      return res.json()
+      var contentType = res.headers.get("content-type") ?? "";
+       if(contentType.indexOf("text/plain") > -1)
+        return res.text() 
+      else
+        return res.json()
+
     }).catch((reason: any) => {
       console.error("Request Error:" + url + ", Error: " + JSON.stringify(reason))
       this.Locker?.Unlock();
@@ -97,7 +102,7 @@ export default class APIService {
     endpoint.StatusCode = 200
 
     var data = await fetcher;
-    if(data) data.responseStatusCode = endpoint.StatusCode;
+    if(data && typeof data == "object") data.responseStatusCode = endpoint.StatusCode;
     endpoint.Data = data;
     this.onAfterResponse(endpoint, data)
     return data
