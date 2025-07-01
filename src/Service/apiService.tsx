@@ -69,7 +69,7 @@ export default class APIService {
       body: this.getUploaderStream(endpoint),
       cache: "no-cache",
       headers: endpoint.Options.Headers,
-      credentials: "same-origin",
+      credentials: endpoint.Options.Credentials,
       method: endpoint.Options.Method,
       agent: httpsAgent,
     }

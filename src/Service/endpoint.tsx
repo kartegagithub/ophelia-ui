@@ -40,6 +40,7 @@ export class EndpointOptions{
     CanBeCached?: boolean = false
     CacheDuration?: number = 0
     Headers?: Record<string, any> = []
+    Credentials?: "include" | "omit" | "same-origin" = "same-origin"
     ValidateCache?: Function = undefined
     ValidateSSL?: boolean = false
     ByPassHttpsAgent?: boolean = false
