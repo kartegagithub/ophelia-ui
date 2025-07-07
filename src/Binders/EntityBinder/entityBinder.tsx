@@ -508,8 +508,11 @@ export default class EntityBinder<P> extends React.Component<
     else {
       if(!data && id && parseInt(id as string) > 0)
         this.Options.IsNewEntity = false;
-      else if(data)
-        this.Options.IsNewEntity = data?.id == 0
+      else if(data){
+        if(data?.id == undefined || data?.id == null)
+          data.id = 0;
+        this.Options.IsNewEntity = data?.id == 0;
+      }
     }
     this.setState({loadingState: data? LoadingState.Loaded: LoadingState.Waiting, id: id, data: data, messages: [], languageID: this.DefaultLanguageID})
     if(data){
