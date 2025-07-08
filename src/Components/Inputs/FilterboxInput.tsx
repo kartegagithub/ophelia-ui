@@ -66,6 +66,7 @@ export default class FilterboxInput<P> extends React.Component<
       selectAllOptions?: boolean;
       selectAllOptionsTitle?: string;
       optionTemplateFn?: (item: any) => React.JSX.Element;
+      usePortal?: boolean;
     },
   {
     filteredOptions: Array<any>;
@@ -96,16 +97,8 @@ export default class FilterboxInput<P> extends React.Component<
   updateDropdownPosition = () => {
     if (this.RootRef.current) {
       const rect = this.RootRef.current.getBoundingClientRect();
-      const dropdownHeight = 300; // approximate dropdown height, adjust as needed
-      const viewportHeight = window.innerHeight;
-
       let top = rect.bottom + window.scrollY;
       let left = rect.left + window.scrollX;
-
-      // If dropdown would overflow below viewport, position above the input
-      if (top + dropdownHeight > viewportHeight + window.scrollY) {
-        top = rect.top + window.scrollY - dropdownHeight;
-      }
 
       const newPosition = {
         top,
@@ -470,18 +463,69 @@ export default class FilterboxInput<P> extends React.Component<
           )}
           {this.props.disabled !== true &&
             this.state.showDropdown &&
-            createPortal(
-              <div
-                className="oph-filterboxInput-dropdown z-[9999] absolute"
-                style={{
-                  position: "absolute",
-                  top: this.state.dropdownPosition.top,
-                  left: this.state.dropdownPosition.left,
-                  width: this.state.dropdownPosition.width,
-                }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()} 
-              >
+            (this.props.usePortal === true ? (
+              createPortal(
+                <div
+                  className="oph-filterboxInput-dropdown z-[9999] absolute"
+                  style={{
+                    position: "absolute",
+                    top: this.state.dropdownPosition.top,
+                    left: this.state.dropdownPosition.left,
+                    width: this.state.dropdownPosition.width,
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <Dropdown
+                    key={`${this.props.id}${this.props.name}-dropdown`}
+                    alwaysOpen={this.props.alwaysOpen}
+                    optionTemplateFn={this.props.optionTemplateFn}
+                    id={_dropdownTheme as string}
+                    enableSearch={this.props.enableSearch != false}
+                    buttons={this.getButtons()}
+                    onSearch={(key, page, pageSize) =>
+                      this.onSearch(key, page, pageSize)
+                    }
+                    onSelectionChange={(value, button) =>
+                      this.onSelection(value, button)
+                    }
+                    visible={this.state.showDropdown}
+                    options={this.state.filteredOptions}
+                    defaultValue={this.state.selectedOptions}
+                    displayProp={this.props.dropDownDisplayProp}
+                    valueProp={this.props.dropDownValueProp}
+                    selectedItemDisplayProp={this.props.displayProp}
+                    selectedItemValueProp={this.props.valueProp}
+                    searchPlaceholder={this.props.searchPlaceholder}
+                    getCollectionBinder={this.props.getCollectionBinder}
+                    refreshSearchList={
+                      this.props.refreshOnOpen != false ||
+                      this.state.refreshSearchList
+                    }
+                    multipleSelection={this.props.multipleSelection ?? false}
+                    refreshKey={this.state.refreshKey}
+                    handleOutboundClick={true}
+                    selectAllOptions={this.props.selectAllOptions}
+                    selectAllOptionsTitle={this.props.selectAllOptionsTitle}
+                  >
+                    {this.props.allowNew == true && (
+                      <div
+                        className="oph-filterboxInput-dropdown-allowNew"
+                        key={`${this.props.name}_new_item`}
+                      >
+                        <TextInput
+                          className="oph-filterboxInput-dropdown-allowNew-input"
+                          placeholder={this.props.newTextInputPlaceholder}
+                          onKeyDown={(e) => this.newTextInputKeyDown(e)}
+                        />
+                      </div>
+                    )}
+                  </Dropdown>
+                </div>,
+                document.body
+              )
+            ) : (
+              <div className="oph-filterboxInput-dropdown">
                 <Dropdown
                   key={`${this.props.id}${this.props.name}-dropdown`}
                   alwaysOpen={this.props.alwaysOpen}
@@ -527,9 +571,8 @@ export default class FilterboxInput<P> extends React.Component<
                     </div>
                   )}
                 </Dropdown>
-              </div>,
-              document.body
-            )}
+              </div>
+            ))}
         </div>
       </>
     );
