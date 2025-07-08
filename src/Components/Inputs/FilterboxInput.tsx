@@ -1,5 +1,6 @@
 import { AppTheme, getAppTheme } from "../../AppTheme";
 import React, { SelectHTMLAttributes } from "react";
+import { createPortal } from "react-dom";
 import Dropdown from "../Dropdown";
 import {
   clone,
@@ -35,7 +36,7 @@ export default class FilterboxInput<P> extends React.Component<
       high?: number;
       displayProp?: string;
       valueProp?: string;
-      displayFn?: (item: any) => React.JSX.Element
+      displayFn?: (item: any) => React.JSX.Element;
       dropDownDisplayProp?: string;
       dropDownValueProp?: string;
       valueName?: string;
@@ -61,7 +62,7 @@ export default class FilterboxInput<P> extends React.Component<
       id?: string;
       alwaysOpen?: boolean;
       refreshOnOpen?: boolean;
-      getCollectionBinder?: (listener: any) => React.ReactNode
+      getCollectionBinder?: (listener: any) => React.ReactNode;
       selectAllOptions?: boolean;
       selectAllOptionsTitle?: string;
       optionTemplateFn?: (item: any) => React.JSX.Element;
@@ -73,6 +74,7 @@ export default class FilterboxInput<P> extends React.Component<
     refreshSearchList: boolean;
     refreshKey?: string;
     id?: string;
+    dropdownPosition: { top: number; left: number; width: number };
   }
 > {
   HiddenInputRef = React.createRef<HTMLInputElement>();
@@ -88,8 +90,42 @@ export default class FilterboxInput<P> extends React.Component<
       refreshSearchList: false,
       showDropdown: props.dropDownDefaultOpen === true,
       selectedOptions: selectedOptions,
+      dropdownPosition: { top: 0, left: 0, width: 0 },
     };
   }
+  updateDropdownPosition = () => {
+    if (this.RootRef.current) {
+      const rect = this.RootRef.current.getBoundingClientRect();
+      const dropdownHeight = 300; // approximate dropdown height, adjust as needed
+      const viewportHeight = window.innerHeight;
+
+      let top = rect.bottom + window.scrollY;
+      let left = rect.left + window.scrollX;
+
+      // If dropdown would overflow below viewport, position above the input
+      if (top + dropdownHeight > viewportHeight + window.scrollY) {
+        top = rect.top + window.scrollY - dropdownHeight;
+      }
+
+      const newPosition = {
+        top,
+        left,
+        width: rect.width,
+      };
+
+      const { dropdownPosition } = this.state;
+
+      if (
+        dropdownPosition.top !== newPosition.top ||
+        dropdownPosition.left !== newPosition.left ||
+        dropdownPosition.width !== newPosition.width
+      ) {
+        this.setState({
+          dropdownPosition: newPosition,
+        });
+      }
+    }
+  };
 
   async onSearch(
     key?: string,
@@ -108,6 +144,8 @@ export default class FilterboxInput<P> extends React.Component<
       this.setState({ filteredOptions: this.props.defaultValue });
       this.setHiddenInputValue(this.props.defaultValue);
     }
+    window.addEventListener("scroll", this.updateDropdownPosition, true);
+    window.addEventListener("resize", this.updateDropdownPosition);
   }
   componentDidUpdate(
     prevProps: Readonly<any>,
@@ -120,8 +158,15 @@ export default class FilterboxInput<P> extends React.Component<
       else this.setState({ filteredOptions: [] });
       this.setHiddenInputValue(this.props.defaultValue);
     }
+    // Update dropdown position if dropdown is visible
+    if (this.state.showDropdown) {
+      this.updateDropdownPosition();
+    }
   }
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.updateDropdownPosition, true);
+    window.removeEventListener("resize", this.updateDropdownPosition);
+  }
   onSelection(value?: any, clickedButton?: any) {
     if (this.props.applyText && !clickedButton) return;
     if (!this.HiddenInputRef.current) return;
@@ -142,31 +187,32 @@ export default class FilterboxInput<P> extends React.Component<
 
     if (!this.HiddenInputRef.current) return;
     if (Array.isArray(value)) {
-      var arr: Array<any> = value.map(
-        (item) =>{
-          if(typeof item == "bigint" || typeof item == "boolean" || typeof item == "number")
-            return item;
+      var arr: Array<any> = value.map((item) => {
+        if (
+          typeof item == "bigint" ||
+          typeof item == "boolean" ||
+          typeof item == "number"
+        )
+          return item;
 
-          var convertedValue: any;
-          if(typeof item == "string"){
-            convertedValue = parseFloatIfCan(item);
-            if(convertedValue == -1)
-              return item;
-            return convertedValue;
-          }
-
-          if(typeof item == "object"){
-            convertedValue = parseFloatIfCan(getObjectValue(item, this.props.valueProp));
-            if(convertedValue == -1)
-              convertedValue = getObjectValue(item, this.props.valueProp);
-          }
-          
-          if(convertedValue == -1)
-            return item
-          else
-            return convertedValue;
+        var convertedValue: any;
+        if (typeof item == "string") {
+          convertedValue = parseFloatIfCan(item);
+          if (convertedValue == -1) return item;
+          return convertedValue;
         }
-      );
+
+        if (typeof item == "object") {
+          convertedValue = parseFloatIfCan(
+            getObjectValue(item, this.props.valueProp)
+          );
+          if (convertedValue == -1)
+            convertedValue = getObjectValue(item, this.props.valueProp);
+        }
+
+        if (convertedValue == -1) return item;
+        else return convertedValue;
+      });
       if (arr && arr.length > 0) {
         if (this.props.multipleSelection == false)
           this.HiddenInputRef.current.value = arr[0];
@@ -189,10 +235,12 @@ export default class FilterboxInput<P> extends React.Component<
   }
   getItemDisplayText(item: any, i: number) {
     this.props.hooks?.onItemDisplayText?.(item, i);
-    var displayComponent: string | React.JSX.Element = ""
-    if(typeof item == "string") displayComponent = item;
-    else if (typeof item != "string" && !this.props.displayFn) displayComponent = getObjectValue(item, this.props.displayProp)
-    else if(item != "string" && this.props.displayFn) displayComponent = this.props.displayFn(item)
+    var displayComponent: string | React.JSX.Element = "";
+    if (typeof item == "string") displayComponent = item;
+    else if (typeof item != "string" && !this.props.displayFn)
+      displayComponent = getObjectValue(item, this.props.displayProp);
+    else if (item != "string" && this.props.displayFn)
+      displayComponent = this.props.displayFn(item);
 
     return (
       <div
@@ -269,7 +317,10 @@ export default class FilterboxInput<P> extends React.Component<
     this.setState({ selectedOptions: [] });
   }
   toggleDropDown() {
-    this.setState({ showDropdown: !this.state.showDropdown });
+    this.setState({ showDropdown: !this.state.showDropdown }, () => {
+      if (!this.state.showDropdown) return;
+      this.updateDropdownPosition();
+    });
   }
   onDrop(e: React.DragEvent<HTMLDivElement>) {
     if (this.props.multipleSelection != true) return;
@@ -372,7 +423,9 @@ export default class FilterboxInput<P> extends React.Component<
         <div
           id={this.props?.id}
           ref={this.RootRef}
-          className={`oph-filterboxInput ${this.props.disabled == true? "disabled": ""}`}
+          className={`oph-filterboxInput ${
+            this.props.disabled == true ? "disabled" : ""
+          }`}
           onDrop={(e) => this.onDrop(e)}
           onDragOver={(e) => this.onDragOver(e)}
         >
@@ -415,55 +468,68 @@ export default class FilterboxInput<P> extends React.Component<
                 )}
             </div>
           )}
-          {this.props.disabled !== true && (
-            <div className="oph-filterboxInput-dropdown">
-              <Dropdown
-                key={`${this.props.id}${this.props.name}-dropdown`}
-                alwaysOpen={this.props.alwaysOpen}
-                optionTemplateFn={this.props.optionTemplateFn}
-                id={_dropdownTheme as string}
-                enableSearch={this.props.enableSearch != false}
-                buttons={this.getButtons()}
-                onSearch={(key, page, pageSize) =>
-                  this.onSearch(key, page, pageSize)
-                }
-                onSelectionChange={(value, button) =>
-                  this.onSelection(value, button)
-                }
-                visible={this.state.showDropdown}
-                options={this.state.filteredOptions}
-                defaultValue={this.state.selectedOptions}
-                displayProp={this.props.dropDownDisplayProp}
-                valueProp={this.props.dropDownValueProp}
-                selectedItemDisplayProp={this.props.displayProp}
-                selectedItemValueProp={this.props.valueProp}
-                searchPlaceholder={this.props.searchPlaceholder}
-                getCollectionBinder={this.props.getCollectionBinder}
-                refreshSearchList={
-                  this.props.refreshOnOpen != false ||
-                  this.state.refreshSearchList
-                }
-                multipleSelection={this.props.multipleSelection ?? false}
-                refreshKey={this.state.refreshKey}
-                handleOutboundClick={true}
-                selectAllOptions={this.props.selectAllOptions}
-                selectAllOptionsTitle={this.props.selectAllOptionsTitle}
+          {this.props.disabled !== true &&
+            this.state.showDropdown &&
+            createPortal(
+              <div
+                className="oph-filterboxInput-dropdown z-[9999] absolute"
+                style={{
+                  position: "absolute",
+                  top: this.state.dropdownPosition.top,
+                  left: this.state.dropdownPosition.left,
+                  width: this.state.dropdownPosition.width,
+                }}
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()} 
               >
-                {this.props.allowNew == true && (
-                  <div
-                    className="oph-filterboxInput-dropdown-allowNew"
-                    key={`${this.props.name}_new_item`}
-                  >
-                    <TextInput
-                      className="oph-filterboxInput-dropdown-allowNew-input"
-                      placeholder={this.props.newTextInputPlaceholder}
-                      onKeyDown={(e) => this.newTextInputKeyDown(e)}
-                    />
-                  </div>
-                )}
-              </Dropdown>
-            </div>
-          )}
+                <Dropdown
+                  key={`${this.props.id}${this.props.name}-dropdown`}
+                  alwaysOpen={this.props.alwaysOpen}
+                  optionTemplateFn={this.props.optionTemplateFn}
+                  id={_dropdownTheme as string}
+                  enableSearch={this.props.enableSearch != false}
+                  buttons={this.getButtons()}
+                  onSearch={(key, page, pageSize) =>
+                    this.onSearch(key, page, pageSize)
+                  }
+                  onSelectionChange={(value, button) =>
+                    this.onSelection(value, button)
+                  }
+                  visible={this.state.showDropdown}
+                  options={this.state.filteredOptions}
+                  defaultValue={this.state.selectedOptions}
+                  displayProp={this.props.dropDownDisplayProp}
+                  valueProp={this.props.dropDownValueProp}
+                  selectedItemDisplayProp={this.props.displayProp}
+                  selectedItemValueProp={this.props.valueProp}
+                  searchPlaceholder={this.props.searchPlaceholder}
+                  getCollectionBinder={this.props.getCollectionBinder}
+                  refreshSearchList={
+                    this.props.refreshOnOpen != false ||
+                    this.state.refreshSearchList
+                  }
+                  multipleSelection={this.props.multipleSelection ?? false}
+                  refreshKey={this.state.refreshKey}
+                  handleOutboundClick={true}
+                  selectAllOptions={this.props.selectAllOptions}
+                  selectAllOptionsTitle={this.props.selectAllOptionsTitle}
+                >
+                  {this.props.allowNew == true && (
+                    <div
+                      className="oph-filterboxInput-dropdown-allowNew"
+                      key={`${this.props.name}_new_item`}
+                    >
+                      <TextInput
+                        className="oph-filterboxInput-dropdown-allowNew-input"
+                        placeholder={this.props.newTextInputPlaceholder}
+                        onKeyDown={(e) => this.newTextInputKeyDown(e)}
+                      />
+                    </div>
+                  )}
+                </Dropdown>
+              </div>,
+              document.body
+            )}
         </div>
       </>
     );
