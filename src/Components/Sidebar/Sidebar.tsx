@@ -6,8 +6,7 @@ import React, {
 } from "react";
 import SidebarMenuClass from "./SidebarMenuClass";
 import Menu from "../Menu/Menu";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Icon from "../Icon";
 import { getImageComponent } from "../Image/Extensions";
 import MenuClass from "../Menu/MenuClass";
@@ -26,9 +25,20 @@ const Sidebar: React.FC<{
     searchKey: "",
     stateKey: false,
   });
+  function getRelevantPath(path: string, searchParams: URLSearchParams) {
+    const allowed = ["MenuCode", "folderID", "folderTypeID", "folderName", "parentFolderName"];
+    const params: string[] = [];
+    allowed.forEach((key) => {
+      const value = searchParams.get(key);
+      if (value !== null) params.push(`${key}=${value}`);
+    });
+    return params.length > 0 ? `${path}?${params.join("&")}` : path;
+  }
   const [menuCollapsed, setMenuCollapsed] = useState<boolean>(false);
   const [mobile, setMobile] = useState<boolean>(false);
   const path = usePathname();
+  const searchParams = useSearchParams();
+  const initialPath = getRelevantPath(path, new URLSearchParams(searchParams.toString()));
   const router = useRouter();
 
   useEffect(() => {
@@ -38,7 +48,7 @@ const Sidebar: React.FC<{
       stateKey: stateKey,
     });
     if (!menu.Init) menu.Init = new MenuClass().Init;
-    if (menu.Init) menu.Init(menu, path);
+    if (menu.Init) menu.Init(menu, initialPath);
   }, [stateKey, menu]);
 
   const searchTextInMenu: KeyboardEventHandler<HTMLInputElement> = (e) => {

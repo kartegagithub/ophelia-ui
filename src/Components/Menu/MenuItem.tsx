@@ -30,13 +30,17 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
         return true;
       } else {
         e.preventDefault();
-        if(item.OnClick) item.OnClick(e);
+        if (item.OnClick) item.OnClick(e);
         if (!item.Selected) listener?.onSelect([item]);
         else listener?.onUnselect([item]);
-        if(item.WillLoadOnDemand == true && item.Selected && menu.ItemLoader && (!item.SubItems || item.SubItems.length == 0)){
+        if (
+          item.WillLoadOnDemand == true &&
+          item.Selected &&
+          menu.ItemLoader &&
+          (!item.SubItems || item.SubItems.length == 0)
+        ) {
           var items = await menu.ItemLoader(menu, item);
-          if(items)
-            item.SubItems = items;
+          if (items) item.SubItems = items;
         }
         setCollapsed(item.Selected);
         return false;
@@ -85,7 +89,11 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
       { className: item.IconClassName },
       selected
     );
-    if ((item.WillLoadOnDemand === true || (item.SubItems && item.SubItems?.length > 0)) && !item.RightIcon) {
+    if (
+      (item.WillLoadOnDemand === true ||
+        (item.SubItems && item.SubItems?.length > 0)) &&
+      !item.RightIcon
+    ) {
       RightIconComponent = getImageComponent(
         item.RightIcon ?? {
           name: collapsed && selected ? "arrow-up" : "arrow-down",
@@ -103,14 +111,15 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
 
     const getItemUrl = (item: MenuItemClass) => {
       var url = item.Location ?? "#";
-      if(item.Location && menu.PreventURLCache == true){
+      if (item.Location && menu.PreventURLCache == true) {
         url = replaceQueryParam("rnd", Math.random().toString(), url);
       }
       return url;
-    }
+    };
     const subMenuItems = item.SubItems?.map((subItem, i) => {
       subItem.Level = (item.Level ?? 0) + 1;
-      if(!subItem.TranslatedText) subItem.TranslatedText = AppClient?.Translate(subItem.Text);
+      if (!subItem.TranslatedText)
+        subItem.TranslatedText = AppClient?.Translate(subItem.Text);
       return (
         <MenuItem
           key={i}
@@ -129,7 +138,7 @@ const MenuItem: React.FC<MenuItemProps> = React.memo(
 
     var className = "oph-menu-item-link";
 
-    if (item.Location === path && item.Level)
+    if (item.Location === path ||  item.IsMenuCodeSelected && item.Level)
       className = `oph-menu-item-link selected${item.Level}`;
 
     if (menuCollapsed) {

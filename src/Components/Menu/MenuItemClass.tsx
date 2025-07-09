@@ -32,26 +32,25 @@ export default class MenuItemClass {
   Selected?: boolean = false;
   MenuCode?: string = undefined;
   Level?: number;
+  IsMenuCodeSelected?: boolean = false;
   Init? = (item: MenuItemClass, initialPath?: string) => {
-    if (item.Location && item.MenuCode) {
-      item.Location = replaceQueryParam(
-        "MenuCode",
-        item.MenuCode,
-        item.Location
-      );
+    item.IsMenuCodeSelected = false;
+    // MenuCode'u initialPath'ten çek
+    function getMenuCode(url?: string) {
+      if (!url) return null;
+      const params = url.split("?")[1];
+      if (!params) return null;
+      const searchParams = new URLSearchParams(params);
+      return searchParams.get("MenuCode");
     }
-    item.Selected = false;
-    if (
-      initialPath &&
-      item.MenuCode &&
-      initialPath.indexOf("MenuCode=" + item.MenuCode) > -1
-    )
-      item.Selected = true;
-    else if (urlMatch(initialPath, item.Location)) item.Selected = true;
+    const itemMenuCode = item.MenuCode;
+    const pathMenuCode = getMenuCode(initialPath);
+    if (itemMenuCode && pathMenuCode && itemMenuCode === pathMenuCode) {
+      item.IsMenuCodeSelected = true;
+    }
     item.SubItems?.forEach((subItem) => {
       if (!subItem.Init) subItem.Init = new MenuItemClass().Init;
       if (subItem.Init) subItem.Init(subItem, initialPath);
-      if (subItem.Selected) item.Selected = true;
     });
   };
 }
