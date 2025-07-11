@@ -6,7 +6,7 @@ export default class TableColumnClass{
     DataSource? : Array<any> | Function = undefined;
     HeaderText?: string = ""
     Format?: string = ""
-    TextFormatter?: Function = (text: string) => text;
+    TextFormatter?: Function = (text: string, row?: any, column?: TableColumnClass) => text;
     OnAfterSetData?: (row: any, value: any, field: any, rawValue?: any) => void;
     OnBeforeSetData?: (row: any, name: string, value: any, field: any, isValid: boolean) => undefined;
     Freeze?: boolean = false

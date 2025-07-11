@@ -485,12 +485,21 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     return "/";
   };
-  getLink = (record: any) => {
+  getLink = (record: any, includeFilters: boolean = false) => {
     if(this.Config.RowClickOption == "showEntityBinder") return "javascript:void(0)"
+    var url: string = "";
     if(this.Options?.DrawViewLinkInsteadOfEdit)
-      return this.getViewUrl(record.id)
+      url = this.getViewUrl(record.id)
     else
-      return this.getEditUrl(record.id)
+      url = this.getEditUrl(record.id)
+    if(includeFilters && this.props.initialFilters){
+      var keys = Object.keys(this.props.initialFilters);
+      for (let index = 0; index < keys.length; index++) {
+        const key = keys[index];
+        url = replaceQueryParam(key, this.props.initialFilters[key], url);
+      }
+    }
+    return url;
   };
   goBack(){
     if(this.props.shownInParent == true) {
@@ -506,7 +515,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           if(this.Config.RowClickOption == "showEntityBinder")
             this.setState({clickedRowIndex: -1})
           else
-            Router.push(this.getLink(this.CreateEntity()))
+            Router.push(this.getLink(this.CreateEntity(), true))
         }
         else{
           this.AddNewRow("ButtonClick");
@@ -991,9 +1000,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return index > -1;
   }
   CreateEntity(): any{
+    var newEntity: any;
     if(this.Config.NewEntityMethod == "Row")
-      return {id: 0, isNewRow: true};
-    return {id: 0};
+      newEntity = {id: 0, isNewRow: true};
+    else 
+      newEntity = {id: 0};
+    
+    if(this.props.initialFilters) newEntity = {...newEntity, ...this.props.initialFilters};
+    return newEntity;
   }
   renderChildBinder(){
     var data: any = this.CreateEntity();

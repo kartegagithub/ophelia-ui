@@ -1051,7 +1051,7 @@ const Table: React.FC<TableProps> = React.memo(
         (selectedCell[0] == rowIndex && selectedCell[1] == columnIndex
           ? "selected"
           : "");
-      if (column.TextFormatter) value = column.TextFormatter(value);
+      if (column.TextFormatter) value = column.TextFormatter(value, row, column);
 
       var unwrappedValue: string | undefined = undefined;
       if (
