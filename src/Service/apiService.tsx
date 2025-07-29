@@ -22,11 +22,28 @@ export default class APIService {
   }
 
   private getUploaderStream(endpoint: Endpoint){
-    var data = endpoint.Options.Payload? JSON.stringify(endpoint.Options.Payload): null;
+    var data: any = endpoint.Options.Payload? JSON.stringify(endpoint.Options.Payload): null;
+    if(endpoint.Options.ContentType == "multipart/form-data"){
+      const formData = new FormData();
+      if(data)
+        formData.append("requestJson", data);
+      if(endpoint.Options.Files){
+        for (let index = 0; index < endpoint.Options.Files.length; index++) {
+          const file = endpoint.Options.Files[index];
+          if(file.file)
+            formData.append(file.name ?? "file", file.file);
+        }
+      }
+      data = formData
+    }
     if(!endpoint.OnUploadProgress) return data;
     if(!data) return null;
     
-    const blob = new Blob([data]);
+    var blob: Blob
+    if(endpoint.Options.ContentType == "multipart/form-data")
+      blob = new Blob([data], { type: "multipart/form-data" });
+    else
+      blob = new Blob([data]);
     endpoint.TotalDataLength = blob.size;
     var pipe = blob.stream().pipeThrough(new TransformStream({
       transform(chunk, controller) {
@@ -64,6 +81,12 @@ export default class APIService {
     }
     endpoint.Status = ServiceStatus.Fetching
     
+    if(endpoint.Options.Files && endpoint.Options.Files.length > 0){
+      endpoint.Options.ContentType = "multipart/form-data";
+      if(endpoint.Options.Headers)
+        delete endpoint.Options.Headers["Content-Type"];
+      debugger;
+    }
     //console.log(endpoint.URL + " " + JSON.stringify(endpoint.Options.Headers))
     var options: RequestInit | any = {
       body: this.getUploaderStream(endpoint),
@@ -73,6 +96,7 @@ export default class APIService {
       method: endpoint.Options.Method,
       agent: httpsAgent,
     }
+    
     if(endpoint.OnUploadProgress)
       options.duplex = "half";
 

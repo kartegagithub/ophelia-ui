@@ -45,6 +45,7 @@ export class EndpointOptions{
     ValidateSSL?: boolean = false
     ByPassHttpsAgent?: boolean = false
     EnableConcurrentRequests?: boolean = false;
+    Files?: Array<{name: string, file?: File}>
     toString? = (apiURL: string) => {
         return `${apiURL}_${this.Method}_${JSON.stringify(this.Parameters)}`
     }
