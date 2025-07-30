@@ -186,11 +186,11 @@ export default class EntityBinder<P> extends React.Component<
   async onButtonClicked (key: string, params?: any) {
     if(key === "Save"){
       if(this.Options.AllowSave != false)
-        this.SaveEntity();
+        await this.SaveEntity();
     }
     else if(key === "Delete" && await this.ConfirmDeletion()){
       if(this.Options.AllowDelete != false)
-        this.DeleteEntity()
+        await this.DeleteEntity()
     }
     else if(key === "CopyAndSave" && !this.Options.IsNewEntity && this.Options.AllowCopyAndSave == true){
       this.resetMetaTags();

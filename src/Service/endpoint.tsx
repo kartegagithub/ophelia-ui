@@ -41,11 +41,13 @@ export class EndpointOptions{
     CacheDuration?: number = 0
     Headers?: Record<string, any> = []
     Credentials?: "include" | "omit" | "same-origin" = "same-origin"
+    IncludeCredentials?: boolean = true
     ValidateCache?: Function = undefined
     ValidateSSL?: boolean = false
     ByPassHttpsAgent?: boolean = false
     EnableConcurrentRequests?: boolean = false;
     Files?: Array<{name: string, file?: File}>
+    Infra?: "Fetch" | "Xhr" = "Fetch"
     toString? = (apiURL: string) => {
         return `${apiURL}_${this.Method}_${JSON.stringify(this.Parameters)}`
     }
