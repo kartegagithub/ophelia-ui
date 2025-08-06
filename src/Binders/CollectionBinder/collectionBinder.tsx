@@ -657,7 +657,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   isImporting(){
     return this.state && this.state.importState && this.state.importState.isImporting
   }
-  setImportState(isImporting: boolean, importKey?: string, data?: any, status?: string){
+  setImportState(isImporting?: boolean, importKey?: string, data?: any, status?: string){
     //console.log("setImportState", isImporting, importKey)
     if(isImporting) this.setState({importState: { isImporting: true, importKey, data, importStatus: status }, loadingState: LoadingState.Waiting})
     else this.setState({importState: {isImporting: false, importRequested: false, importKey: undefined, data: undefined, importStatus: status}, loadingState: LoadingState.Waiting})
@@ -749,7 +749,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
         if(data.isNewRow == true && canExecuteAdditionalActions) this.AddNewRow("AfterSaveEntity", newData, true);
-        else this.setState({data: newData});
+        else this.setState({data: newData, clickedRowIndex: -2});
 
         if(canExecuteAdditionalActions) raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
         if(data.dataTracker && data.dataTracker.changes){
@@ -758,7 +758,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
             const changeKey = changes[index];
             var savedValue = this.EntityOperations.getPropertyValue(result.data, changeKey, this.state.languageID, true, true);
             var change = data.dataTracker.changes[changeKey];
-            if(change){
+            if(change && Object.hasOwn(result.data, changeKey) && Object.hasOwn(data, changeKey)){
               var isDifferent = this.isDifferentValues(savedValue, change.newValue);
               if(isDifferent){
                 console.log("Could not save value", changeKey, data, result.data);

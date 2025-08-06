@@ -395,7 +395,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 {selectAllOptionsTitle}
               </span>
             )}
-            {filteredOptions.map((option, i) => {
+            {filteredOptions && filteredOptions.map && filteredOptions.map((option, i) => {
               var checked =
                 findInArray(
                   selectedOptions,

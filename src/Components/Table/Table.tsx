@@ -739,13 +739,6 @@ const Table: React.FC<TableProps> = React.memo(
     };
 
     const canEditCell = (row: any, column: TableColumnClass) => {
-      if (
-        !row.isNewRow &&
-        data &&
-        data.filter((item) => item.isNewRow == true).length > 0
-      )
-        return false;
-
       return (
         (column.AllowEditing == true &&
           (!row.isNewRow || column.AllowEditingOnNewRow !== false)) ||

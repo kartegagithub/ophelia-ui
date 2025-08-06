@@ -320,7 +320,7 @@ export default class EntityBinder<P> extends React.Component<
     return result;
   }
   async SaveEntity(){
-      if(!this.validateFields()) return;
+      if(!this.validateFields() || this.state.processing) return;
       var data: any = clone(this.state.data);
       var redirect: boolean = true
       if (data.id && data.id > 0) redirect = false;
@@ -470,7 +470,7 @@ export default class EntityBinder<P> extends React.Component<
         this.EntityOperations.setFieldData(this.state.data, idName, rawValue, this.state.languageID, [], field?.props?.multiple, field?.props?.i18n)
     }
     //this.checkFieldVisibilities();
-    this.setState({rerenderCounter: this.state.rerenderCounter + 1})
+    //this.setState({rerenderCounter: this.state.rerenderCounter + 1})
     if(this.props.onDataChange)
       this.props.onDataChange(this.state.data);
   }
