@@ -591,7 +591,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
               this.SetAsDeleted(item);
               item.hasUnsavedChanges = true;
               if(!this.props.data)
-                await this.SaveEntity(item, item.viewOrderIndex, length)
+                await this.SaveEntity(item, item.viewOrderIndex, length, true)
               deletedItemCount++;
             } 
           }
@@ -746,7 +746,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async CanDeleteEntity(data: any): Promise<boolean> {
     return true
   }
-  async SaveEntity(data: any, rowIndex: number, updateQueueLength: number = 0){
+  async SaveEntity(data: any, rowIndex: number, updateQueueLength: number = 0, isDeleting: boolean = false){
     try {
       //console.log("SAving", data)
       var canExecuteAdditionalActions = updateQueueLength <= 1;
@@ -761,7 +761,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
 
       //console.log("calling SAving 2", data)
       var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
-      if (!result.hasFailed && result.data) {
+      if (!result.hasFailed && result.data && !isDeleting) {
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
         if(data.isNewRow == true && canExecuteAdditionalActions) this.AddNewRow("AfterSaveEntity", newData, true);
@@ -784,13 +784,21 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           }
         }
       } else { 
-        data.isValid = false;
-        this.setState({rerenderKey: randomKey(5)})
-        if (result.messages && result.messages.length > 0) {
-          raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: result.messages[0].description  })
+        if(!result.hasFailed && isDeleting){
+          var newData = clone(this.state.data) as Array<any>;
+          newData.splice(rowIndex, 1, result.data);
+          this.setState({data: newData, clickedRowIndex: -2});
+          raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntityDeletedSuccessfully")  })
         }
-        else
-          raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
+        else{
+          data.isValid = false;
+          this.setState({rerenderKey: randomKey(5)})
+          if (result.messages && result.messages.length > 0) {
+            raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: result.messages[0].description  })
+          }
+          else
+            raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("EntityCouldNotBeSaved")  })
+        }
       }
     } catch (error) {}
     return;
