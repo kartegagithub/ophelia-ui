@@ -256,6 +256,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   ApplySettings(persistentSettings: PersistentConfig){
     if(persistentSettings.Columns && persistentSettings.Columns.length > 0 && this.Config.Table?.Columns){
+      var sortOrder: number = 0;
       persistentSettings.Columns.forEach((item) =>{
         var column = this.Config.Table?.Columns.find((col) => col.PropertyName == item.Name);
         if(column){
@@ -265,8 +266,23 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           else column.Visible = true;
           item.Text = column.HeaderText;
         }
+        sortOrder++;
       });
 
+      var missingColumnsOnPersistentSettings = this.Config.Table?.Columns.filter((tableColumn) => this.PersistentSettings.Columns.filter((persistentColumn) => persistentColumn.Name == tableColumn.PropertyName).length == 0)
+      if(missingColumnsOnPersistentSettings && missingColumnsOnPersistentSettings.length > 0){
+        for (let index = 0; index < missingColumnsOnPersistentSettings.length; index++) {
+          const tableColumn = missingColumnsOnPersistentSettings[index];
+          if(!tableColumn.PropertyName) continue;
+          persistentSettings.Columns.push({
+            Name: tableColumn.PropertyName,
+            Text: tableColumn.HeaderText,
+            Visible: true,
+            SortOrder: sortOrder
+          });
+          sortOrder++;
+        }
+      }
       this.Config.Table.Columns = this.Config.Table.Columns.sort((a,b) => (a.SortOrder ?? 0) - (b.SortOrder ?? 0))
     }
   }
