@@ -489,6 +489,11 @@ export default class FilterboxInput<P> extends React.Component<
                     onSelectionChange={(value, button) =>
                       this.onSelection(value, button)
                     }
+                    visibilityCallback={(open) => {
+                      this.setState({ showDropdown: open }, () => {
+                        if (open) this.updateDropdownPosition();
+                      });
+                    }}
                     visible={this.state.showDropdown}
                     options={this.state.filteredOptions}
                     defaultValue={this.state.selectedOptions}
@@ -539,6 +544,11 @@ export default class FilterboxInput<P> extends React.Component<
                   onSelectionChange={(value, button) =>
                     this.onSelection(value, button)
                   }
+                  visibilityCallback={(open) => {
+                    this.setState({ showDropdown: open }, () => {
+                      if (open) this.updateDropdownPosition();
+                    });
+                  }}
                   visible={this.state.showDropdown}
                   options={this.state.filteredOptions}
                   defaultValue={this.state.selectedOptions}
