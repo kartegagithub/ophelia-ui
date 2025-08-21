@@ -595,8 +595,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
               deletedItemCount++;
             } 
           }
-          if(!this.props.data)
+          if(!this.props.data){
+            this.setState({ checkedItems: [], clickedRowIndex: -2})
             this.refreshData();
+          }
           else{
             this.setState({data: newData, checkedItems: [], clickedRowIndex: -2})
             this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
@@ -787,7 +789,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         if(!result.hasFailed && isDeleting){
           var newData = clone(this.state.data) as Array<any>;
           newData.splice(rowIndex, 1, result.data);
-          this.setState({data: newData, clickedRowIndex: -2});
+          this.setState({data: newData, clickedRowIndex: -2 });
           raiseCustomEvent("notification", { type: "info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntityDeletedSuccessfully")  })
         }
         else{
