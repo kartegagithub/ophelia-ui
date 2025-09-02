@@ -207,6 +207,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       if(!column.Filtering.Name){
         if(column.Filtering.FilterByUniqueProp != false)
           column.Filtering.Name = removeLastPropName(column.PropertyName, column.Filtering.ReferencedEntityUniqueProp ?? "ID", true)
+        else
+          column.Filtering.Name = column.PropertyName;
       }
       if(filters){
         var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
