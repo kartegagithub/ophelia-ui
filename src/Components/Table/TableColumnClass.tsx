@@ -31,6 +31,8 @@ export default class TableColumnClass{
     Filtering?: {
         Type?: "text" | "file" | "month" | "week" | "url" | "phone" | "textarea"| "richtext" | "password" | "enum" | "email" | "numeric" | "filterbox" | "selectbox" | "date" | "time" | "datetime" | "checkbox" | "radio" | "range" | "image",
         Name?: string,
+        ReferencedEntityUniqueProp?: string,
+        FilterByUniqueProp?: boolean,
         EnumSelectionType?: any,
         Value?: any
         LowValue?: any

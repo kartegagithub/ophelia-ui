@@ -204,7 +204,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     this.Config?.Table?.Columns?.forEach((column) => {
       if(!column.Filtering) column.Filtering = {};
-      if(!column.Filtering.Name) column.Filtering.Name = removeLastPropName(column.PropertyName, "ID", true)
+      if(!column.Filtering.Name){
+        if(column.Filtering.FilterByUniqueProp != false)
+          column.Filtering.Name = removeLastPropName(column.PropertyName, column.Filtering.ReferencedEntityUniqueProp ?? "ID", true)
+      }
       if(filters){
         var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
         if(comparisons[fieldName] && parseInt(comparisons[fieldName]) == DataComparison.Between){
