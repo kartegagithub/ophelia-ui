@@ -33,6 +33,7 @@ import { Bars3Icon } from "@heroicons/react/24/solid";
 import { base64ToArrayBuffer, enumToArray, getObjectValue, insertToIndex } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
 import moment from "moment";
+import ISanitizeOptions from "../../Models/ISanitizeOptions";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -952,6 +953,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!this.props.shownInParent)
       Router.push("", url, { shallow: true }) 
     else this.setState({ loadingState: LoadingState.Waiting, filter: filters });
+  }
+  getSanitizeOptions(): ISanitizeOptions{
+    return { parser: { decodeEntities: false } };
   }
   getItemPropertyValue(row: any, name: string, i18n: boolean = false) {
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);

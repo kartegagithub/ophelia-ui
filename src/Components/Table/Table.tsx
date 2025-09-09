@@ -34,6 +34,7 @@ import Image from "../Image/Image";
 import { findInArray, getCaseLocale } from "../../Extensions";
 import CheckboxInput from "../Inputs/CheckboxInput";
 import { getCurrentRegionSetting } from "../../Localization";
+import ISanitizeOptions from "../../Models/ISanitizeOptions";
 const Table: React.FC<TableProps> = React.memo(
   ({
     refreshKey,
@@ -988,8 +989,14 @@ const Table: React.FC<TableProps> = React.memo(
       else value = getObjectValue(row, column.PropertyName);
 
       if (typeof value == "string") {
+        var options: ISanitizeOptions;
+        if(listener?.getSanitizeOptions)
+          options = listener?.getSanitizeOptions();
+        else
+          options = { parser: { decodeEntities: false } };
+        
         value = removeHtml(value);
-        value = sanitizeHtml(value);
+        value = sanitizeHtml(value, options);
       }
       if (
         column.Type == "date" ||
@@ -1198,6 +1205,7 @@ var tableProps: {
     onCellValueChanging?: Function;
     onSelectedRowChange?: Function;
     getItemPropertyValue?: Function;
+    getSanitizeOptions?: () => ISanitizeOptions;
     getRowProps?: Function;
     getCellProps?: Function;
     setCheckedItems?: Function;
