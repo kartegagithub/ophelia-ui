@@ -955,7 +955,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     else this.setState({ loadingState: LoadingState.Waiting, filter: filters });
   }
   getSanitizeOptions(): ISanitizeOptions{
-    return { parser: { decodeEntities: false } };
+    return { 
+              parser: {
+                decodeEntities: false 
+              }, 
+              textFilter: function(text: string) {
+                return text.replace(/&amp;/g, "&");
+            } 
+          };
   }
   getItemPropertyValue(row: any, name: string, i18n: boolean = false) {
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);

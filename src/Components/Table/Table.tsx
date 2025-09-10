@@ -992,9 +992,20 @@ const Table: React.FC<TableProps> = React.memo(
         var options: ISanitizeOptions;
         if(listener?.getSanitizeOptions)
           options = listener?.getSanitizeOptions();
-        else
-          options = { parser: { decodeEntities: false } };
+        else{
+          options = { 
+              parser: {
+                decodeEntities: false 
+              }, 
+              textFilter: function(text: string) {
+                return text.replace(/&amp;/g, "&");
+            } 
+          };
+        }
         
+        options.textFilter = function(text: string) {
+          return text.replace(/&amp;/g, "&");
+        }
         value = removeHtml(value);
         value = sanitizeHtml(value, options);
       }

@@ -5,6 +5,7 @@ import sanitizer from "sanitize-html";
 import { getDaysInMonth } from "./DateExtensions";
 import { randomId } from "./ReflectionExtensions";
 import { getCaseLocale } from "./ArrayExtensions";
+import ISanitizeOptions from "../Models/ISanitizeOptions";
 
 export function capitalizeFirstLetter(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -643,7 +644,7 @@ export function getSanitizeDefaults(): sanitizer.IDefaults {
 
 export function sanitizeHtml(
   html?: string,
-  options?: sanitizer.IOptions
+  options?: ISanitizeOptions
 ): string | undefined {
   if (!html) return "";
 
@@ -653,7 +654,7 @@ export function sanitizeHtml(
     //getSanitizeDefaults().allowedAttributes["img"] = ["src"]
     options.allowedSchemes = ["data", "http", "https"];
   }
-  return sanitizer(html, options) ?? html;
+  return sanitizer(html, options as any) ?? html;
 }
 
 /**

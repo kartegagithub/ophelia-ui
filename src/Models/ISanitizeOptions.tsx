@@ -4,6 +4,7 @@ export default interface ISanitizeOptions {
     allowedAttributes?: { 
         [key: string]: string[] 
     }, 
+    textFilter?: (text: string) => string,
     allowedSchemes?: string[],   
     allowProtocolRelative?: boolean, 
     enforceHtmlBoundary?: boolean,
