@@ -22,6 +22,8 @@ export default class Config {
   HierarchyPropertyName?: string = ""
   HierarchyParentValue?: string = ""
   EmptyColumnSelection?: "Both" | "Beginning" | "End" | "None" = "None"
+  SortingMethod?: "Server" | "Client" = "Server"
+  FilteringMethod?: "Server" | "Client" = "Server"
   beforeSendRequest? = (data: any) => {
     return data;
   }

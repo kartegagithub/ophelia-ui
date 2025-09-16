@@ -30,7 +30,7 @@ import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
-import { base64ToArrayBuffer, enumToArray, getObjectValue, insertToIndex } from "../../Extensions";
+import { base64ToArrayBuffer, enumToArray, filterInArray, getObjectValue, insertToIndex, sortByKey } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
 import moment from "moment";
 import ISanitizeOptions from "../../Models/ISanitizeOptions";
@@ -100,6 +100,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   EntityOperations: EntityOperations
   Mounted: boolean = false;
   PersistentSettings?: PersistentConfig
+  PreviousStateData: any;
   private exPersistentSettings?: PersistentConfig
   constructor(props: P & CollectionBinderProps){
     super(props)
@@ -299,7 +300,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     try {
       if(!this.state) return;
       if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
-        this.setInitData(!this.props.shownInParent && this.state.path != Router.asPath).then(() => this.onAfterSetData());
+        this.setInitData(!this.props.shownInParent && this.state.path != Router.asPath).then(() => {
+          this.onAfterSetData()
+          this.PreviousStateData = clone(this.state.data);
+        });
       }
       else if(this.state.loadingState === LoadingState.Waiting || (prevProps && prevProps.data != this.props.data)){
         // console.log("loading binder data")
@@ -307,11 +311,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.getData().then((data) => {
           this.onAfterSetData();
           if(data && data.data){
+            this.PreviousStateData = clone(data.data);
             this.ValidateColumns(data.data)
             this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: this.state.checkedItems, path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
           }
-          else if(data)
+          else if(data){
+            this.PreviousStateData = [];
             this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: this.state.checkedItems, path: Router.asPath, data: [], totalDatacount: 0, messages: data.messages})
+          }
         })
       }
       else{
@@ -322,7 +329,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
   }
   onAfterSetData(){
-
+    
   }
   setMetaTags(data: any){
     if(!this.state.data || !this.props.AppClient || !this.Config.Entity) return
@@ -909,50 +916,90 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   onSortingChanged(column: TableColumnClass, direction: string){
     //console.log("Sorting is changing: " + this.state?.sorter?.name + " => " + column.PropertyName);
-    if(column.PropertyName){
-      if(!this.props.shownInParent)
-        Router.push("", replaceQueryParam(this.state.viewId + "sortDirection", direction, replaceQueryParam(this.state.viewId + "sortBy", column.PropertyName)), { shallow: true })
-      else this.setState({sorter: { name: column.PropertyName, ascending: direction != "DESC"}, loadingState: LoadingState.Waiting})
+    if(this.Config.SortingMethod == "Client"){
+      var type: "text" | "numeric" | "date" = column.Type == "date"? "date": column.Type == "numeric"? "numeric": "text";
+      var newData = sortByKey(this.state.data, column.PropertyName ?? "", column.SortDirection?.toLowerCase(), type)
+      this.setState({data: newData, sorter: { name: column.PropertyName ?? "", ascending: direction != "DESC"}, clickedRowIndex: -2, rerenderKey: randomKey(5)})
+    }
+    else{
+      if(column.PropertyName){
+        if(!this.props.shownInParent)
+          Router.push("", replaceQueryParam(this.state.viewId + "sortDirection", direction, replaceQueryParam(this.state.viewId + "sortBy", column.PropertyName)), { shallow: true })
+        else this.setState({sorter: { name: column.PropertyName, ascending: direction != "DESC"}, loadingState: LoadingState.Waiting})
+      }
     }
   }
   onFilteringChanged(filteredColumns: Array<TableColumnClass>){
-    var filters: any = {}
-    var url = "";
-    filteredColumns.forEach(column => {
-      if(!column.Filtering) return;
-      var fieldName = column.Filtering.ValueName ?? column.Filtering.Name ?? column.PropertyName;
-      if(!fieldName) return;
+    if(this.Config.FilteringMethod == "Client"){
+      var newData = clone(this.PreviousStateData ?? this.state.data) as Array<any>;
+      filteredColumns.forEach(column => {
+        if(!column.Filtering || !column.IsFiltered) return;
 
-      if(column.Filtering.Comparison == DataComparison.Between){
-        setObjectValue(filters, fieldName + "Low", column.Filtering.LowValue ?? "")
-        url = replaceQueryParam(this.state.viewId + "Filters." + fieldName + "Low", column.Filtering.LowValue ?? "", url)
+        var fieldName = column.Filtering.ValueName ?? column.Filtering.Name ?? column.PropertyName ?? "";
+        if(!fieldName || fieldName == "") return;
 
-        setObjectValue(filters, fieldName + "High", column.Filtering.HighValue ?? "")
-        url = replaceQueryParam(this.state.viewId + "Filters." + fieldName + "High", column.Filtering.HighValue ?? "", url)
-
-        if(column.Filtering.HighValue || column.Filtering.LowValue)
-          url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
-        else
-          url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, "", url)
-      }
-      else{
-        if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
-        setObjectValue(filters, fieldName, column.Filtering.Value)
-        if(Array.isArray(column.Filtering.Value))
-          url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, JSON.stringify(column.Filtering.Value), url)
-        else
-          url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, column.Filtering.Value, url)
-        if(column.IsFiltered === true) {
-          if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
+        if(column.Filtering.Comparison == DataComparison.Between){
+          setObjectValue(filters, fieldName + "Low", column.Filtering.LowValue ?? "")
+          setObjectValue(filters, fieldName + "High", column.Filtering.HighValue ?? "")
+          newData = newData.filter((item: any) => {
+            var itemValue = this.EntityOperations.getPropertyValue(item, fieldName, this.state.languageID, true, true);
+            var isGreaterThanLow = true;
+            var isLessThanHigh = true;
+            if(column.Filtering?.LowValue || column.Filtering?.LowValue === 0){
+              isGreaterThanLow = itemValue >= column.Filtering.LowValue
+            }
+            if(column.Filtering?.HighValue || column.Filtering?.HighValue === 0){
+              isLessThanHigh = itemValue <= column.Filtering.HighValue
+            }
+            return isGreaterThanLow && isLessThanHigh;
+          })
         }
         else{
-          url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, "", url)
+          setObjectValue(filters, fieldName, column.Filtering.Value)
+          newData = filterInArray(newData, column.Filtering.Value, fieldName)
         }
-      }
-    });
-    if(!this.props.shownInParent)
-      Router.push("", url, { shallow: true }) 
-    else this.setState({ loadingState: LoadingState.Waiting, filter: filters });
+      });
+      this.setState({data: newData, filter: filters, clickedRowIndex: -2, rerenderKey: randomKey(5)})
+    }
+    else{
+      var filters: any = {}
+      var url = "";
+      filteredColumns.forEach(column => {
+        if(!column.Filtering) return;
+        var fieldName = column.Filtering.ValueName ?? column.Filtering.Name ?? column.PropertyName;
+        if(!fieldName) return;
+
+        if(column.Filtering.Comparison == DataComparison.Between){
+          setObjectValue(filters, fieldName + "Low", column.Filtering.LowValue ?? "")
+          url = replaceQueryParam(this.state.viewId + "Filters." + fieldName + "Low", column.Filtering.LowValue ?? "", url)
+
+          setObjectValue(filters, fieldName + "High", column.Filtering.HighValue ?? "")
+          url = replaceQueryParam(this.state.viewId + "Filters." + fieldName + "High", column.Filtering.HighValue ?? "", url)
+
+          if(column.Filtering.HighValue || column.Filtering.LowValue)
+            url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
+          else
+            url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, "", url)
+        }
+        else{
+          if(!column.Filtering?.Value || column.Filtering.Value == "") column.Filtering.Value = undefined;
+          setObjectValue(filters, fieldName, column.Filtering.Value)
+          if(Array.isArray(column.Filtering.Value))
+            url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, JSON.stringify(column.Filtering.Value), url)
+          else
+            url = replaceQueryParam(this.state.viewId + "Filters." + fieldName, column.Filtering.Value, url)
+          if(column.IsFiltered === true) {
+            if(column.Filtering.Comparison || column.Filtering.Comparison == 0) url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, column.Filtering.Comparison.toString(), url)
+          }
+          else{
+            url = replaceQueryParam(this.state.viewId + "Comp." + fieldName, "", url)
+          }
+        }
+      });
+      if(!this.props.shownInParent)
+        Router.push("", url, { shallow: true }) 
+      else this.setState({ loadingState: LoadingState.Waiting, filter: filters });
+    }
   }
   getSanitizeOptions(): ISanitizeOptions{
     return { 

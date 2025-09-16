@@ -1,4 +1,4 @@
-import { isNullOrEmpty } from "./StringExtensions";
+import { convertToDate, isNullOrEmpty } from "./StringExtensions";
 import { getObjectValue } from "./ReflectionExtensions";
 
 var CaseLocale = "en-US";
@@ -190,4 +190,36 @@ export function base64ToArrayBuffer(base64: string) {
   }
 
   return bytes.buffer;
+}
+
+export function sortByKey(arr: Array<any>, key: string, order = "asc", type?: "text" | "numeric" | "date", lang: string = "tr") {
+  if(!order) order = "asc";
+  if(!arr) return arr;
+  if(!lang) lang = "en-US"
+  return arr.sort((a: any, b: any) => {
+    if (a[key] === undefined || b[key] === undefined) return 0;
+
+    let comparison = 0;
+    var valA = a[key];
+    var valB = b[key];
+    if(type == "date"){
+      try {
+        valA = convertToDate(valA);  
+      } catch (error) {
+        
+      }
+      try {
+       valB = convertToDate(valB); 
+      } catch (error) {
+        
+      }
+    }
+    if (typeof valA === "string" && typeof valB === "string") {
+      comparison = valA.localeCompare(valB, lang, { sensitivity: "base" });
+    } else {
+      comparison = valA > valB ? 1 : valA < valB ? -1 : 0;
+    }
+
+    return order.toLowerCase() === "desc" ? -comparison : comparison;
+  });
 }
