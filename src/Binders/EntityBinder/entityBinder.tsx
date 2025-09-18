@@ -349,7 +349,7 @@ export default class EntityBinder<P> extends React.Component<
                 if(this.AfterSaveAction == "RefreshData"){
                   await this.GetEntity(result.data.id, undefined)
                 }
-                if(this.AfterSaveAction == "PreviousPage"){
+                if(this.AfterSaveAction == "PreviousPage" && window?.history?.length > 0){
                   Router.back();
                 }
                 else
@@ -385,7 +385,7 @@ export default class EntityBinder<P> extends React.Component<
         if (!result.hasFailed) {
           this.UploadFiles = [];
           if (this.props.shownInParent !== true) {
-            if(this.AfterSaveAction == "BackToList")
+            if(this.AfterSaveAction == "BackToList" || window?.history?.length == 0)
               Router.push(this.getBackUrl())
             else
               Router.back();
