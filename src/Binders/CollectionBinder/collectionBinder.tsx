@@ -30,7 +30,7 @@ import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
-import { base64ToArrayBuffer, enumToArray, filterInArray, getObjectValue, insertToIndex, sortByKey } from "../../Extensions";
+import { base64ToArrayBuffer, enumToArray, filterInArray, getObjectValue, insertToIndex, paginate, sortByKey } from "../../Extensions";
 import { DataComparison } from "./query/queryFilter";
 import moment from "moment";
 import ISanitizeOptions from "../../Models/ISanitizeOptions";
@@ -313,6 +313,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           if(data && data.data){
             this.PreviousStateData = clone(data.data);
             this.ValidateColumns(data.data)
+            if(this.Config.PaginationMethod == "Client"){
+              var newData = paginate(this.PreviousStateData, this.state.page ?? 1, this.state.pageSize ?? 25);
+              data.data = newData;
+            }
             this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: this.state.checkedItems, path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
           }
           else if(data){
@@ -903,16 +907,26 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
   }
   onPageChange(i: number){
-    //console.log("Page is changing: " + this.state?.page + " => " + i);
-    if(!this.props.shownInParent)
-      Router.push("", replaceQueryParam(this.state.viewId + "page", i.toString()), { shallow: true })
-    else this.setState({page: i, loadingState: LoadingState.Waiting});
+    if(this.Config.PaginationMethod == "Client"){
+      var newData = paginate(this.PreviousStateData, i, this.state.pageSize)
+      this.setState({data: newData, page: i, loadingState: LoadingState.Loaded, rerenderKey: randomKey(5)});
+    }
+    else{
+      if(!this.props.shownInParent)
+        Router.push("", replaceQueryParam(this.state.viewId + "page", i.toString()), { shallow: true })
+      else this.setState({page: i, loadingState: LoadingState.Waiting});
+    }
   }
   onPageSizeChange(i: number){
-    //console.log("PageSize is changing: " + this.state?.pageSize + " => " + i);
-    if(!this.props.shownInParent)
-      Router.push("", replaceQueryParam(this.state.viewId + "pageSize", i.toString()), { shallow: true })
-    else this.setState({pageSize: i, loadingState: LoadingState.Waiting});
+    if(this.Config.PaginationMethod == "Client"){
+      var newData = paginate(this.PreviousStateData, this.state.page, i)
+      this.setState({data: newData, page: i, loadingState: LoadingState.Loaded, rerenderKey: randomKey(5)});
+    }
+    else{
+      if(!this.props.shownInParent)
+        Router.push("", replaceQueryParam(this.state.viewId + "pageSize", i.toString()), { shallow: true })
+      else this.setState({pageSize: i, loadingState: LoadingState.Waiting});
+    }
   }
   onSortingChanged(column: TableColumnClass, direction: string){
     //console.log("Sorting is changing: " + this.state?.sorter?.name + " => " + column.PropertyName);
@@ -1267,7 +1281,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         return <></>
   
       //console.log(this.state.checkedItems)
-      var stateData = this.state.data ?? []
+      var stateData = this.state.data ?? [];
       this.setMetaTags(stateData)
       this.OnBeforeRender();
       return <>

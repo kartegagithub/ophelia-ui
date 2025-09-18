@@ -24,6 +24,7 @@ export default class Config {
   EmptyColumnSelection?: "Both" | "Beginning" | "End" | "None" = "None"
   SortingMethod?: "Server" | "Client" = "Server"
   FilteringMethod?: "Server" | "Client" = "Server"
+  PaginationMethod?: "Server" | "Client" = "Server"  
   beforeSendRequest? = (data: any) => {
     return data;
   }

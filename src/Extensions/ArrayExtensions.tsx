@@ -223,3 +223,8 @@ export function sortByKey(arr: Array<any>, key: string, order = "asc", type?: "t
     return order.toLowerCase() === "desc" ? -comparison : comparison;
   });
 }
+
+export function paginate(array: Array<any>, page: number, pageSize: number): Array<any> {
+  const start = (page - 1) * pageSize;
+  return array.slice(start, start + pageSize);
+}
