@@ -992,7 +992,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           newData = filterInArray(newData, column.Filtering.Value, fieldName)
         }
       });
-      this.setState({data: newData, filter: filters, clickedRowIndex: -2, rerenderKey: randomKey(5)})
+      this.setState({data: newData, filter: filters, page: 1, clickedRowIndex: -2, rerenderKey: randomKey(5)})
     }
     else{
       var filters: any = {}
@@ -1029,9 +1029,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           }
         }
       });
+      url = replaceQueryParam(this.state.viewId + "page", "1", url)
       if(!this.props.shownInParent)
         Router.push("", url, { shallow: true }) 
-      else this.setState({ loadingState: LoadingState.Waiting, filter: filters });
+      else this.setState({ loadingState: LoadingState.Waiting, filter: filters, page: 1});
     }
   }
   getSanitizeOptions(): ISanitizeOptions{
