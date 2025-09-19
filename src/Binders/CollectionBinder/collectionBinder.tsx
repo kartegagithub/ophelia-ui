@@ -49,6 +49,8 @@ export class CollectionBinderProps{
   className?: string
   hidePagination?: boolean
   showTotalDataCount?: boolean
+  page?: number
+  pageSize?: number
   readonly?: boolean
   listener?: {
     canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
@@ -193,8 +195,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!this.state?.viewId) viewID = this.props.shownInParent ? randomKey(4): "";
     else viewID = this.state.viewId;
 
-    var page = parseInt(getQueryParam(viewID + "page", 1));
-    var pageSize = parseInt(getQueryParam(viewID + "pageSize", 25));
+    var page = parseInt(getQueryParam(viewID + "page", this.props.page ?? 1));
+    var pageSize = parseInt(getQueryParam(viewID + "pageSize", this.props.pageSize ?? this.getDefaultPageSize()));
     var sortBy = getQueryParam(viewID + "sortBy", "");
     var sortDirection = getQueryParam(viewID + "sortDirection", "");
     var filters = queryParamsAsObject(viewID + "Filters.", true)
@@ -248,16 +250,21 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.ApplySettings(this.PersistentSettings);
     }
 
+    var totalCount = 0;
     var loadingState = data? LoadingState.Loaded: LoadingState.Waiting;
     if(this.state && this.state.loadingState == LoadingState.Loading)
       loadingState = LoadingState.Loading;
-
+    if(data && (this.Config.PaginationMethod == "Client" || this.Config.FilteringMethod == "Client" || this.Config.SortingMethod == "Client" || this.props.data)){
+      data = this.getClientSideData(data);
+      if(this.PreviousStateData)
+        totalCount = this.PreviousStateData.length;
+    }
     if(!this.props.shownInParent){
-      this.setState({checkedItems: this.props.checkedItems ?? [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+      this.setState({checkedItems: this.props.checkedItems ?? [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, totalDatacount: totalCount, messages: [], languageID: this.UserLanguageID})
     }
     else{
       setTimeout(() => {
-        this.setState({checkedItems: this.props.checkedItems ?? [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, messages: [], languageID: this.UserLanguageID})
+        this.setState({checkedItems: this.props.checkedItems ?? [], viewId: viewID, dataIndex: 0, path: Router.asPath, clickedRowIndex: -2, initialized: true, loadingState: loadingState, page: page, pageSize: pageSize, filter: filters, sorter: {name: sortBy, ascending : sortDirection === "ASC"}, data: data, totalDatacount: totalCount, messages: [], languageID: this.UserLanguageID})
       }, 1000);
     }
   }
@@ -296,13 +303,13 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async GetPersistentSetting(pageURL: string, binderName?: string): Promise<PersistentConfig | undefined> {
     return undefined;
   }
+  
   componentDidUpdate(prevProps: any, prevState: any){
     try {
       if(!this.state) return;
       if(this.state.path != Router.asPath || (this.state.loadingState == LoadingState.Loaded && !this.state.data)){
         this.setInitData(!this.props.shownInParent && this.state.path != Router.asPath).then(() => {
           this.onAfterSetData()
-          this.PreviousStateData = clone(this.state.data);
         });
       }
       else if(this.state.loadingState === LoadingState.Waiting || (prevProps && prevProps.data != this.props.data)){
@@ -311,12 +318,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         this.getData().then((data) => {
           this.onAfterSetData();
           if(data && data.data){
-            this.PreviousStateData = clone(data.data);
             this.ValidateColumns(data.data)
-            if(this.Config.PaginationMethod == "Client"){
-              var newData = paginate(this.PreviousStateData, this.state.page ?? 1, this.state.pageSize ?? 25);
-              data.data = newData;
-            }
+            data.data = this.getClientSideData(data.data);
             this.setState({dataIndex: this.state.dataIndex + 1, columnData: data.columnData, checkedItems: this.state.checkedItems, path: Router.asPath, data: data.data, totalDatacount: data.totalDataCount, messages: data.messages})
           }
           else if(data){
@@ -331,6 +334,22 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     } catch (error) {
       console.error(error)
     }
+  }
+  getClientSideData(data?: Array<any>){
+    if(!data) return data;
+
+    this.PreviousStateData = clone(data);
+    if(this.Config.PaginationMethod == "Client" || this.props.data){
+      var newData = paginate(this.PreviousStateData, this.state?.page ?? this.props.page ?? 1, this.state?.pageSize ?? this.props.pageSize ?? this.getDefaultPageSize());
+      return newData;
+    }
+    return data;
+  }
+  getDefaultPageSize(){
+    return 25;
+  }
+  getPageSizeOptions(){
+    return [25, 50, 100];
   }
   onAfterSetData(){
     
@@ -907,7 +926,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.setState({clickedRowIndex: -2, loadingState: LoadingState.Waiting})
   }
   onPageChange(i: number){
-    if(this.Config.PaginationMethod == "Client"){
+    if(this.Config.PaginationMethod == "Client" || this.props.data){
       var newData = paginate(this.PreviousStateData, i, this.state.pageSize)
       this.setState({data: newData, page: i, loadingState: LoadingState.Loaded, rerenderKey: randomKey(5)});
     }
@@ -918,19 +937,19 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
   }
   onPageSizeChange(i: number){
-    if(this.Config.PaginationMethod == "Client"){
-      var newData = paginate(this.PreviousStateData, this.state.page, i)
-      this.setState({data: newData, page: i, loadingState: LoadingState.Loaded, rerenderKey: randomKey(5)});
+    if(this.Config.PaginationMethod == "Client" || this.props.data){
+      var newData = paginate(this.PreviousStateData, 1, i)
+      this.setState({data: newData, page: 1, pageSize: i, loadingState: LoadingState.Loaded, rerenderKey: randomKey(5)});
     }
     else{
       if(!this.props.shownInParent)
-        Router.push("", replaceQueryParam(this.state.viewId + "pageSize", i.toString()), { shallow: true })
-      else this.setState({pageSize: i, loadingState: LoadingState.Waiting});
+        Router.push("", replaceQueryParam(this.state.viewId + "page", "1", replaceQueryParam(this.state.viewId + "pageSize", i.toString())), { shallow: true })
+      else this.setState({page: 1, pageSize: i, loadingState: LoadingState.Waiting});
     }
   }
   onSortingChanged(column: TableColumnClass, direction: string){
     //console.log("Sorting is changing: " + this.state?.sorter?.name + " => " + column.PropertyName);
-    if(this.Config.SortingMethod == "Client"){
+    if(this.Config.SortingMethod == "Client" || this.props.data){
       var type: "text" | "numeric" | "date" = column.Type == "date"? "date": column.Type == "numeric"? "numeric": "text";
       var newData = sortByKey(this.state.data, column.PropertyName ?? "", column.SortDirection?.toLowerCase(), type)
       this.setState({data: newData, sorter: { name: column.PropertyName ?? "", ascending: direction != "DESC"}, clickedRowIndex: -2, rerenderKey: randomKey(5)})
@@ -944,7 +963,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
   }
   onFilteringChanged(filteredColumns: Array<TableColumnClass>){
-    if(this.Config.FilteringMethod == "Client"){
+    if(this.Config.FilteringMethod == "Client" || this.props.data){
       var newData = clone(this.PreviousStateData ?? this.state.data) as Array<any>;
       filteredColumns.forEach(column => {
         if(!column.Filtering || !column.IsFiltered) return;
@@ -1311,7 +1330,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
                  table={this.Config.Table} 
                  data={stateData} listener={this}/>
               </div>
-              {this.props.hidePagination != true && this.state.totalDatacount > 0 && <Pagination pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
+              {this.props.hidePagination != true && this.state.totalDatacount > 0 && <Pagination pageSizes={this.getPageSizeOptions()} pagesTitle={this.props.AppClient?.Translate("{0}/{1}")} pageSizeSelectionText={this.props.AppClient?.Translate("PageSize")} pageUrl="" totalDatacount={this.state.totalDatacount} datacount={stateData.length} pageSize={this.state.pageSize} page={this.state.page} onChange={(e: any, i: number) => this.onPageChange(i)} onPageSizeChange={(e: any, i: number) => this.onPageSizeChange(i)} />}
               {this.props.hidePagination == true && this.props.showTotalDataCount != false && this.state.totalDatacount > 0 && <div className="oph-pagination">
                 <span className="oph-pagination-title">
                     <span className="oph-pagination-datacount-text">{this.props.AppClient?.Translate("TotalDataCount")}</span>
