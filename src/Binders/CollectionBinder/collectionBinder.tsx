@@ -951,8 +951,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     //console.log("Sorting is changing: " + this.state?.sorter?.name + " => " + column.PropertyName);
     if(this.Config.SortingMethod == "Client" || this.props.data){
       var type: "text" | "numeric" | "date" = column.Type == "date"? "date": column.Type == "numeric"? "numeric": "text";
-      var newData = sortByKey(this.state.data, column.PropertyName ?? "", column.SortDirection?.toLowerCase(), type)
-      this.setState({data: newData, sorter: { name: column.PropertyName ?? "", ascending: direction != "DESC"}, clickedRowIndex: -2, rerenderKey: randomKey(5)})
+      var newData = sortByKey(this.PreviousStateData, column.PropertyName ?? "", column.SortDirection?.toLowerCase(), type)
+      newData = paginate(newData, 1, this.state.pageSize);
+      this.setState({data: newData, page: 1, sorter: { name: column.PropertyName ?? "", ascending: direction != "DESC"}, clickedRowIndex: -2, rerenderKey: randomKey(5)})
     }
     else{
       if(column.PropertyName){
