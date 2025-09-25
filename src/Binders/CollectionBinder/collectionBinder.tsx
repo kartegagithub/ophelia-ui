@@ -339,7 +339,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(!data) return data;
 
     this.PreviousStateData = clone(data);
-    if(this.Config.PaginationMethod == "Client" || this.props.data){
+    if((this.Config.PaginationMethod == "Client" || this.props.data) && this.props.hidePagination != true){
       var newData = paginate(this.PreviousStateData, this.state?.page ?? this.props.page ?? 1, this.state?.pageSize ?? this.props.pageSize ?? this.getDefaultPageSize());
       return newData;
     }
@@ -952,7 +952,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(this.Config.SortingMethod == "Client" || this.props.data){
       var type: "text" | "numeric" | "date" = column.Type == "date"? "date": column.Type == "numeric"? "numeric": "text";
       var newData = sortByKey(this.PreviousStateData, column.PropertyName ?? "", column.SortDirection?.toLowerCase(), type)
-      newData = paginate(newData, 1, this.state.pageSize);
+      if(this.props.hidePagination != true)
+        newData = paginate(newData, 1, this.state.pageSize);
       this.setState({data: newData, page: 1, sorter: { name: column.PropertyName ?? "", ascending: direction != "DESC"}, clickedRowIndex: -2, rerenderKey: randomKey(5)})
     }
     else{
