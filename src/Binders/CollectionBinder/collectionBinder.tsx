@@ -461,6 +461,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           var xlsExporter = new ExcelExporter();
           xlsExporter.FileName = this.getExportFileName() + ".xls";
           xlsExporter.HtmlElement = this.RootElementRef.current
+          if(this.props.data){
+              xlsExporter.Data = this.PreviousStateData;
+              xlsExporter.DataColumnMapping = this.Config.Table?.Columns.filter((col) => ((typeof col.Visible != "function" && col.Visible != false) || (typeof col.Visible == "function" && col.Visible())) && !!col.PropertyName).map((col) => { return { key: col.PropertyName ?? "", title: col.HeaderText ?? "", type: col.Type ?? "text" } })
+          }
           xlsExporter.Export();
         }
       }
