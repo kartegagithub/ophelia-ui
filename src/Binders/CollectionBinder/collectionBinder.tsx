@@ -642,6 +642,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
           }
           else{
             this.setState({data: newData, checkedItems: [], clickedRowIndex: -2})
+            if(this.props.listener && this.props.listener.onDataChanged) this.props.listener.onDataChanged(newData)
             this.props.parent?.onChildAction("ListChanged", {newData: newData, key: this.props.viewId});
           }
         }
@@ -743,7 +744,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
 
     this.EntityOperations.setFieldData(existing, name, value, this.state.languageID, [], undefined, i18n)
     existing.hasUnsavedChanges = true;
-    
+    if(this.props.listener && this.props.listener.onDataChanged) this.props.listener.onDataChanged(this.state.data)
+
     if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
       this.SaveUnsavedItems("onCellValueChanging");
     }
