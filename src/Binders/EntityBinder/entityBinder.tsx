@@ -17,7 +17,7 @@ import CollectionBinder from "../CollectionBinder/collectionBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import FileData from "../../Models/FileData";
 import { EntityOperations } from "../EntityOperations";
-import { findInArray, getCaseLocale, getObjectValue, removeAtIndex, setObjectValue } from "../../Extensions";
+import { findInArray, getCaseLocale, getObjectValue, randomKey, removeAtIndex, setObjectValue } from "../../Extensions";
 import ContentLoading from "../../Components/ContentLoading";
 export class EntityBinderProps{
   Options?: BinderOptions
@@ -154,6 +154,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     if(props.i18n) props.languageKey = `${this.state.languageID}`
     else props.languageKey = "0";
+    props.rerenderKey = this.state.rerenderKey;
     return <InputField languageID={this.state.languageID} translateFn={(key: string) => this.props.AppClient?.Translate(key)} key={this.Entity + this.state.id + "-field-" + props.name + this.state.rerenderCounter} {...props} listener={this}/>
   }
   async ImageUploadHandler(fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined){
@@ -470,7 +471,7 @@ export default class EntityBinder<P> extends React.Component<
         this.EntityOperations.setFieldData(this.state.data, idName, rawValue, this.state.languageID, [], field?.props?.multiple, field?.props?.i18n)
     }
     //this.checkFieldVisibilities();
-    //this.setState({rerenderCounter: this.state.rerenderCounter + 1})
+    this.setState({rerenderKey: randomKey(5)})
     if(this.props.onDataChange)
       this.props.onDataChange(this.state.data);
   }
