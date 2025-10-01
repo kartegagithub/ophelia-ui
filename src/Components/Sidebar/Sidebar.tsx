@@ -17,7 +17,7 @@ const Sidebar: React.FC<{
   menu: SidebarMenuClass
   id?: string
   stateKey?: any
-  sidebarToggle?: boolean
+  sidebarToggle?: boolean | null
   children?: React.ReactNode
   AppClient?: AppClient
 }> = React.memo(
@@ -63,7 +63,9 @@ const Sidebar: React.FC<{
     }, [stateKey, menu])
 
     useEffect(() => {
-      setMenuCollapsed((prev) => !prev)
+      if (sidebarToggle !== null) {
+        setMenuCollapsed((prev) => !prev)
+      }
     }, [sidebarToggle])
 
     const searchTextInMenu: KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -84,9 +86,7 @@ const Sidebar: React.FC<{
           <label className='oph-sidebarSearch-label'>
             {currentState.menu.SearchIconPosition === 'left' && (
               <span
-                className={`oph-sidebarSearch-label-searchIcon ${
-                  menuCollapsed && 'collapsed'
-                }`}
+                className={`oph-sidebarSearch-label-searchIcon ${menuCollapsed ? 'collapsed' : ''}`}
                 onClick={() => setMenuCollapsed(false)}
               >
                 {iconComponent}
@@ -96,9 +96,7 @@ const Sidebar: React.FC<{
               type='text'
               onKeyUp={searchTextInMenu}
               placeholder='Search'
-              className={`oph-sidebarSearch-label-input ${
-                menuCollapsed && 'collapsed'
-              }`}
+              className={`oph-sidebarSearch-label-input ${menuCollapsed ? 'collapsed' : ''}`}
             />
             {currentState.menu.SearchIconPosition === 'right' && (
               <span className='oph-sidebarSearch-label-right'>
@@ -115,7 +113,7 @@ const Sidebar: React.FC<{
     return (
       <>
         <button
-          className={`oph-sidebar-mobileSwitchButton ${mobile && 'hidden'}`}
+          className={`oph-sidebar-mobileSwitchButton ${mobile ? 'hidden' : ''}`}
           onClick={() => {
             setMobile(!mobile), setMenuCollapsed(false)
           }}
@@ -123,9 +121,7 @@ const Sidebar: React.FC<{
           <Icon name='collapsedMenu' color='black' />
         </button>
         <div
-          className={`oph-sidebar ${!menuCollapsed ? 'open' : 'collapsed'} ${
-            mobile && 'mobile'
-          }`}
+          className={`oph-sidebar ${!menuCollapsed ? 'open' : 'collapsed'} ${mobile ? 'mobile' : ''}`}
           key={id}
           id={id}
         >
