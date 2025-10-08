@@ -31,7 +31,7 @@ import {
 import Checkbox from "../Inputs/CheckboxInput";
 import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
-import { findInArray, getCaseLocale } from "../../Extensions";
+import { findInArray, formatDataToString, getCaseLocale } from "../../Extensions";
 import CheckboxInput from "../Inputs/CheckboxInput";
 import { getCurrentRegionSetting } from "../../Localization";
 import ISanitizeOptions from "../../Models/ISanitizeOptions";
@@ -558,6 +558,9 @@ const Table: React.FC<TableProps> = React.memo(
         listener?.setCheckedItems(row, rowIndex, checked);
     };
 
+    const formatColumnValue = (column: TableColumnClass, value: any) => {
+      return formatDataToString(value, column.DecimalPlaces);
+    }
     const renderColumnData = () => {
       if (!columnData) return <></>;
       var keys = Object.keys(columnData);
@@ -568,13 +571,7 @@ const Table: React.FC<TableProps> = React.memo(
           (k) => k.toLocaleLowerCase(getCaseLocale()) == col.PropertyName?.toLocaleLowerCase(getCaseLocale())
         );
         if (!key) return <></>;
-        if (columnData[key].toLocaleString) {
-          return columnData[key].toLocaleString(
-            getCurrentRegionSetting()?.Code,
-            { minimumFractionDigits: 2 }
-          );
-        }
-        return columnData[key];
+        return formatColumnValue(col, columnData[key]);
       };
       return (
         <tr className={`oph-table-body-row totals`}>
@@ -1093,7 +1090,7 @@ const Table: React.FC<TableProps> = React.memo(
           {...otherProps}
           title={unwrappedValue}
         >
-          {renderCellValue(row, column, value, rowIndex, columnIndex)}
+          {renderCellValue(row, column, formatColumnValue(column, value), rowIndex, columnIndex)}
         </td>
       );
     };

@@ -1064,3 +1064,14 @@ export const hexToRgb = (hex: string): string => {
   const b = parseInt(sanitizedHex.substring(4, 6), 16);
   return `${r}, ${g}, ${b}`;
 };
+
+export const formatDataToString = (value: any, decimalPlaces: number = 2) => {
+  var locale = getCurrentRegionSetting()?.Code ?? "en";
+  if (value.toLocaleString) {
+      return value.toLocaleString(
+        locale,
+        { minimumFractionDigits: decimalPlaces ?? 2 }
+      );
+    }
+    return value;
+}

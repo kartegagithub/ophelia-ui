@@ -19,6 +19,7 @@ export default class TableColumnClass{
     AllowEditingOnNewRow?: boolean = true
     InputProps?: any = undefined
     IsSorted?: boolean = false
+    DecimalPlaces?: number = 2
     SortDirection?: string = ""
     SortOrder?: number  = 0
     Width?: string  = ""
