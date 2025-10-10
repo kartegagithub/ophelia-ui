@@ -29,6 +29,8 @@ export default class BinderOptions {
   Visible?: boolean = true;
   PageTitleVisibility?: boolean = true;
   HeaderVisibility?: boolean = true;
+  UniqueKeyName?: string = "id";
+  IsUniqueKeyNumeric?: boolean = true;
   Export?: {
     Types?: Array<ExportOption>;
     Mode?: "remote" | "screenshot" | "custom";

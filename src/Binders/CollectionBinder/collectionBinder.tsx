@@ -123,6 +123,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       this.Options.AllowSave = false;
       this.Options.AllowDelete = false;
       if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
+      if(!this.Options.UniqueKeyName) this.Options.UniqueKeyName = "id";
+      if(this.Options.IsUniqueKeyNumeric == undefined || this.Options.IsUniqueKeyNumeric == null) this.Options.IsUniqueKeyNumeric = true;
+
       this.Configure();
       this.EntityOperations.UpdateURL = `${this.Config.Schema}/update${this.Config.Entity}`
       this.EntityOperations.GetEntityURL = `${this.Config.Schema}/get${this.Config.Entity}`
@@ -142,6 +145,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   }
   Configure() {
     
+  }
+  getUniqueKey(){
+    return this.Options.UniqueKeyName ?? "id";
   }
   ProcessColumns(){
     if(this.Config.Table){
@@ -216,18 +222,20 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
       if(filters){
         var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
-        if(comparisons[fieldName] && parseInt(comparisons[fieldName]) == DataComparison.Between){
-          column.IsFiltered = true;
-          column.Filtering.LowValue = filters[fieldName + "Low"]
-          column.Filtering.HighValue = filters[fieldName + "High"]
-          column.Filtering.Comparison = parseInt(comparisons[fieldName]);
-          return;
-        }
-        else if(filters[fieldName]){
-          column.IsFiltered = true;
-          column.Filtering.Value = filters[fieldName]
-          if(comparisons[fieldName]) column.Filtering.Comparison = parseInt(comparisons[fieldName]);
-          return;
+        if(fieldName){
+          if(comparisons[fieldName] && parseInt(comparisons[fieldName]) == DataComparison.Between){
+            column.IsFiltered = true;
+            column.Filtering.LowValue = filters[fieldName + "Low"]
+            column.Filtering.HighValue = filters[fieldName + "High"]
+            column.Filtering.Comparison = parseInt(comparisons[fieldName]);
+            return;
+          }
+          else if(filters[fieldName]){
+            column.IsFiltered = true;
+            column.Filtering.Value = filters[fieldName]
+            if(comparisons[fieldName]) column.Filtering.Comparison = parseInt(comparisons[fieldName]);
+            return;
+          }
         }
       }
       column.IsFiltered = false;
@@ -283,20 +291,23 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         sortOrder++;
       });
 
-      var missingColumnsOnPersistentSettings = this.Config.Table?.Columns.filter((tableColumn) => this.PersistentSettings.Columns.filter((persistentColumn) => persistentColumn.Name == tableColumn.PropertyName).length == 0)
-      if(missingColumnsOnPersistentSettings && missingColumnsOnPersistentSettings.length > 0){
-        for (let index = 0; index < missingColumnsOnPersistentSettings.length; index++) {
-          const tableColumn = missingColumnsOnPersistentSettings[index];
-          if(!tableColumn.PropertyName) continue;
-          persistentSettings.Columns.push({
-            Name: tableColumn.PropertyName,
-            Text: tableColumn.HeaderText,
-            Visible: true,
-            SortOrder: sortOrder
-          });
-          sortOrder++;
+      if(this.PersistentSettings && this.PersistentSettings.Columns){
+        var missingColumnsOnPersistentSettings = this.Config.Table?.Columns.filter((tableColumn) => this.PersistentSettings?.Columns?.filter((persistentColumn) => persistentColumn.Name == tableColumn.PropertyName).length == 0)
+        if(missingColumnsOnPersistentSettings && missingColumnsOnPersistentSettings.length > 0){
+          for (let index = 0; index < missingColumnsOnPersistentSettings.length; index++) {
+            const tableColumn = missingColumnsOnPersistentSettings[index];
+            if(!tableColumn.PropertyName) continue;
+            persistentSettings.Columns.push({
+              Name: tableColumn.PropertyName,
+              Text: tableColumn.HeaderText,
+              Visible: true,
+              SortOrder: sortOrder
+            });
+            sortOrder++;
+          }
         }
       }
+      
       this.Config.Table.Columns = this.Config.Table.Columns.sort((a,b) => (a.SortOrder ?? 0) - (b.SortOrder ?? 0))
     }
   }
@@ -546,9 +557,9 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(this.Config.RowClickOption == "showEntityBinder") return "javascript:void(0)"
     var url: string = "";
     if(this.Options?.DrawViewLinkInsteadOfEdit)
-      url = this.getViewUrl(record.id)
+      url = this.getViewUrl(record[this.getUniqueKey()])
     else
-      url = this.getEditUrl(record.id)
+      url = this.getEditUrl(record[this.getUniqueKey()])
     if(includeFilters && this.props.initialFilters){
       var keys = Object.keys(this.props.initialFilters);
       for (let index = 0; index < keys.length; index++) {
@@ -805,7 +816,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       }
 
       //console.log("calling SAving 2", data)
-      var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, []);
+      var result = await this.EntityOperations.SaveEntity(this.DefaultLanguageID, data, [], this.getUniqueKey());
       if (!result.hasFailed && result.data && !isDeleting) {
         var newData = clone(this.state.data) as Array<any>;
         newData.splice(rowIndex, 1, result.data);
@@ -911,7 +922,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     if(savedData){
       var existingIndex = -1;
       var existing = (this.state.data as Array<any>).find((op: any, index: number) => {
-        var isSame = op.id == savedData.id;
+        var isSame = op[this.getUniqueKey()] == savedData[this.getUniqueKey()];
         if(isSame) existingIndex = index;
         return isSame;
       })
@@ -1061,7 +1072,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       return this.props.listener?.getRowProps(row, index);
     return {className: undefined}
   }
-  getCellProps(row: any, column: TableColumnClass, rowIndex?: number, columnIndex?: number){
+  getCellProps(row: any, column: TableColumnClass, rowIndex?: number, columnIndex?: number): {className?: string}{
     return {className: undefined}
   }
   renderCellValue(row: any, column: TableColumnClass, value?: string, rowIndex?: number, columnIndex?: number) {
@@ -1122,7 +1133,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     return true;
   }
   getUniqueID(row: any){
-    return row.id;
+    return row[this.getUniqueKey()];
   }
   isChecked(row: any, rowIndex: number){
     if(!this.state.checkedItems || this.state.checkedItems.length == 0) return false;
@@ -1148,7 +1159,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     }
     if(data && (data.isNewRow == true || this.Options.AllowDetailNavigation == false)) return <></>;
 
-    if(this.props.initialFilters && data.id == 0) data = {...data, ...this.props.initialFilters}
+    if(this.props.initialFilters && data[this.getUniqueKey()] == 0) data = {...data, ...this.props.initialFilters}
     //console.log(this.state.clickedRowIndex)
     if(this.Config.ChildBinderContainer == "modal"){
       return <Modal key={this.state.clickedRowIndex} dismissOnBackdropClick={false} defaultOpen={true}>
