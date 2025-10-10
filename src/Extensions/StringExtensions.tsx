@@ -1067,7 +1067,8 @@ export const hexToRgb = (hex: string): string => {
 
 export const formatDataToString = (value: any, decimalPlaces: number = 2) => {
   var locale = getCurrentRegionSetting()?.Code ?? "en";
-  if (value.toLocaleString) {
+  if(!value) return value;
+  if (typeof value == "number" && value.toFixed && value.toLocaleString) {
       return value.toLocaleString(
         locale,
         { minimumFractionDigits: decimalPlaces ?? 2 }
