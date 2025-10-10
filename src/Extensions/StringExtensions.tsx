@@ -1069,10 +1069,14 @@ export const formatDataToString = (value: any, decimalPlaces: number = 2) => {
   var locale = getCurrentRegionSetting()?.Code ?? "en";
   if(!value) return value;
   if (typeof value == "number" && value.toFixed && value.toLocaleString) {
-      return value.toLocaleString(
-        locale,
-        { minimumFractionDigits: decimalPlaces ?? 2 }
-      );
+      var tmpValue = value.toString();
+      if(tmpValue.indexOf(".") > -1 || tmpValue.indexOf(",")>-1){
+        return value.toLocaleString(
+          locale,
+          { minimumFractionDigits: decimalPlaces ?? 2 }
+        );
+      }
+      return tmpValue;
     }
     return value;
 }
