@@ -350,7 +350,7 @@ export default class EntityBinder<P> extends React.Component<
                 if(this.AfterSaveAction == "RefreshData"){
                   await this.GetEntity(result.data.id, undefined)
                 }
-                if(this.AfterSaveAction == "PreviousPage" && window?.history?.length > 0){
+                if(this.AfterSaveAction == "PreviousPage" && window?.history?.length > 1){
                   Router.back();
                 }
                 else
