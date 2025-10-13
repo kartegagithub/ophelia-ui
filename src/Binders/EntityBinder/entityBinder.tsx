@@ -17,7 +17,7 @@ import CollectionBinder from "../CollectionBinder/collectionBinder";
 import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
 import FileData from "../../Models/FileData";
 import { EntityOperations } from "../EntityOperations";
-import { findInArray, getCaseLocale, getObjectValue, randomKey, removeAtIndex, setObjectValue } from "../../Extensions";
+import { findInArray, getCaseLocale, getObjectValue, isNullOrEmpty, randomKey, removeAtIndex, setObjectValue } from "../../Extensions";
 import ContentLoading from "../../Components/ContentLoading";
 export class EntityBinderProps{
   Options?: BinderOptions
@@ -74,6 +74,9 @@ export default class EntityBinder<P> extends React.Component<
     if(this.state && this.state.initialized) return;
     if (this.props.Options)this.Options = { ...this.Options, ...this.props.Options };
     if(this.props.pageTitle && !this.Options.PageTitle) this.Options.PageTitle = this.props.pageTitle;
+    if(!this.Options.UniqueKeyName) this.Options.UniqueKeyName = "id";
+    if(this.Options.IsUniqueKeyNumeric == undefined || this.Options.IsUniqueKeyNumeric == null) this.Options.IsUniqueKeyNumeric = true;
+
     this.Configure();
     this.EntityOperations.UpdateURL = `${this.Controller}/${this.getActionPath()}`
     this.EntityOperations.GetEntityURL = `${this.Controller}/Get${this.Entity}`
@@ -197,18 +200,22 @@ export default class EntityBinder<P> extends React.Component<
       this.resetMetaTags();
       this.setState({processing: true});
       var newData = this.ProcessCopiedData(clone(this.state.data));
-      newData.id = 0;
+      if(this.Options.IsUniqueKeyNumeric == true)
+        newData[this.Options.UniqueKeyName] = 0;
+      else
+        newData[this.Options.UniqueKeyName] = "";
+
       if(Object.hasOwn(newData, "name")) newData.name += " (Copy)";
       else if(Object.hasOwn(newData, "title")) newData.title += " (Copy)";
       else if(Object.hasOwn(newData, "text")) newData.text += " (Copy)";
-      var result = await this.EntityOperations.SaveEntity(this.state.languageID, newData, []);
+      var result = await this.EntityOperations.SaveEntity(this.state.languageID, newData, [], this.Options.UniqueKeyName);
       this.setState({processing: false});
       if(result.data){
         if(this.props.shownInParent == true){
-          this.props.parent?.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data.id, undefined)).data: undefined);
+          this.props.parent?.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)).data: undefined);
         }
         else
-          Router.push(this.getEditUrl(result.data.id))
+          Router.push(this.getEditUrl(result.data[this.Options.UniqueKeyName]));
       }
       else if (result.messages && result.messages.length > 0) {
         this.setState({messages: result.messages})
@@ -222,7 +229,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     else if(key === "Reload"){
       if(this.Options.AllowRefresh != false){
-        await this.setInitData(false, false, this.state.data.id)
+        await this.setInitData(false, false, this.state.data[this.Options.UniqueKeyName])
       }
     }
   }
@@ -261,7 +268,7 @@ export default class EntityBinder<P> extends React.Component<
   setMetaTags(data: any){
     if(!data || !this.props.AppClient) return
     if(!this.props.AppClient.DynamicSEO) this.props.AppClient.DynamicSEO = {};
-    if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = this.props.AppClient?.Translate(this.Entity) + " (#" + data.id + ")"
+    if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = this.props.AppClient?.Translate(this.Entity) + " (#" + data[this.Options.UniqueKeyName] + ")"
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient.DynamicSEO.Title;
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient?.Translate(this.Entity);
   }
@@ -308,7 +315,7 @@ export default class EntityBinder<P> extends React.Component<
   // }
   async GetEntity(id: any, data: any): Promise<any>{
     this.setState({loadingState: LoadingState.Loading})
-    var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters)
+    var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters, this.Options.UniqueKeyName);
     this.PreviousStateData = clone(result.data);
 
     this.UploadFiles = [];
@@ -324,12 +331,14 @@ export default class EntityBinder<P> extends React.Component<
       if(!this.validateFields() || this.state.processing) return;
       var data: any = clone(this.state.data);
       var redirect: boolean = true
-      if (data.id && data.id > 0) redirect = false;
+      var id = data[this.Options.UniqueKeyName];
+      if (id && this.Options.IsUniqueKeyNumeric && id > 0) redirect = false;
+      if (id && !this.Options.IsUniqueKeyNumeric && !isNullOrEmpty(id)) redirect = false;
 
       try {
         data = this.beforeSendRequest(data);
         this.setState({processing: true})
-        var result = await this.EntityOperations.SaveEntity(this.state.languageID, data, this.UploadFiles);
+        var result = await this.EntityOperations.SaveEntity(this.state.languageID, data, this.UploadFiles, this.Options.UniqueKeyName);
         this.setState({processing: false})
         if(!result) {
           raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotReachToAPI")  })
@@ -348,7 +357,7 @@ export default class EntityBinder<P> extends React.Component<
                 Router.push(redirectURL)
               else{
                 if(this.AfterSaveAction == "RefreshData"){
-                  await this.GetEntity(result.data.id, undefined)
+                  await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)
                 }
                 if(this.AfterSaveAction == "PreviousPage" && window?.history?.length > 1){
                   Router.back();
@@ -359,13 +368,13 @@ export default class EntityBinder<P> extends React.Component<
             }
             else{
               if(this.props.parent != null){
-                this.props.parent.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data.id, undefined)).data: undefined)
+                this.props.parent.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)).data: undefined)
               }
               else if(!redirect){
                 if(redirectURL)
                   Router.push(redirectURL)
                 else
-                  await this.GetEntity(result.data.id, undefined)
+                  await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)
               }
             }            
             raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
@@ -491,8 +500,8 @@ export default class EntityBinder<P> extends React.Component<
     if(resetForNew) id = 0;
     var data: any = undefined;
     if(firstLoad){
-      if(this.RefreshDataOnLoad && this.props.Data?.id > 0){
-        id = this.props.Data?.id;
+      if(this.RefreshDataOnLoad && this.props.Data && this.props.Data[this.Options.UniqueKeyName] > 0){
+        id = this.props.Data[this.Options.UniqueKeyName];
       }
       else
         data = this.props.Data 
@@ -501,18 +510,24 @@ export default class EntityBinder<P> extends React.Component<
       var splittedURL = window.location.href.split("/");
       id = splittedURL[splittedURL.length - 1];
     }
-    if (!data && (!id || id === "0")) {
+    if (!data && (!id || id === "0" || id == '')) {
       data = await this.CreateEntity();
       id = 0;
       this.Options.IsNewEntity = true;
     }
     else {
-      if(!data && id && parseInt(id as string) > 0)
+      if(!data && id && this.Options.IsUniqueKeyNumeric && parseInt(id as string) > 0)
+        this.Options.IsNewEntity = false;
+      else if(!data && id && !this.Options.IsUniqueKeyNumeric && !isNullOrEmpty(id))
         this.Options.IsNewEntity = false;
       else if(data){
-        if(data?.id == undefined || data?.id == null)
-          data.id = 0;
-        this.Options.IsNewEntity = data?.id == 0;
+        if(isNullOrEmpty(data[this.Options.UniqueKeyName])){
+          if(this.Options.IsUniqueKeyNumeric)
+            data[this.Options.UniqueKeyName] = 0;
+          else
+            data[this.Options.UniqueKeyName] = "";
+        }
+        this.Options.IsNewEntity = data[this.Options.UniqueKeyName] == 0 || isNullOrEmpty(data[this.Options.UniqueKeyName]);
       }
     }
     this.setState({loadingState: data? LoadingState.Loaded: LoadingState.Waiting, id: id, data: data, messages: [], languageID: this.DefaultLanguageID})

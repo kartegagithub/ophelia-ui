@@ -19,6 +19,7 @@ export class EntityOperations{
         if(!data) return "";
     
         if(name === "id") return data.id
+        if(name === "uid") return data.uid
         if(name === "selectedLanguageID") return data.languageID
         if(name == "dateCreated") return data.dateCreated
         if(name == "dateModified") return data.dateModified
@@ -151,6 +152,7 @@ export class EntityOperations{
     
           var data:any = {};
           data.id = 0;
+          data.uid = '';
           data[name] = undefined;
           data.languageID = languageID;
           delete data[this.i18nProperty]
@@ -180,12 +182,13 @@ export class EntityOperations{
         }
       }
     }
-    async SaveEntity(languageID: number, data: any, files: Array<FileData>){
+    async SaveEntity(languageID: number, data: any, files: Array<FileData>, keyName: string = "id"){
+        if(!keyName) keyName = "id";
         var redirect: boolean = true
-        if (data.id == 0 || data.id == undefined) {
+        if (data[keyName] == 0 || isNullOrEmpty(data[keyName])) {
           data.statusID = 1;
         }
-        if (data.id && data.id > 0) {
+        if (data[keyName] && (data[keyName] > 0 || !isNullOrEmpty(data[keyName]))) {
           redirect = false;
         }
         this.validateReferencedProps(data);
@@ -219,16 +222,16 @@ export class EntityOperations{
             return result;
         }
     }
-    async GetEntity(id: any, data: any, extraFilters?: any){
+    async GetEntity(id: any, data: any, extraFilters?: any, keyName?: string): Promise<ServiceResult>{
+        if(!keyName) keyName = "id";
         if(id && !data){
             try {
                 let postData = {
                     ...{
-                    Data: {...extraFilters, ...{ id: id }},
-                    id: id          
+                    Data: {...extraFilters, ...{ [keyName]: id }},
                     }
                 };
-
+                postData[keyName] = id;
                 var result = await this.Service.CreateEndpoint(this.GetEntityURL, { Payload: postData } ).call()
                 return result;
             } catch (error) { 
