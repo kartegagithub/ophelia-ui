@@ -2,6 +2,7 @@ import React, {
   KeyboardEventHandler,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import SidebarMenuClass from "./SidebarMenuClass";
@@ -79,10 +80,14 @@ const Sidebar: React.FC<{
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [id, closeOnOutsideClick]);
 
-    // Route değişiminde kapat
+    // Route değişiminde kapat (ilk render'da tetikleme)
+    const didMountRef = useRef(false);
     useEffect(() => {
       if (closeOnNavigate !== true) return;
-      // path veya MenuCode değiştiğinde tetiklenir
+      if (!didMountRef.current) {
+        didMountRef.current = true;
+        return; // ilk yüklemede kapatma
+      }
       setMenuCollapsed(true);
       setMobile(false);
     }, [path, menuCode]);
