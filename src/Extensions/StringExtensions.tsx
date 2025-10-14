@@ -1065,7 +1065,7 @@ export const hexToRgb = (hex: string): string => {
   return `${r}, ${g}, ${b}`;
 };
 
-export const formatDataToString = (value: any, decimalPlaces: number = 2) => {
+export const formatDataToString = (value: any, decimalPlaces: number = 2): any => {
   var locale = getCurrentRegionSetting()?.Code ?? "en";
   if(!value) return value;
   if (typeof value == "number" && value.toFixed && value.toLocaleString) {

@@ -920,7 +920,10 @@ const Table: React.FC<TableProps> = React.memo(
                 }
                 else
                   value = getObjectValue(row, column.Filtering?.Name);
-                return value;
+
+                if(column.OnAfterGetData)
+                  value = column.OnAfterGetData(row, field, value);
+                return formatColumnValue(column, value);
               },
             }}
             text={column.HeaderText}

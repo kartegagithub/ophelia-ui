@@ -9,6 +9,7 @@ export default class TableColumnClass{
     TextFormatter?: Function = (text: string, row?: any, column?: TableColumnClass) => text;
     OnAfterSetData?: (row: any, value: any, field: any, rawValue?: any) => void;
     OnBeforeSetData?: (row: any, name: string, value: any, field: any, isValid: boolean) => undefined;
+    OnAfterGetData?: (row: any, name: string, field: any) => any;
     Freeze?: boolean = false
     DisplayOrder?: number = 0
     Visible?: boolean | Function = true
