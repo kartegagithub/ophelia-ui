@@ -85,6 +85,7 @@ var AppThemeConfig: any = {
       "lists",
       "link",
       "image",
+      "media",
       "charmap",
       "preview",
       "anchor",
@@ -100,7 +101,7 @@ var AppThemeConfig: any = {
       "wordcount",
     ],
     Toolbar:
-      "undo redo blocks bold italic backcolor forecolor blockquote image table link" +
+      "undo redo blocks bold italic backcolor forecolor blockquote image media table link" +
       " | alignleft aligncenter alignright alignjustify" +
       " | bullist numlist | outdent indent" +
       " | removeformat visualblocks preview code | help",
