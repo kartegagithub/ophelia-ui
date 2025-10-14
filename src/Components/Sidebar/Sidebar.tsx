@@ -20,8 +20,21 @@ const Sidebar: React.FC<{
   sidebarToggle?: boolean | null;
   children?: React.ReactNode;
   AppClient?: AppClient;
+  /** Navigasyonda menüyü kapat */
+  closeOnNavigate?: boolean;
+  /** Dışarı tıklamada menüyü kapat */
+  closeOnOutsideClick?: boolean;
 }> = React.memo(
-  ({ menu, AppClient, stateKey, id, sidebarToggle, children }) => {
+  ({
+    menu,
+    AppClient,
+    stateKey,
+    id,
+    sidebarToggle,
+    children,
+    closeOnNavigate,
+    closeOnOutsideClick,
+  }) => {
     const [currentState, setCurrentState] = useState({
       menu: new SidebarMenuClass(),
       searchKey: "",
@@ -50,6 +63,29 @@ const Sidebar: React.FC<{
         setMenuCollapsed(!menuCollapsed);
       }
     }, [sidebarToggle]);
+
+    // Dışarı tıklamada kapat
+    useEffect(() => {
+      if (closeOnOutsideClick !== true) return;
+      const handleClickOutside = (event: MouseEvent) => {
+        const sidebarElement = document.getElementById(id ?? "sidebar");
+        if (!sidebarElement) return;
+        if (!sidebarElement.contains(event.target as Node)) {
+          setMenuCollapsed(true);
+          setMobile(false);
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [id, closeOnOutsideClick]);
+
+    // Route değişiminde kapat
+    useEffect(() => {
+      if (closeOnNavigate !== true) return;
+      // path veya MenuCode değiştiğinde tetiklenir
+      setMenuCollapsed(true);
+      setMobile(false);
+    }, [path, menuCode]);
 
     const searchTextInMenu: KeyboardEventHandler<HTMLInputElement> = (e) => {
       var text = e.currentTarget.value;
