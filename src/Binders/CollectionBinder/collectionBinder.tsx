@@ -756,6 +756,8 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
     this.EntityOperations.setFieldData(existing, name, value, this.state.languageID, [], undefined, i18n)
     existing.hasUnsavedChanges = true;
     if(this.props.listener && this.props.listener.onDataChanged) this.props.listener.onDataChanged(this.state.data)
+    if(this.props.parent && this.props.parent.onChildAction)
+      this.props.parent?.onChildAction("ListChanged", {newData: this.state.data, key: this.props.viewId});
 
     if(this.Config.SaveOnCellValueChange == true && rowIndex != undefined && rowIndex >= 0){
       this.SaveUnsavedItems("onCellValueChanging");
