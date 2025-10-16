@@ -24,7 +24,7 @@ export default class EnumSelectBoxField<P> extends BaseField<
       if(this.props.placeholder) {
         var placeholder: string = this.props.placeholder ?? "";
         if(this.props.translateFn) placeholder = this.props.translateFn(placeholder)
-        insertToIndex(options, 0, { text: "", value: placeholder})
+        insertToIndex(options, 0, { text: placeholder, value: ""})
       }
       displayProp = "text";
       valueProp = "value"

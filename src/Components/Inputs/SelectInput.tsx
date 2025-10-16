@@ -117,7 +117,7 @@ const SelectInput: React.FC<
           className={`oph-selectInput peer ${className} ${errorClassName ? "error" : ""}`}
           style={style}
         >
-          {placeholder && <option>{placeholder}</option>}
+          {placeholder && <option value="">{placeholder}</option>}
           {_options &&
             _options.map((item, i) => {
               return (
