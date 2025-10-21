@@ -46,6 +46,7 @@ export class EndpointOptions{
     ValidateSSL?: boolean = false
     ByPassHttpsAgent?: boolean = false
     EnableConcurrentRequests?: boolean = false;
+    Signal?: AbortSignal
     Files?: Array<{name: string, file?: File}>
     Infra?: "Fetch" | "Xhr" = "Fetch"
     toString? = (apiURL: string) => {

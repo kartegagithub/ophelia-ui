@@ -103,6 +103,7 @@ export default class APIService {
       if (endpoint.Options.Headers)
         delete endpoint.Options.Headers["Content-Type"];
     }
+
     //console.log(endpoint.URL + " " + JSON.stringify(endpoint.Options.Headers))
     var options: RequestInit | any = {
       body: this.getUploaderStream(endpoint),
@@ -113,6 +114,8 @@ export default class APIService {
       agent: httpsAgent,
     };
 
+    if(endpoint.Options.Signal) options.signal = endpoint.Options.Signal;
+    
     if (endpoint.OnUploadProgress) options.duplex = "half";
 
     options = { ...options, ...this.GetRequestOptions(endpoint) };
