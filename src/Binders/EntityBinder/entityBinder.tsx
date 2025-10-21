@@ -143,7 +143,7 @@ export default class EntityBinder<P> extends React.Component<
   }
   useInput(props: any){
     if(!props.text && props.name)
-      props.text = this.props.AppClient?.Translate(pascalize(removeLastPropName(props.name, "ID")))
+      props.text = this.props.AppClient?.Translate(pascalize(removeLastPropName(removeLastPropName(props.name, "UID"), "ID")))
     if(props.type == "file"){
       props.accept = this.getAllowedFileExtensions(props.name)
       if(!props.validateFile){
@@ -278,8 +278,12 @@ export default class EntityBinder<P> extends React.Component<
       const field: any = this.InputFields[index];
       if(field.Validate){
         var value = getObjectValue(this.state.data, field.props.name);
-        if(field.props.type == "filterbox" && field.props.multipleSelection !== true) value = getObjectValue(this.state.data, field.props.name + "ID");
-        if(field.props.type == "filterbox" && field.props.multipleSelection === true) value = getObjectValue(this.state.data, field.props.name);
+        if(field.props.type == "filterbox"){
+          var uniqueIDProp = field.props.uniqueKeyName ?? "ID";
+          if(field.props.multipleSelection !== true) value = getObjectValue(this.state.data, field.props.name + uniqueIDProp);
+          if(field.props.multipleSelection === true) value = getObjectValue(this.state.data, field.props.name);
+        }
+        
         if(!value && field.props.type == "file"){
           value = this.UploadFiles.filter((file) => file.StatusID != 2 && file.KeyName == field.props.name && (file.LanguageID == 0 || file.LanguageID == this.state.languageID));
         }
@@ -467,7 +471,9 @@ export default class EntityBinder<P> extends React.Component<
     this.EntityOperations.setFieldData(this.state.data, name, value, this.state.languageID, this.UploadFiles, field?.props?.multiple, field?.props?.i18n, () => this.imageParsed())
     if(field && field.props.type == "filterbox" && field.props.multipleSelection !== true && field.props.valueProp != "itself"){
       var idName = field.props.name;
-      if(idName.indexOf("ID") > -1) 
+      if(idName.indexOf("UID") > -1) 
+        idName = idName.substring(0, idName.length - 3);
+      else if(idName.indexOf("ID") > -1) 
         idName = idName.substring(0, idName.length - 2);
       if(Array.isArray(rawValue))
       {
