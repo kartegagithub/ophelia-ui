@@ -1,0 +1,51 @@
+{
+  "name": "ophelia-core",
+  "version": "2.0.0",
+  "description": "Ophelia UI Development Library",
+  "author": "kartegagithub",
+  "license": "MIT",
+  "repository": "https://github.com/kartegagithub/ophelia-ui",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "engines": {
+    "node": ">=18.17.1"
+  },
+  "scripts": {
+    "build": "rimraf dist && npm run build:esm && npm run build:cjs && tsc --build --clean",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "clean": "tsc --build --clean",
+    "prepare": "run-s build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/lodash": "^4.17.0",
+    "@types/mime-types": "^2.1.4",
+    "@types/pluralize": "^0.0.33",
+    "rollup": "^4.17.2",
+    "sanitize-html": "^2.17.0",
+    "typescript": "^4.9.5"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@zxing/library": "^0.20.0",
+    "cookie": "^1.0.2",
+    "highlight.js": "^11.9.0",
+    "http": "^0.0.1-security",
+    "mime-types": "^2.1.35",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.5.46",
+    "nvm": "^0.0.4",
+    "pluralize": "^8.0.0"
+  }
+}
