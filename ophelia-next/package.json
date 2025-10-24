@@ -83,6 +83,7 @@
     "moment-timezone": "^0.5.46",
     "next": "*",
     "nvm": "^0.0.4",
+    "ophelia-core": "^2.0.0",
     "pluralize": "^8.0.0",
     "react-select": "^5.8.0",
     "swr": "^2.2.5"
