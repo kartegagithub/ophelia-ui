@@ -1,4 +1,4 @@
-import { isNullOrEmpty, isNumeric, parseFloatIfCan } from "./StringExtensions";
+import { clone, isNullOrEmpty, isNumeric, parseFloatIfCan } from "./StringExtensions";
 import { FileSizeUnit } from "../Enums";
 import { getCaseLocale } from "./ArrayExtensions";
 
