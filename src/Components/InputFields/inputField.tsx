@@ -32,57 +32,60 @@ const InputField: React.FC<any> = (props) => {
     translateFn,
     remoteDataSource,
     enumSelectionType,
+    key,
     ...pureProps
   } = props;
   if (props.allowEdit === false || props.type === "label")
-    return <LabelField {...pureProps} />;
+    return <LabelField key={key} {...pureProps} />;
   return (
     <>
-      {props.type === "numeric" && <NumericField {...pureProps} />}
-      {props.type === "withCode" && <CodeField {...pureProps} />}
-      {props.type === "date" && <DateField {...pureProps} />}
-      {props.type === "time" && <TimeField {...pureProps} />}
-      {props.type === "timerange" && <TimeRangeField {...pureProps} />}
-      {props.type === "daterange" && <DateRangeField {...pureProps} />}
+      {props.type === "numeric" && <NumericField key={key} {...pureProps} />}
+      {props.type === "withCode" && <CodeField key={key} {...pureProps} />}
+      {props.type === "date" && <DateField key={key} {...pureProps} />}
+      {props.type === "time" && <TimeField key={key} {...pureProps} />}
+      {props.type === "timerange" && <TimeRangeField key={key} {...pureProps} />}
+      {props.type === "daterange" && <DateRangeField key={key} {...pureProps} />}
       {props.type === "agreementCheckbox" && (
-        <AgreementCheckboxField {...pureProps} />
+        <AgreementCheckboxField key={key} {...pureProps} />
       )}
-      {props.type === "datetime" && <DateTimeField {...pureProps} />}
+      {props.type === "datetime" && <DateTimeField key={key} {...pureProps} />}
       {(props.type === "checkbox" || props.type === "boolean") && (
-        <BoolField {...pureProps} />
+        <BoolField key={key} {...pureProps} />
       )}
       {(props.type === "object" || props.type === "filterbox") && (
         <DropdownFilterboxField
+          key={key}
           remoteDataSource={remoteDataSource}
           {...pureProps}
         />
       )}
       {props.type === "enum" && (
         <EnumSelectBoxField
+          key={key}
           enumSelectionType={enumSelectionType}
           translateFn={props.translateFn}
           {...pureProps}
         />
       )}
-      {props.type === "radio" && <RadioField {...pureProps} />}
-      {props.type === "selectbox" && <DropdownField {...pureProps} />}
-      {props.type === "password" && <PasswordField {...pureProps} />}
+      {props.type === "radio" && <RadioField key={key} {...pureProps} />}
+      {props.type === "selectbox" && <DropdownField key={key} {...pureProps} />}
+      {props.type === "password" && <PasswordField key={key} {...pureProps} />}
       {props.type === "text" && (
-        <TextField value={props.value} isDate={props.isDate} {...pureProps} />
+        <TextField key={key} value={props.value} isDate={props.isDate} {...pureProps} />
       )}
-      {props.type === "richtext" && <RichTextField {...pureProps} />}
-      {props.type === "textarea" && <TextAreaField {...pureProps} />}
-      {props.type === "email" && <EmailField {...pureProps} />}
-      {props.type === "color" && <ColorField {...pureProps} />}
+      {props.type === "richtext" && <RichTextField key={key} {...pureProps} />}
+      {props.type === "textarea" && <TextAreaField key={key} {...pureProps} />}
+      {props.type === "email" && <EmailField key={key} {...pureProps} />}
+      {props.type === "color" && <ColorField key={key} {...pureProps} />}
       {(props.type === "phone" || props.type === "tel") && (
-        <PhoneField {...pureProps} />
+        <PhoneField key={key} {...pureProps} />
       )}
-      {props.type === "week" && <WeekField {...pureProps} />}
-      {props.type === "month" && <MonthField {...pureProps} />}
-      {props.type === "url" && <URLField {...pureProps} />}
-      {props.type === "file" && <FileField {...pureProps} />}
-      {props.type === "range" && <RangeField {...pureProps} />}
-      {props.type === "image" && <ImageField {...pureProps} />}
+      {props.type === "week" && <WeekField key={key} {...pureProps} />}
+      {props.type === "month" && <MonthField key={key} {...pureProps} />}
+      {props.type === "url" && <URLField key={key} {...pureProps} />}
+      {props.type === "file" && <FileField key={key} {...pureProps} />}
+      {props.type === "range" && <RangeField key={key} {...pureProps} />}
+      {props.type === "image" && <ImageField key={key} {...pureProps} />}
     </>
   );
 };

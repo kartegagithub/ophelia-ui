@@ -500,7 +500,6 @@ export default class BaseField<P> extends React.Component<
     var props: any = {
       ...{
         id: otherProps.name,
-        key: `${this.props.languageKey}_${this.props.name}_${this.state.rerenderCount}`,
         errorClassName: this.state.hasValidationError
           ? "oph-inputField-inputError"
           : undefined,
@@ -517,6 +516,7 @@ export default class BaseField<P> extends React.Component<
     };
     return props;
   }
+
 }
 
 var FormListener: any
