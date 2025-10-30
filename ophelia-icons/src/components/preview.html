@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pendigit Icons Preview</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./pendigit-site-icon.css" />
+  <style>
+    html, body {
+      all: initial;
+      font-family: Inter, Arial, sans-serif;
+      background: #fafafa;
+      color: #111;
+    }
+    .title {
+      font-size: 32px;
+      text-align: center;
+      text-decoration: underline;
+      margin-top: 20px;
+    }
+    .search-box {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    input[type="text"] {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      width: 300px;
+      outline: none;
+    }
+    .icons {
+      margin: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .icon {
+      width: 180px;
+      height: 140px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      border: 1px solid transparent;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+    }
+    .icon:hover {
+      border-color: #000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .pe-icon {
+      font-size: 36px;
+    }
+    span {
+      font-size: 14px;
+      text-align: center;
+      user-select: all;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="title">Pendigit Icon Preview</h1>
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search icons..." />
+  </div>
+  <div class="search-box" style="gap: 10px;">
+    <input type="text" id="className" placeholder="className (örn: hover:text-red-600 hover:scale-110)" />
+    <button id="applyClass">Apply</button>
+  </div>
+  <section class="icons">
+    
+      <div class="icon" data-name="advert">
+        <i class="pe-icon pe-icon-advert" data-base="pe-icon pe-icon-advert"></i>
+        <span>&lt;i class="pe-icon pe-icon-advert"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="eye">
+        <i class="pe-icon pe-icon-eye" data-base="pe-icon pe-icon-eye"></i>
+        <span>&lt;i class="pe-icon pe-icon-eye"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="profile">
+        <i class="pe-icon pe-icon-profile" data-base="pe-icon pe-icon-profile"></i>
+        <span>&lt;i class="pe-icon pe-icon-profile"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="arrow-down">
+        <i class="pe-icon pe-icon-arrow-down" data-base="pe-icon pe-icon-arrow-down"></i>
+        <span>&lt;i class="pe-icon pe-icon-arrow-down"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="arrow-left">
+        <i class="pe-icon pe-icon-arrow-left" data-base="pe-icon pe-icon-arrow-left"></i>
+        <span>&lt;i class="pe-icon pe-icon-arrow-left"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="arrow-right">
+        <i class="pe-icon pe-icon-arrow-right" data-base="pe-icon pe-icon-arrow-right"></i>
+        <span>&lt;i class="pe-icon pe-icon-arrow-right"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="arrow-up">
+        <i class="pe-icon pe-icon-arrow-up" data-base="pe-icon pe-icon-arrow-up"></i>
+        <span>&lt;i class="pe-icon pe-icon-arrow-up"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="check">
+        <i class="pe-icon pe-icon-check" data-base="pe-icon pe-icon-check"></i>
+        <span>&lt;i class="pe-icon pe-icon-check"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="chevron-down">
+        <i class="pe-icon pe-icon-chevron-down" data-base="pe-icon pe-icon-chevron-down"></i>
+        <span>&lt;i class="pe-icon pe-icon-chevron-down"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="chevron-left">
+        <i class="pe-icon pe-icon-chevron-left" data-base="pe-icon pe-icon-chevron-left"></i>
+        <span>&lt;i class="pe-icon pe-icon-chevron-left"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="chevron-right">
+        <i class="pe-icon pe-icon-chevron-right" data-base="pe-icon pe-icon-chevron-right"></i>
+        <span>&lt;i class="pe-icon pe-icon-chevron-right"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="chevron-up">
+        <i class="pe-icon pe-icon-chevron-up" data-base="pe-icon pe-icon-chevron-up"></i>
+        <span>&lt;i class="pe-icon pe-icon-chevron-up"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="menu">
+        <i class="pe-icon pe-icon-menu" data-base="pe-icon pe-icon-menu"></i>
+        <span>&lt;i class="pe-icon pe-icon-menu"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="png">
+        <i class="pe-icon pe-icon-png" data-base="pe-icon pe-icon-png"></i>
+        <span>&lt;i class="pe-icon pe-icon-png"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="revenue">
+        <i class="pe-icon pe-icon-revenue" data-base="pe-icon pe-icon-revenue"></i>
+        <span>&lt;i class="pe-icon pe-icon-revenue"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="search">
+        <i class="pe-icon pe-icon-search" data-base="pe-icon pe-icon-search"></i>
+        <span>&lt;i class="pe-icon pe-icon-search"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="sign-up">
+        <i class="pe-icon pe-icon-sign-up" data-base="pe-icon pe-icon-sign-up"></i>
+        <span>&lt;i class="pe-icon pe-icon-sign-up"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="x">
+        <i class="pe-icon pe-icon-x" data-base="pe-icon pe-icon-x"></i>
+        <span>&lt;i class="pe-icon pe-icon-x"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="combined-shape">
+        <i class="pe-icon pe-icon-combined-shape" data-base="pe-icon pe-icon-combined-shape"></i>
+        <span>&lt;i class="pe-icon pe-icon-combined-shape"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="flag-1">
+        <i class="pe-icon pe-icon-flag-1" data-base="pe-icon pe-icon-flag-1"></i>
+        <span>&lt;i class="pe-icon pe-icon-flag-1"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="like">
+        <i class="pe-icon pe-icon-like" data-base="pe-icon pe-icon-like"></i>
+        <span>&lt;i class="pe-icon pe-icon-like"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="spinner">
+        <i class="pe-icon pe-icon-spinner" data-base="pe-icon pe-icon-spinner"></i>
+        <span>&lt;i class="pe-icon pe-icon-spinner"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="star">
+        <i class="pe-icon pe-icon-star" data-base="pe-icon pe-icon-star"></i>
+        <span>&lt;i class="pe-icon pe-icon-star"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="home">
+        <i class="pe-icon pe-icon-home" data-base="pe-icon pe-icon-home"></i>
+        <span>&lt;i class="pe-icon pe-icon-home"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="bell">
+        <i class="pe-icon pe-icon-bell" data-base="pe-icon pe-icon-bell"></i>
+        <span>&lt;i class="pe-icon pe-icon-bell"&gt;&lt;/i&gt;</span>
+      </div>
+      <div class="icon" data-name="wallet">
+        <i class="pe-icon pe-icon-wallet" data-base="pe-icon pe-icon-wallet"></i>
+        <span>&lt;i class="pe-icon pe-icon-wallet"&gt;&lt;/i&gt;</span>
+      </div>
+  </section>
+  <script>
+    $("#search").on("input", function() {
+      const val = $(this).val().toLowerCase();
+      $(".icon").each(function() {
+        const name = $(this).data("name");
+        $(this).toggle(name.includes(val));
+      });
+    });
+
+    function applyClasses() {
+      const cls = $("#className").val() || "";
+      localStorage.setItem("previewIconClass", cls);
+      $(".icon i").each(function(){
+        const base = $(this).attr("data-base") || "";
+        $(this).attr("class", (base + " " + cls).trim());
+      });
+    }
+
+    $("#applyClass").on("click", applyClasses);
+    $("#className").on("keydown", function(e){ if(e.key === "Enter"){ applyClasses(); }});
+
+    // Restore from localStorage on load
+    const saved = localStorage.getItem("previewIconClass");
+    if (saved) {
+      $("#className").val(saved);
+      applyClasses();
+    }
+  </script>
+</body>
+</html>

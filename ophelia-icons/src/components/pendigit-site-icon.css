@@ -1,0 +1,49 @@
+@font-face {
+  font-family: 'pendigit-site-icon';
+  src: url('pendigit-site-icon.woff2') format('woff2'),
+       url('pendigit-site-icon.woff') format('woff'),
+       url('pendigit-site-icon.ttf') format('truetype'),
+       url('pendigit-site-icon.eot') format('embedded-opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.pe-icon {
+  font-family: 'pendigit-site-icon';
+  display: inline-block;
+  line-height: 1;
+  font-style: normal;
+  font-weight: normal;
+  flex-shrink: 0;
+  color: inherit;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.pe-icon-advert::before { content: "\EA01"; }
+.pe-icon-eye::before { content: "\EA02"; }
+.pe-icon-profile::before { content: "\EA03"; }
+.pe-icon-arrow-down::before { content: "\EA04"; }
+.pe-icon-arrow-left::before { content: "\EA05"; }
+.pe-icon-arrow-right::before { content: "\EA06"; }
+.pe-icon-arrow-up::before { content: "\EA07"; }
+.pe-icon-check::before { content: "\EA08"; }
+.pe-icon-chevron-down::before { content: "\EA09"; }
+.pe-icon-chevron-left::before { content: "\EA0A"; }
+.pe-icon-chevron-right::before { content: "\EA0B"; }
+.pe-icon-chevron-up::before { content: "\EA0C"; }
+.pe-icon-menu::before { content: "\EA0D"; }
+.pe-icon-png::before { content: "\EA0E"; }
+.pe-icon-revenue::before { content: "\EA0F"; }
+.pe-icon-search::before { content: "\EA10"; }
+.pe-icon-sign-up::before { content: "\EA11"; }
+.pe-icon-x::before { content: "\EA12"; }
+.pe-icon-combined-shape::before { content: "\EA13"; }
+.pe-icon-flag-1::before { content: "\EA14"; }
+.pe-icon-like::before { content: "\EA15"; }
+.pe-icon-spinner::before { content: "\EA16"; }
+.pe-icon-star::before { content: "\EA17"; }
+.pe-icon-home::before { content: "\EA18"; }
+.pe-icon-bell::before { content: "\EA19"; }
+.pe-icon-wallet::before { content: "\EA1A"; }
