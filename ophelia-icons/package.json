@@ -1,21 +1,34 @@
 {
-  "name": "ophelia-ui-icons",
-  "version": "1.0.4",
-  "description": "Modern React icon library with rich props and variants",
+  "name": "ophelia-icons",
+  "version": "2.0.0",
+  "description": "Ophelia UI Development Library",
+  "author": "kartegagithub",
+  "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
   "files": [
     "dist",
     "src",
     "README.md"
   ],
   "scripts": {
-    "build": "npm run build:icons",
+    "build": "rimraf dist && npm run build:icons && npm run build:esm && npm run build:cjs && tsc --build --clean",
     "build:icons": "node build-icons.js",
     "dev": "next dev",
     "preview": "next dev",
     "prepublishOnly": "npm run build",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "clean": "tsc --build --clean",
+    "prepare": "run-s build",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "keywords": [
@@ -26,8 +39,6 @@
     "ui",
     "components"
   ],
-  "author": "Ophelia Team",
-  "license": "MIT",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
