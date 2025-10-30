@@ -137,8 +137,8 @@ const HomeIcon: React.FC<IconProps> = ({
       )}
       <g fill={isDuotone ? `url(#duotone-HomeIcon)` : undefined}>
         
-  <path strokeMiterlimit="10" d="M2 8.5c0-3.5 2-5 5-5h10c3 0 5 1.5 5 5v7c0 3.5-2 5-5 5H7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  <path strokeMiterlimit="10" d="m17 9-3.13 2.5c-1.03.82-2.72.82-3.75 0L7 9M2 16.5h6M2 12.5h3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <path strokeMiterlimit="10" d="M2 8.5c0-3.5 2-5 5-5h10c3 0 5 1.5 5 5v7c0 3.5-2 5-5 5H7" />
+  <path strokeMiterlimit="10" d="m17 9-3.13 2.5c-1.03.82-2.72.82-3.75 0L7 9M2 16.5h6M2 12.5h3" />
 
       </g>
     </svg>

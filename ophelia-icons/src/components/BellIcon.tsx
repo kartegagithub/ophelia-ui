@@ -139,9 +139,9 @@ const BellIcon: React.FC<IconProps> = ({
         
   <path
     d="M17.295 10.172c0-2.933-2.422-5.312-5.41-5.312s-5.41 2.379-5.41 5.312v.799c0 2.075-.624 4.103-1.79 5.82A.863.863 0 0 0 5.4 18.14h12.97a.863.863 0 0 0 .714-1.349 10.362 10.362 0 0 1-1.789-5.82v-.799z"
-    stroke="currentColor" />
-  <path  d="M10.41 20.354c.196.245.766.737 1.475.737.708 0 1.279-.492 1.475-.738" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  <circle cx="16.312" cy="5.598" r="3.689" stroke="currentColor" />
+    />
+  <path  d="M10.41 20.354c.196.245.766.737 1.475.737.708 0 1.279-.492 1.475-.738" />
+  <circle cx="16.312" cy="5.598" r="3.689" />
 
       </g>
     </svg>

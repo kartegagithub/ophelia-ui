@@ -136,7 +136,7 @@ const MenuIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-MenuIcon)` : undefined}>
-        <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M1 1H10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M1 8.20001L19 8.20001" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M10 15.4H19" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M1 1H10" /><path d="M1 8.20001L19 8.20001" /><path d="M10 15.4H19" />
       </g>
     </svg>
   );

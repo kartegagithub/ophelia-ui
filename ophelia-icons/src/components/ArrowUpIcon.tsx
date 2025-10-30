@@ -136,7 +136,7 @@ const ArrowUpIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-ArrowUpIcon)` : undefined}>
-        <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M6.26367 10.8L12.4351 4.8M12.4351 4.8L18.6065 10.8M12.4351 4.8V19.2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6.26367 10.8L12.4351 4.8M12.4351 4.8L18.6065 10.8M12.4351 4.8V19.2" />
       </g>
     </svg>
   );

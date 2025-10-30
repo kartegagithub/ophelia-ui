@@ -228,6 +228,18 @@ function generateReactComponents() {
     return out;
   };
 
+  const sanitizeInnerSvg = (s) => {
+    // Remove per-element paint/line attrs so top-level props control style
+    return s
+      .replace(/\sfill="[^"]*"/gi, "")
+      .replace(/\sstroke="[^"]*"/gi, "")
+      .replace(/\sstrokeWidth="[^"]*"/gi, "")
+      .replace(/\sstroke-linecap="[^"]*"/gi, "")
+      .replace(/\sstroke-linejoin="[^"]*"/gi, "")
+      .replace(/\sstrokeLinecap="[^"]*"/g, "")
+      .replace(/\sstrokeLinejoin="[^"]*"/g, "");
+  };
+
   const rewriteIds = (s, prefix) => {
     const ids = new Set();
     s.replace(/\bid="([^"]+)"/g, (_, id) => ids.add(id));
@@ -265,6 +277,7 @@ function generateReactComponents() {
 
     // React'e uygun attribute isimleri ve benzersiz id'ler
     let reactInner = toReactAttrs(svgInner);
+    reactInner = sanitizeInnerSvg(reactInner);
     reactInner = rewriteIds(reactInner, compName);
 
     const tsx = `"use client";
