@@ -28,7 +28,7 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "clean": "tsc --build --clean",
-    "prepare": "run-s build",
+    "prepare": "echo skip-prepare",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "keywords": [
@@ -53,9 +53,11 @@
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
     "next": "16.0.0",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.32",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "rimraf": "^6.0.1",
     "rollup": "^4.6.1",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
