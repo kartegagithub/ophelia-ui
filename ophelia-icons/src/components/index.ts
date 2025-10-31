@@ -24,3 +24,5 @@ export { default as StarIcon } from "./StarIcon";
 export { default as HomeIcon } from "./HomeIcon";
 export { default as BellIcon } from "./BellIcon";
 export { default as WalletIcon } from "./WalletIcon";
+export { default as MoonIcon } from "./MoonIcon";
+export { default as SunIcon } from "./SunIcon";
