@@ -1,6 +1,6 @@
 # ophelia-icons
 
-A modern React icon library with rich props, variants, and animations.
+✨ A beautifully crafted React icon library that brings your UI to life with customizable variants, smooth animations, and comprehensive accessibility support. Built with TypeScript and optimized for performance.
 
 ## Features
 
@@ -25,16 +25,16 @@ pnpm add ophelia-icons
 ## Quick Start
 
 ```tsx
-import { ArrowRight, Heart, Check } from 'ophelia-icons';
+import { ArrowRightIcon, LikeIcon, CheckIcon } from 'ophelia-icons';
 
 function App() {
   return (
     <div>
       {/* Basic usage */}
-      <ArrowRight size={24} color="#262626" />
+      <ArrowRightIcon size={24} color="#262626" />
       
       {/* With variants */}
-      <Heart 
+      <LikeIcon 
         size={32}
         color="#FF0000"
         variant="duotone"
@@ -42,7 +42,7 @@ function App() {
       />
       
       {/* With animations */}
-      <Check 
+      <CheckIcon 
         size={20}
         color="#00FF00"
         variant="outlined"
@@ -82,12 +82,12 @@ function App() {
 
 ### Filled (Default)
 ```tsx
-<ArrowRight variant="filled" color="#262626" />
+<ArrowRightIcon variant="filled" color="#262626" />
 ```
 
 ### Outlined
 ```tsx
-<ArrowRight 
+<ArrowRightIcon 
   variant="outlined" 
   color="#262626" 
   strokeWidth={2} 
@@ -96,7 +96,7 @@ function App() {
 
 ### Duotone
 ```tsx
-<Heart 
+<LikeIcon 
   variant="duotone" 
   color="#FF0000" 
   secondaryColor="#FF69B4" 
@@ -105,7 +105,7 @@ function App() {
 
 ### Linear
 ```tsx
-<Check 
+<CheckIcon 
   variant="linear" 
   color="#00FF00" 
   strokeWidth={1.5} 
@@ -116,32 +116,32 @@ function App() {
 
 ```tsx
 // Spin animation
-<Spinner spin={true} />
+<SpinnerIcon spin={true} />
 
 // Pulse animation
-<Heart pulse={true} />
+<LikeIcon pulse={true} />
 
 // Bounce animation
-<Check bounce={true} />
+<CheckIcon bounce={true} />
 
 // Multiple animations
-<ArrowRight spin={true} pulse={true} />
+<ArrowRightIcon spin={true} pulse={true} />
 ```
 
 ## Transformations
 
 ```tsx
 // Rotation
-<ArrowRight rotate={45} />
+<ArrowRightIcon rotate={45} />
 
 // Mirror (horizontal flip)
-<ArrowRight mirrored={true} />
+<ArrowRightIcon mirrored={true} />
 
 // Flip (vertical flip)
-<ArrowRight flipped={true} />
+<ArrowRightIcon flipped={true} />
 
 // Combined
-<ArrowRight rotate={90} mirrored={true} />
+<ArrowRightIcon rotate={90} mirrored={true} />
 ```
 
 ## Accessibility
@@ -156,26 +156,35 @@ function App() {
 
 ## Available Icons
 
-- Advert
-- ArrowDown, ArrowLeft, ArrowRight, ArrowUp
-- Check
-- ChevronDown, ChevronLeft, ChevronRight, ChevronUp
-- Eye
-- Like
-- Menu
-- Profile
-- Revenue
-- Search
-- SignUp
-- Spinner
-- X
+- AdvertIcon
+- ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon
+- BellIcon
+- CheckIcon
+- ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon
+- CombinedShapeIcon
+- EyeIcon
+- Flag1Icon
+- HomeIcon
+- LikeIcon
+- MenuIcon
+- MoonIcon
+- PngIcon
+- ProfileIcon
+- RevenueIcon
+- SearchIcon
+- SignUpIcon
+- SpinnerIcon
+- StarIcon
+- SunIcon
+- WalletIcon
+- XIcon
 
 ## Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/kartegagithub/ophelia-ui.git
-cd icons
+cd ophelia-ui/ophelia-icons
 
 # Install dependencies
 npm install
