@@ -47,3 +47,5 @@
 .pe-icon-home::before { content: "\EA18"; }
 .pe-icon-bell::before { content: "\EA19"; }
 .pe-icon-wallet::before { content: "\EA1A"; }
+.pe-icon-moon::before { content: "\EA1B"; }
+.pe-icon-sun::before { content: "\EA1C"; }
