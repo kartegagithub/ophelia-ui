@@ -67,10 +67,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ophelia/icons.git"
+    "url": "https://github.com/kartegagithub/ophelia-ui"
   },
   "bugs": {
-    "url": "https://github.com/ophelia/icons/issues"
+    "url": "https://github.com/kartegagithub/ophelia-ui/issues"
   },
-  "homepage": "https://github.com/ophelia/icons#readme"
+  "homepage": "https://github.com/kartegagithub/ophelia-ui#readme"
 }
