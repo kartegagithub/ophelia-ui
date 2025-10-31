@@ -174,7 +174,7 @@ function App() {
 
 ```bash
 # Clone the repository
-git clone https://github.com/ksocial/icons.git
+git clone https://github.com/kartegagithub/ophelia-ui.git
 cd icons
 
 # Install dependencies
