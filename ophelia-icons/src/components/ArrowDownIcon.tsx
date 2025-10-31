@@ -93,8 +93,15 @@ const ArrowDownIcon: React.FC<IconProps> = ({
   if (pulse) animationClasses.push('animate-pulse');
   if (bounce) animationClasses.push('animate-bounce');
   
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
   const styles: React.CSSProperties = {
-    color,
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
     opacity: visible ? opacity : 0,
     transform: transforms.length ? transforms.join(' ') : undefined,
     ...style,
@@ -119,7 +126,7 @@ const ArrowDownIcon: React.FC<IconProps> = ({
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
       xmlns="http://www.w3.org/2000/svg"
-      className={[...animationClasses, className].filter(Boolean).join(" ")}
+      className={[...animationClasses, ...colorClasses, className].filter(Boolean).join(" ")}
       style={styles}
       aria-hidden={title ? undefined : true}
       role={title ? "img" : "presentation"}
