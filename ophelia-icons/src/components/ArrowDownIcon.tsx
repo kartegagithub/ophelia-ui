@@ -143,8 +143,7 @@ const ArrowDownIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-ArrowDownIcon)` : undefined}>
-         <path d="M18.1715 13.2L12 19.2M12 19.2L5.82861 13.2M12 19.2L12 4.8" />
-
+         <path d="M18.1715 13.2L12 19.2M12 19.2L5.82861 13.2M12 19.2L12 4.8" /> 
       </g>
     </svg>
   );

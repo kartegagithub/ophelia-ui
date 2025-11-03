@@ -143,8 +143,7 @@ const ArrowCurveLeftRightIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-ArrowCurveLeftRightIcon)` : undefined}>
-         <path d="M15.086 19.8L20.4 14.486M20.4 14.486L15.086 9.17198M20.4 14.486H7.60003C5.39089 14.486 3.60003 12.6951 3.60003 10.486V4.2" />
-
+         <path d="M15.086 19.8L20.4 14.486M20.4 14.486L15.086 9.17198M20.4 14.486H7.60003C5.39089 14.486 3.60003 12.6951 3.60003 10.486V4.2" /> 
       </g>
     </svg>
   );
