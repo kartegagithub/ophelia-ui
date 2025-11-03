@@ -143,7 +143,11 @@ const MenuIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-MenuIcon)` : undefined}>
-        <path d="M1 1H10" /><path d="M1 8.20001L19 8.20001" /><path d="M10 15.4H19" />
+        
+  <path  d="M0.900024 0.899994H9.90002" />
+  <path  d="M0.900024 8.10001L18.9 8.1" />
+  <path  d="M9.90002 15.3H18.9" />
+
       </g>
     </svg>
   );

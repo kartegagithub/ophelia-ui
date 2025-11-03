@@ -119,7 +119,7 @@ const ArrowDownIcon: React.FC<IconProps> = ({
     <svg
       width={w}
       height={h}
-      viewBox="0 0 25 24"
+      viewBox="0 0 24 24"
       fill={fillValue}
       stroke={strokeValue}
       strokeWidth={strokeWidth}
@@ -143,7 +143,9 @@ const ArrowDownIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-ArrowDownIcon)` : undefined}>
-        <path d="M18.6065 13.2L12.4351 19.2M12.4351 19.2L6.26367 13.2M12.4351 19.2L12.4351 4.8" />
+        
+  <path  d="M18.1715 13.2L12 19.2M12 19.2L5.82861 13.2M12 19.2L12 4.8" />
+
       </g>
     </svg>
   );
