@@ -1,0 +1,152 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const MoneyInIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className = "",
+  style,
+  ...rest
+}) => {
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 21 20"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={[...animationClasses, ...colorClasses, className].filter(Boolean).join(" ")}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...rest}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-MoneyInIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-MoneyInIcon)` : undefined}>
+         <g clipPath="url(#clip0_19896_206215)"> <rect x="2.70132" y="9.79971" width="15.6" height="8.39999" /> <path d="M12.2513 13.9977C12.2513 14.9641 11.4678 15.7477 10.5013 15.7477C9.53482 15.7477 8.75132 14.9641 8.75132 13.9977C8.75132 13.0312 9.53482 12.2477 10.5013 12.2477C11.4678 12.2477 12.2513 13.0312 12.2513 13.9977Z" /> <mask id="MoneyInIcon-path-3-inside-1_19896_206215"> <path d="M5.7 9.19765C5.7 9.67041 5.60688 10.1385 5.42597 10.5753C5.24505 11.0121 4.97988 11.4089 4.64558 11.7432C4.31129 12.0775 3.91443 12.3427 3.47766 12.5236C3.04089 12.7045 2.57276 12.7976 2.1 12.7976L2.1 9.19765H5.7Z" /> </mask> <path d="M5.7 9.19765C5.7 9.67041 5.60688 10.1385 5.42597 10.5753C5.24505 11.0121 4.97988 11.4089 4.64558 11.7432C4.31129 12.0775 3.91443 12.3427 3.47766 12.5236C3.04089 12.7045 2.57276 12.7976 2.1 12.7976L2.1 9.19765H5.7Z" mask="url(#path-3-inside-1_19896_206215)" /> <mask id="MoneyInIcon-path-4-inside-2_19896_206215"> <path d="M5.7 18.7975C5.7 18.3247 5.60688 17.8566 5.42597 17.4198C5.24505 16.983 4.97988 16.5862 4.64558 16.2519C4.31129 15.9176 3.91443 15.6524 3.47766 15.4715C3.04089 15.2906 2.57276 15.1975 2.1 15.1975L2.1 18.7975H5.7Z" /> </mask> <path d="M5.7 18.7975C5.7 18.3247 5.60688 17.8566 5.42597 17.4198C5.24505 16.983 4.97988 16.5862 4.64558 16.2519C4.31129 15.9176 3.91443 15.6524 3.47766 15.4715C3.04089 15.2906 2.57276 15.1975 2.1 15.1975L2.1 18.7975H5.7Z" mask="url(#path-4-inside-2_19896_206215)" /> <mask id="MoneyInIcon-path-5-inside-3_19896_206215"> <path d="M15.3 9.19765C15.3 9.67041 15.3931 10.1385 15.574 10.5753C15.755 11.0121 16.0201 11.4089 16.3544 11.7432C16.6887 12.0775 17.0856 12.3427 17.5223 12.5236C17.9591 12.7045 18.4272 12.7976 18.9 12.7976L18.9 9.19765H15.3Z" /> </mask> <path d="M15.3 9.19765C15.3 9.67041 15.3931 10.1385 15.574 10.5753C15.755 11.0121 16.0201 11.4089 16.3544 11.7432C16.6887 12.0775 17.0856 12.3427 17.5223 12.5236C17.9591 12.7045 18.4272 12.7976 18.9 12.7976L18.9 9.19765H15.3Z" mask="url(#path-5-inside-3_19896_206215)" /> <mask id="MoneyInIcon-path-6-inside-4_19896_206215"> <path d="M15.3 18.7975C15.3 18.3247 15.3931 17.8566 15.574 17.4198C15.755 16.983 16.0201 16.5862 16.3544 16.2519C16.6887 15.9176 17.0856 15.6524 17.5223 15.4715C17.9591 15.2906 18.4272 15.1975 18.9 15.1975L18.9 18.7975H15.3Z" /> </mask> <path d="M15.3 18.7975C15.3 18.3247 15.3931 17.8566 15.574 17.4198C15.755 16.983 16.0201 16.5862 16.3544 16.2519C16.6887 15.9176 17.0856 15.6524 17.5223 15.4715C17.9591 15.2906 18.4272 15.1975 18.9 15.1975L18.9 18.7975H15.3Z" mask="url(#path-6-inside-4_19896_206215)" /> <path d="M10.0625 5.82656L10.0625 0.5L10.9375 0.5L10.9375 5.82656L13.3875 3.37656L14 4L10.5 7.5L7 4L7.6125 3.37656L10.0625 5.82656Z" /> </g> <defs> <clipPath id="MoneyInIcon-clip0_19896_206215"> <rect width="20" height="20" transform="translate(0.5)" /> </clipPath> </defs> 
+      </g>
+    </svg>
+  );
+};
+
+export default MoneyInIcon;

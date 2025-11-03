@@ -143,8 +143,7 @@ const ChevronRightIcon: React.FC<IconProps> = ({
         </defs>
       )}
       <g fill={isDuotone ? `url(#duotone-ChevronRightIcon)` : undefined}>
-        
-  <path  d="M9.60002 7.2L14.4 12L9.60002 16.8" />
+         <path d="M9.60002 7.2L14.4 12L9.60002 16.8" />
 
       </g>
     </svg>

@@ -39,13 +39,20 @@ function ensureViewBox(svg) {
 function normalizeSVG(svg) {
   // CurrentColor kullan; dolmayan path'leri düzelt
   let s = svg
+    // Önce boş attribute'ları temizle (name= /> veya name= > gibi)
+    .replace(/\s+[a-zA-Z-]+=\s*\/>/g, ' />')
+    .replace(/\s+[a-zA-Z-]+=\s*>/g, '>')
+    .replace(/\s+[a-zA-Z-]+=\s+(?=\s)/g, ' ')
     // sabit fill renklerini currentColor'a dönüştür
     .replace(/fill="#?[0-9a-fA-F]{3,6}"/g, 'fill="currentColor"')
     .replace(/fill='#?[0-9a-fA-F]{3,6}'/g, 'fill="currentColor"')
     .replace(/fill="(black|white|red|blue|green|yellow|gray|grey|silver|maroon|navy|olive|teal|lime|aqua|fuchsia|purple)"/gi, 'fill="currentColor"')
     .replace(/fill="none"/g, 'fill="currentColor"')
     .replace(/stroke="[^"]*"/g, 'stroke="currentColor"')
-    .replace(/\s*stroke-(linecap|linejoin|width)="[^"]*"/g, "");
+    .replace(/\s*stroke-(linecap|linejoin|width)="[^"]*"/g, "")
+    // Boş attribute'ları temizle (normalize işleminden önce)
+    .replace(/\s+[a-zA-Z-]+=\s*\/>/g, ' />')
+    .replace(/\s+[a-zA-Z-]+=\s*>/g, '>');
   // style="fill:#000; stroke:#000" gibi değerleri currentColor'a çevir
   s = s.replace(/style="([^"]*)"/gi, (m, css) => {
     const c = css
@@ -76,8 +83,12 @@ function normalizeSVG(svg) {
       .replace(/\s*stroke-linejoin="[^"]*"/gi, '')
       // self-closing '/>' kalıntı slash'larını temizle
       .replace(/\s*\/\s*/g, ' ')
+      // Boş attribute'ları kaldır (name= gibi) - sonradan temizle
+      .replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, ' ')
       .trim();
-    return `<path ${attrs} d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />`;
+    // Eğer attrs boşsa, sadece boşluk bırak
+    const attrsPart = attrs ? ` ${attrs}` : '';
+    return `<path${attrsPart} d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />`;
   });
 
   // Diğer şekiller: circle/ellipse/line/polyline/polygon
@@ -87,12 +98,21 @@ function normalizeSVG(svg) {
         .replace(/\sfill="[^"]*"/gi, '')
         .replace(/\sstroke="[^"]*"/gi, '')
         .replace(/\s*\/\s*/g, ' ')
+        // Boş attribute'ları kaldır (name= gibi)
+        .replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, ' ')
         .trim();
       if (!/stroke=/i.test(r)) r += ' stroke="currentColor"';
       if (!/fill=/i.test(r) && /^(line|polyline)$/i.test(tag)) r += ' fill="none"';
       return `<${tag}${r ? ' ' + r : ''} />`;
     });
 
+  // Final temizleme: Boş attribute'ları kaldır
+  s = s.replace(/\s+[a-zA-Z-]+=\s*\/>/g, ' />');
+  s = s.replace(/\s+[a-zA-Z-]+=\s*>/g, '>');
+  s = s.replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, ' ');
+  // Çoklu boşlukları temizle
+  s = s.replace(/\s{2,}/g, ' ');
+  
   return s;
 }
 
@@ -129,15 +149,16 @@ function fixSVGs() {
 
 /* ----------------------------- ⚙️ 2. Font Üretimi ---------------------------- */
 async function generateFont() {
-  const result = await webfont({
-    files: `${SVG_DIR}/*.svg`,
-    fontName: FONT_NAME,
-    formats: ["woff2", "woff", "ttf", "eot"],
-    normalize: true,
-    fontHeight: 1000,
-    descent: 200,
-    prependUnicode: true,
-  });
+  try {
+    const result = await webfont({
+      files: `${SVG_DIR}/*.svg`,
+      fontName: FONT_NAME,
+      formats: ["woff2", "woff", "ttf", "eot"],
+      normalize: false, // normalizeSVG zaten yapıldı
+      fontHeight: 1000,
+      descent: 200,
+      prependUnicode: true,
+    });
 
   if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
 
@@ -147,6 +168,14 @@ async function generateFont() {
 
   console.log("💾 Font files generated successfully.");
   return result;
+  } catch (error) {
+    console.error("❌ Font generation error:", error.message);
+    if (error.message && error.message.includes("Attribute without value")) {
+      console.error("   Bu hata genellikle boş attribute'lardan kaynaklanır.");
+      console.error("   Lütfen SVG dosyalarını kontrol edin.");
+    }
+    throw error;
+  }
 }
 
 /* ----------------------------- 💅 3. CSS Oluşturma --------------------------- */
