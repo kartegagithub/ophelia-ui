@@ -11,7 +11,7 @@ export default function IconsPreviewPage() {
   const [size, setSize] = useState<number>(32);
   const [color, setColor] = useState<string>("#262626");
   const [secondaryColor, setSecondaryColor] = useState<string>("#F62829");
-  const [variant, setVariant] = useState<"filled" | "outlined" | "duotone" | "linear">("filled");
+  const [variant, setVariant] = useState<"filled" | "outlined" | "duotone" | "linear">("outlined");
   const [strokeWidth, setStrokeWidth] = useState<number>(1.5);
   const [rotate, setRotate] = useState<number>(0);
   const [mirrored, setMirrored] = useState<boolean>(false);
@@ -36,15 +36,9 @@ export default function IconsPreviewPage() {
   }, []);
 
   const copyToClipboard = async (iconName: string) => {
-    const hasTextClass = /(^|\s)(text-|hover:text-)/.test(iconClassName);
-    const classLine = `className="${[`text-[${color}]`, iconClassName].filter(Boolean).join(' ').trim()}"`;
-
     const lines: string[] = [
-      `import { ${iconName} } from "./src/components";`,
-      "",
       `<${iconName}`,
       `  size={${size}}`,
-      hasTextClass ? undefined : `  color="${color}"`,
       `  variant="${variant}"`,
       (variant === 'outlined' || variant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
       rotate !== 0 ? `  rotate={${rotate}}` : undefined,
@@ -55,7 +49,6 @@ export default function IconsPreviewPage() {
       bounce ? `  bounce={${bounce}}` : undefined,
       opacity !== 1 ? `  opacity={${opacity}}` : undefined,
       variant === 'duotone' && secondaryColor ? `  secondaryColor="${secondaryColor}"` : undefined,
-      classLine,
       `  title="${iconName}"`,
       `/>`
     ].filter(Boolean) as string[];
@@ -336,11 +329,9 @@ export default function IconsPreviewPage() {
                 <div className="absolute bottom-0 left-0 right-0 bg-black text-white text-xs p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity max-h-32 overflow-y-auto">
                   <pre className="whitespace-pre-wrap">
 {(() => {
-  const hasTextClass = /(^|\s)(text-|hover:text-)/.test(iconClassName);
   const lines = [
     `<${name}`,
     `  size={${size}}`,
-    hasTextClass ? undefined : `  color="${color}"`,
     `  variant="${variant}"`,
     (variant === 'outlined' || variant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
     rotate !== 0 ? `  rotate={${rotate}}` : undefined,
@@ -351,7 +342,6 @@ export default function IconsPreviewPage() {
     bounce ? `  bounce={${bounce}}` : undefined,
     opacity !== 1 ? `  opacity={${opacity}}` : undefined,
     variant === 'duotone' && secondaryColor ? `  secondaryColor="${secondaryColor}"` : undefined,
-    `  className="${[`text-[${color}]`, iconClassName].filter(Boolean).join(' ').trim()}"`,
     `  title="${name}"`,
     `/>`
   ].filter(Boolean);
