@@ -16,7 +16,6 @@ export { default as RevenueIcon } from "./RevenueIcon";
 export { default as SearchIcon } from "./SearchIcon";
 export { default as SignUpIcon } from "./SignUpIcon";
 export { default as XIcon } from "./XIcon";
-export { default as CombinedShapeIcon } from "./CombinedShapeIcon";
 export { default as FlagIcon } from "./FlagIcon";
 export { default as LikeIcon } from "./LikeIcon";
 export { default as SpinnerIcon } from "./SpinnerIcon";
