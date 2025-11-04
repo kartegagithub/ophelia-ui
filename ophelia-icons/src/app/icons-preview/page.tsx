@@ -36,9 +36,13 @@ export default function IconsPreviewPage() {
   }, []);
 
   const copyToClipboard = async (iconName: string) => {
+    // className sadece iconClassName doluysa eklenir (kullanıcının yazdığı gelir, text-[color] otomatik eklenmez)
+    const classLine = iconClassName.trim() ? `className="${iconClassName.trim()}"` : undefined;
+
     const lines: string[] = [
       `<${iconName}`,
       `  size={${size}}`,
+      `  color="${color}"`,
       `  variant="${variant}"`,
       (variant === 'outlined' || variant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
       rotate !== 0 ? `  rotate={${rotate}}` : undefined,
@@ -49,6 +53,7 @@ export default function IconsPreviewPage() {
       bounce ? `  bounce={${bounce}}` : undefined,
       opacity !== 1 ? `  opacity={${opacity}}` : undefined,
       variant === 'duotone' && secondaryColor ? `  secondaryColor="${secondaryColor}"` : undefined,
+      classLine,
       `  title="${iconName}"`,
       `/>`
     ].filter(Boolean) as string[];
@@ -329,9 +334,11 @@ export default function IconsPreviewPage() {
                 <div className="absolute bottom-0 left-0 right-0 bg-black text-white text-xs p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity max-h-32 overflow-y-auto">
                   <pre className="whitespace-pre-wrap">
 {(() => {
+  const classLine = iconClassName.trim() ? `  className="${iconClassName.trim()}"` : undefined;
   const lines = [
     `<${name}`,
     `  size={${size}}`,
+    `  color="${color}"`,
     `  variant="${variant}"`,
     (variant === 'outlined' || variant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
     rotate !== 0 ? `  rotate={${rotate}}` : undefined,
@@ -342,6 +349,7 @@ export default function IconsPreviewPage() {
     bounce ? `  bounce={${bounce}}` : undefined,
     opacity !== 1 ? `  opacity={${opacity}}` : undefined,
     variant === 'duotone' && secondaryColor ? `  secondaryColor="${secondaryColor}"` : undefined,
+    classLine,
     `  title="${name}"`,
     `/>`
   ].filter(Boolean);
