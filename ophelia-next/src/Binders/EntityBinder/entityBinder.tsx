@@ -6,18 +6,20 @@ import Tabs from "../../Components/Tabs/Tabs";
 import InputField from "../../Components/InputFields/inputField";
 import Router from "next/router";
 import ServiceMessageResult from "../../Service/serviceMessageResult";
-import ServiceMessage from "../../Service/serviceMessage";
-import { camelize, clone, pascalize, removeLastPropName } from "../../Extensions/StringExtensions";
-import { LoadingState } from "../../Enums/loadingState";
+import { ServiceMessage } from "ophelia-core";
+import { ServiceResult } from "ophelia-core";
+import { camelize, clone, pascalize, removeLastPropName } from "ophelia-core";
+import APIService from "ophelia-core";
+import { LoadingState } from "ophelia-core";
 import { getAppTheme } from "../../AppTheme";
 import Panel from "../../Components/Panel";
-import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
-import { ExcelExporter } from "../../Exporters/ExcelExporter";
+import { resolveMimeType } from "ophelia-core";
+import { ExcelExporter } from "ophelia-core";
 import CollectionBinder from "../CollectionBinder/collectionBinder";
-import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
-import FileData from "../../Models/FileData";
+import { raiseCustomEvent } from "ophelia-core";
+import { FileData } from "ophelia-core";
 import { EntityOperations } from "../EntityOperations";
-import { findInArray, getCaseLocale, getObjectValue, isNullOrEmpty, randomKey, removeAtIndex, setObjectValue } from "../../Extensions";
+import { findInArray, getCaseLocale, getObjectValue, isNullOrEmpty, randomKey, removeAtIndex, setObjectValue } from "ophelia-core";
 import ContentLoading from "../../Components/ContentLoading";
 export class EntityBinderProps{
   Options?: BinderOptions
@@ -67,7 +69,7 @@ export default class EntityBinder<P> extends React.Component<
   constructor(props: P & EntityBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
-    if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService()
+    if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService() as unknown as APIService
   }
   
   async Init() {
@@ -319,7 +321,7 @@ export default class EntityBinder<P> extends React.Component<
   // }
   async GetEntity(id: any, data: any): Promise<any>{
     this.setState({loadingState: LoadingState.Loading})
-    var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters, this.Options.UniqueKeyName);
+    var result: ServiceResult = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters, this.Options.UniqueKeyName);
     this.PreviousStateData = clone(result.data);
 
     this.UploadFiles = [];

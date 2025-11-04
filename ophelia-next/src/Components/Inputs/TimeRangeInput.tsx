@@ -1,4 +1,4 @@
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import React, { createRef, useEffect, useState } from "react";
 import TimeInput, { TimeInputProps } from "./TimeInput";
 

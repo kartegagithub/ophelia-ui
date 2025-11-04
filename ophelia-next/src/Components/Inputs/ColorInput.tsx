@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes, useRef } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import { ArrowDownIcon } from "@heroicons/react/24/solid";
 
 interface ColorInputProps extends InputHTMLAttributes<HTMLInputElement> {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getImageComponent } from "../Image/Extensions";
 import AppClient from "../../AppClient";
 import { usePathname } from "next/navigation";
-import { replaceQueryParam } from "../../Extensions";
+import { replaceQueryParam } from "ophelia-core";
 
 const MenuItem: React.FC<MenuItemProps> = React.memo(
   ({

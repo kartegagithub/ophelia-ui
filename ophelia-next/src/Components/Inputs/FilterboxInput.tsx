@@ -6,17 +6,17 @@ import {
   clone,
   formatString,
   parseFloatIfCan,
-} from "../../Extensions/StringExtensions";
+} from "ophelia-core";
 import {
   findInArray,
   removeAtIndex,
   selectDefaultValues,
-} from "../../Extensions/ArrayExtensions";
+} from "ophelia-core";
 import {
   ArrowTopRightOnSquareIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { getObjectValue, randomKey } from "../../Extensions";
+import { getObjectValue, randomKey } from "ophelia-core";
 import TextInput from "./TextInput";
 import Link from "next/link";
 import Icon from "../Icon";

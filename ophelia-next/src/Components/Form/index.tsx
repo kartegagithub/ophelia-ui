@@ -1,7 +1,8 @@
 import React, { Children, useEffect, useState } from "react";
-import { convertToBool, deepMap, getObjectValue, setObjectValue, typeCheck } from "../../Extensions/ReflectionExtensions";
+import { convertToBool, getObjectValue, setObjectValue, typeCheck } from "ophelia-core";
+import { deepMap } from "../../Extensions";
 import { BaseField, InputField } from "../InputFields";
-import { clone, findInArray, randomId, randomKey, removeAtIndex } from "../../Extensions";
+import { clone, findInArray, randomId, randomKey, removeAtIndex } from "ophelia-core";
 import { setFormListener } from "../InputFields/baseField";
 const Form: React.FC<{
     action?: string;

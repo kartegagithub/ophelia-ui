@@ -1,5 +1,5 @@
 import { getAppTheme } from "../../AppTheme";
-import { checkMouseInBoundByRef } from "../../Extensions/ComponentExtensions";
+import { checkMouseInBoundByRef } from "ophelia-core";
 import React, { useState } from "react";
 import { getImageComponent } from "../Image/Extensions";
 import { IconProps } from "../Icon";

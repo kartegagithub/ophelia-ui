@@ -1,5 +1,5 @@
-import { insertToIndex } from "../../Extensions/ArrayExtensions";
-import { enumToArray } from "../../Extensions/ReflectionExtensions";
+import { insertToIndex } from "ophelia-core";
+import { enumToArray } from "ophelia-core";
 import SelectInput from "../Inputs/SelectInput";
 import BaseField from "./baseField";
 export default class EnumSelectBoxField<P> extends BaseField<

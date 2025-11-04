@@ -5,8 +5,8 @@ import {
     InputField,
     Modal
   } from "../../Components";
-  import { getFileName } from "../../Extensions"
-  import FileData, { convertToFileData } from "../../Models/FileData";
+  import { getFileName } from "ophelia-core"
+  import { FileData, convertToFileData } from "ophelia-core";
   import { ArrowDownCircleIcon, CloudArrowUpIcon } from "@heroicons/react/24/solid";
   import React, { useEffect, useState } from "react";
   

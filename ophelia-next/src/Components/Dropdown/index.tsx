@@ -5,14 +5,14 @@ import {
   findInArray,
   removeAtIndex,
   selectDefaultValues,
-} from "../../Extensions/ArrayExtensions";
+} from "ophelia-core";
 import Link from "next/link";
 import Icon, { IconProps } from "../Icon";
 import {
   registerDocumentMouseDown,
   unregisterDocumentMouseDown,
-} from "../../Extensions/DocumentExtension";
-import { getObjectValue, randomKey, setObjectValue } from "../../Extensions";
+} from "ophelia-core";
+import { getObjectValue, randomKey, setObjectValue } from "ophelia-core";
 import Navigation from "../Navigation";
 import Backdrop from "../Backdrop";
 import { useRouter } from "next/router";

@@ -1,6 +1,6 @@
-import { stringToDateInputValue } from "../../Extensions";
+import { stringToDateInputValue } from "ophelia-core";
 import { getAppTheme } from "../../AppTheme";
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import React, { createRef, InputHTMLAttributes, useEffect, useState } from "react";
 import DateInput, { DateInputProps } from "./DateInput";
 

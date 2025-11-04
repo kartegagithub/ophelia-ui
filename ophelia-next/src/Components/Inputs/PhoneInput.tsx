@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import DataList from "./DataList";
-import { maskHandler, pasteHandler } from "../../Extensions";
+import { maskHandler, pasteHandler } from "ophelia-core";
 export interface PhoneInputProps
   extends AdditionalHtmlAttributes,
     InputHTMLAttributes<HTMLInputElement> {

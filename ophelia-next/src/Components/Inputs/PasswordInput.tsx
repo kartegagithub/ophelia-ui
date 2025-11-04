@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes, useState } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import Icon from "../Icon";
 
 export interface PasswordInputProps

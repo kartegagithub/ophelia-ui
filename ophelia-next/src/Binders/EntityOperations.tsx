@@ -1,13 +1,13 @@
-import FileData from "../Models/FileData";
-import { clone, camelize, isNullOrEmpty } from "../Extensions/StringExtensions";
-import APIService from "../Service/apiService";
-import ServiceResult from "../Service/serviceResult";
-import { validateKeyName, setObjectValue, getObjectValue, isEqualValue } from "../Extensions/ReflectionExtensions";
-import { readUploadedFile } from "../Extensions/InputExtensions";
-import { removeAtIndex } from "../Extensions";
+import { FileData } from "ophelia-core";
+import { clone, camelize, isNullOrEmpty } from "ophelia-core";
+import APIService from "ophelia-core";
+import { ServiceResult } from "ophelia-core";
+import { validateKeyName, setObjectValue, getObjectValue, isEqualValue } from "ophelia-core";
+import { readUploadedFile } from "ophelia-core";
+import { removeAtIndex } from "ophelia-core";
 
 export class EntityOperations{
-    Service: APIService = new APIService()
+    Service: APIService
     UpdateURL: string = ""
     Entity: string = ""
     GetEntityURL: string = ""
@@ -194,7 +194,10 @@ export class EntityOperations{
         this.validateReferencedProps(data);
         let postData: any = { data: data, languageID: languageID, files: files };
         try {
-          const result = await this.Service.CreateEndpoint(this.UpdateURL,
+          // @ts-ignore - TypeScript incorrectly infers Service type
+          const apiService = this.Service as unknown as APIService;
+          // @ts-ignore
+          const result = await apiService.CreateEndpoint(this.UpdateURL,
             { Payload: postData, EnableConcurrentRequests: true }
           ).call();
           return result;
@@ -211,7 +214,10 @@ export class EntityOperations{
             const postData: any = {
               data: {...clone(data), ...{statusID: 2}},
             };
-            const result = await this.Service.CreateEndpoint(this.UpdateURL,
+            // @ts-ignore - TypeScript incorrectly infers Service type
+            const apiService = this.Service as unknown as APIService;
+            // @ts-ignore
+            const result = await apiService.CreateEndpoint(this.UpdateURL,
             { Payload: postData }
             ).call();
             return result;
@@ -232,7 +238,10 @@ export class EntityOperations{
                     }
                 };
                 postData[keyName] = id;
-                var result = await this.Service.CreateEndpoint(this.GetEntityURL, { Payload: postData } ).call()
+                // @ts-ignore - TypeScript incorrectly infers Service type
+                const apiService = this.Service as unknown as APIService;
+                // @ts-ignore
+                var result = await apiService.CreateEndpoint(this.GetEntityURL, { Payload: postData } ).call()
                 return result;
             } catch (error) { 
                 var result = new ServiceResult();

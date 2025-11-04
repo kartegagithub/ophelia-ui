@@ -1,6 +1,6 @@
 import React, { createRef, TextareaHTMLAttributes, useEffect } from "react";
 import { getAppTheme } from "../../AppTheme";
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 
 export interface TextAreaInputProps
   extends AdditionalHtmlAttributes,

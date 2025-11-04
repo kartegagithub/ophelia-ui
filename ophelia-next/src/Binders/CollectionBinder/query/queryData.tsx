@@ -1,4 +1,4 @@
-import { isNullOrEmpty, isValidDate, pascalize } from "../../../Extensions";
+import { isNullOrEmpty, isValidDate, pascalize } from "ophelia-core";
 import TableColumnClass from "../../../Components/Table/TableColumnClass";
 import QueryDataModel from "./queryDataModel";
 import QueryFilter, { DataComparison } from "./queryFilter";

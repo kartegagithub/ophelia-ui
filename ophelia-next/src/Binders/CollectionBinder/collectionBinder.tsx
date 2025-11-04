@@ -5,35 +5,36 @@ import BinderOptions, { ExportOption } from "../BinderOptions";
 import TableColumnClass from "../../Components/Table/TableColumnClass";
 import Table from "../../Components/Table/Table";
 import Link from "next/link";
-import serviceCollectionResult from "../../Service/serviceCollectionResult";
-import { LoadingState } from "../../Enums/loadingState";
-import ServiceMessage from "../../Service/serviceMessage";
+import { ServiceCollectionResult } from "ophelia-core";
+import { LoadingState } from "ophelia-core";
+import { ServiceMessage } from "ophelia-core";
+import APIService from "ophelia-core";
 import Pluralize from 'pluralize';
 import Pagination from "../../Components/Pagination";
 import Router from "next/router";
-import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString, clone } from "../../Extensions/StringExtensions";
+import { getQueryParam, queryParamsAsObject, pascalize, replaceQueryParam, removeLastPropName, formatString, clone } from "ophelia-core";
 import QuerySorter from "./query/querySorter";
 import QueryData from "./query/queryData";
 import { getAppTheme } from "../../AppTheme";
-import { randomKey, setObjectValue, validateKeyName } from "../../Extensions/ReflectionExtensions";
-import { resolveMimeType } from "../../Extensions/MimeTypeResolver";
-import { ExcelExporter } from "../../Exporters/ExcelExporter";
+import { randomKey, setObjectValue, validateKeyName } from "ophelia-core";
+import { resolveMimeType } from "ophelia-core";
+import { ExcelExporter } from "ophelia-core";
 import Modal from "../../Components/Modal";
 import EntityBinder from "../EntityBinder/entityBinder";
-import { raiseCustomEvent } from "../../Extensions/DocumentExtension";
+import { raiseCustomEvent } from "ophelia-core";
 import { EntityOperations } from "../EntityOperations";
 import Drawer from "../../Components/Drawer";
 import ContentLoading from "../../Components/ContentLoading";
 import ImportModal from "../../Components/Modal/ImportModal";
-import { FileData } from "../../Models";
+import { FileData } from "ophelia-core";
 import PersistentConfig from "./layout/persistentConfig";
 import PersistentColumnConfig from "./layout/persistentColumnConfig";
 import { Button, CheckboxInput, getImageComponent, Label } from "../../Components";
 import { Bars3Icon } from "@heroicons/react/24/solid";
-import { base64ToArrayBuffer, enumToArray, filterInArray, getObjectValue, insertToIndex, paginate, sortByKey } from "../../Extensions";
+import { base64ToArrayBuffer, enumToArray, filterInArray, getObjectValue, insertToIndex, paginate, sortByKey } from "ophelia-core";
 import { DataComparison } from "./query/queryFilter";
 import moment from "moment";
-import ISanitizeOptions from "../../Models/ISanitizeOptions";
+import ISanitizeOptions from "ophelia-core";
 export class CollectionBinderProps{
   config?: Config
   options?: BinderOptions
@@ -107,7 +108,7 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   constructor(props: P & CollectionBinderProps){
     super(props)
     this.EntityOperations = new EntityOperations();
-    if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService()
+    if(props.AppClient) this.EntityOperations.Service = props.AppClient.CreateService() as unknown as APIService
   }
 
   Init(){
@@ -379,14 +380,14 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
   async getData () {
     //console.log("getdata", this.state)
     if(this.state?.importState && this.state.importState.isImporting && this.state.importState.data){
-      const data = new serviceCollectionResult();
+      const data = new ServiceCollectionResult();
       data.data = this.state.importState.data 
       data.totalDataCount = this.state.importState.data?.length
       this.setState({loadingState: LoadingState.Loaded})
       return data;
     }
     if(this.props.data){
-      const data = new serviceCollectionResult();
+      const data = new ServiceCollectionResult();
       data.data = this.props.data 
       data.totalDataCount = this.props.data?.length
       this.setState({loadingState: LoadingState.Loaded})
@@ -420,10 +421,10 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
         if(this.Config.beforeSendRequest)
           postData = this.Config.beforeSendRequest(postData);
         
-        const data = await this.props.AppClient?.CreateService()?.CreateEndpoint(
+        const data: ServiceCollectionResult = await this.props.AppClient?.CreateService()?.CreateEndpoint(
           this.Config.DataSourcePath,
           { Payload: postData }
-        ).call() as serviceCollectionResult;
+        ).call() as ServiceCollectionResult;
         this.setState({loadingState: LoadingState.Loaded})
         if(!data){
           raiseCustomEvent("notification", { type: "error", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotRetrieveData")  })
@@ -1056,15 +1057,16 @@ export default class CollectionBinder<P> extends React.Component<P & CollectionB
       else this.setState({ loadingState: LoadingState.Waiting, filter: filters, page: 1});
     }
   }
-  getSanitizeOptions(): ISanitizeOptions{
-    return { 
-              parser: {
-                decodeEntities: false 
-              }, 
-              textFilter: function(text: string) {
-                return text.replace(/&amp;/g, "&");
-            } 
-          };
+  getSanitizeOptions(): ISanitizeOptions {
+    const options = { 
+      parser: {
+        decodeEntities: false 
+      }, 
+      textFilter: function(text: string) {
+        return text.replace(/&amp;/g, "&");
+      } 
+    };
+    return options as unknown as ISanitizeOptions;
   }
   getItemPropertyValue(row: any, name: string, i18n: boolean = false) {
     return this.EntityOperations.getPropertyValue(row, name, this.state.languageID, i18n, true);

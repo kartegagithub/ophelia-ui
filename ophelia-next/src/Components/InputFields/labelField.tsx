@@ -1,4 +1,4 @@
-import { getFormattedDateString, isValidDate } from "../../Extensions";
+import { getFormattedDateString, isValidDate } from "ophelia-core";
 import Label from "../Label";
 import RawHTML from "../RawHTML";
 import BaseField from "./baseField";

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Backdrop from "../Backdrop";
-import { checkMouseInBoundByRef } from "../../Extensions/ComponentExtensions";
+import { checkMouseInBoundByRef } from "ophelia-core";
 import {
   registerDocumentKeyDown,
   unregisterDocumentKeyDown,
-} from "../../Extensions/DocumentExtension";
+} from "ophelia-core";
 import Icon from "../Icon";
 const Modal: React.FC<{
   id?: string;

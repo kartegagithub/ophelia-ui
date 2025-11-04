@@ -1,4 +1,4 @@
-import FileData, { convertToFileData } from "../../Models/FileData";
+import { FileData, convertToFileData } from "ophelia-core";
 import React, { InputHTMLAttributes, useEffect, useState } from "react";
 import { EyeIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import {
@@ -10,7 +10,7 @@ import {
   removeAtIndex,
   removeFileFromFileList,
   selectDefaultValues,
-} from "../../Extensions/";
+} from "ophelia-core";
 import { IconProps } from "../Icon";
 import { getImageComponent } from "../Image";
 

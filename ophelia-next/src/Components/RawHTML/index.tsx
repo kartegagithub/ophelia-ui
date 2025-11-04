@@ -1,4 +1,4 @@
-import { removeHtml, sanitizeHtml } from "../../Extensions/StringExtensions";
+import { removeHtml, sanitizeHtml } from "ophelia-core";
 import React from "react";
 const RawHTML: React.FC<RawHTMLProps> = ({
   id,

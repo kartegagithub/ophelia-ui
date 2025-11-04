@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { getImageComponent } from "../Image/Extensions";
-import { loopInRange } from "../../Extensions/ArrayExtensions";
-import { formatString } from "../../Extensions/StringExtensions";
+import { loopInRange } from "ophelia-core";
+import { formatString } from "ophelia-core";
 import { IconProps } from "../Icon";
 const IconRating: React.FC<{
   id?: string;

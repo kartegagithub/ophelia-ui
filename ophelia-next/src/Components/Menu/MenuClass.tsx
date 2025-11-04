@@ -1,4 +1,4 @@
-import { getCaseLocale } from "../../Extensions"
+import { getCaseLocale } from "ophelia-core"
 import AppClient from "../../AppClient"
 import MenuItemClass from "./MenuItemClass"
 

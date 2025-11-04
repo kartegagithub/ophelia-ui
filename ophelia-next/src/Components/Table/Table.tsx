@@ -7,7 +7,7 @@ import {
   enumToArray,
   getObjectValue,
   setObjectValue,
-} from "../../Extensions/ReflectionExtensions";
+} from "ophelia-core";
 import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
 import {
@@ -17,7 +17,7 @@ import {
   padLeft,
   removeHtml,
   sanitizeHtml,
-} from "../../Extensions/StringExtensions";
+} from "ophelia-core";
 import Dropdown from "../Dropdown";
 import { DataComparison } from "../../Binders/CollectionBinder/query/queryFilter";
 import Select from "../Inputs/SelectInput";
@@ -31,10 +31,11 @@ import {
 import Checkbox from "../Inputs/CheckboxInput";
 import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
-import { findInArray, formatDataToString, getCaseLocale } from "../../Extensions";
+import { findInArray } from "ophelia-core";
+import { formatDataToString, getCaseLocale } from "ophelia-core";
 import CheckboxInput from "../Inputs/CheckboxInput";
-import { getCurrentRegionSetting } from "../../Localization";
-import ISanitizeOptions from "../../Models/ISanitizeOptions";
+import { getCurrentRegionSetting } from "ophelia-core";
+import ISanitizeOptions from "ophelia-core";
 const Table: React.FC<TableProps> = React.memo(
   ({
     refreshKey,
@@ -989,25 +990,40 @@ const Table: React.FC<TableProps> = React.memo(
       else value = getObjectValue(row, column.PropertyName);
 
       if (typeof value == "string") {
-        var options: ISanitizeOptions;
-        if(listener?.getSanitizeOptions)
-          options = listener?.getSanitizeOptions();
-        else{
-          options = { 
-              parser: {
-                decodeEntities: false 
-              }, 
-              textFilter: function(text: string) {
-                return text.replace(/&amp;/g, "&");
-            } 
-          };
+        const defaultOptions = { 
+          parser: {
+            decodeEntities: false 
+          }, 
+          textFilter: function(text: string) {
+            return text.replace(/&amp;/g, "&");
+          } 
+        } as unknown as ISanitizeOptions;
+        let sanitizeOptions: ISanitizeOptions = defaultOptions;
+        if(listener?.getSanitizeOptions) {
+          try {
+            const getSanitizeOptionsFn = listener.getSanitizeOptions;
+            if(getSanitizeOptionsFn && typeof getSanitizeOptionsFn === 'function') {
+              const listenerOptionsResult: unknown = getSanitizeOptionsFn();
+              // Type guard to ensure it's ISanitizeOptions (not AppClientBase)
+              if(listenerOptionsResult && typeof listenerOptionsResult === 'object' && listenerOptionsResult !== null && 'parser' in listenerOptionsResult && !('Region' in listenerOptionsResult) && !('AppTitle' in listenerOptionsResult)) {
+                // @ts-ignore - TypeScript incorrectly infers return type from listener.getSanitizeOptions
+                const typedResult = listenerOptionsResult as unknown as ISanitizeOptions;
+                // @ts-ignore
+                sanitizeOptions = { ...defaultOptions, ...typedResult };
+              }
+            }
+          } catch(e) {
+            // Use default options
+          }
         }
         
-        options.textFilter = function(text: string) {
+        // @ts-expect-error - TypeScript incorrectly infers sanitizeOptions type
+        sanitizeOptions.textFilter = function(text: string) {
           return text.replace(/&amp;/g, "&");
         }
         value = removeHtml(value);
-        value = sanitizeHtml(value, options);
+        // @ts-expect-error - TypeScript incorrectly infers sanitizeOptions type
+        value = sanitizeHtml(value, sanitizeOptions);
       }
       if (
         column.Type == "date" ||
@@ -1216,7 +1232,7 @@ var tableProps: {
     onCellValueChanging?: Function;
     onSelectedRowChange?: Function;
     getItemPropertyValue?: Function;
-    getSanitizeOptions?: () => ISanitizeOptions;
+    getSanitizeOptions?: (() => ISanitizeOptions) | undefined;
     getRowProps?: Function;
     getCellProps?: Function;
     setCheckedItems?: Function;

@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import DataList from "./DataList";
 import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image";

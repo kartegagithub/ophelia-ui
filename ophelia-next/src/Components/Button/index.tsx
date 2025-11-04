@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes } from "react";
 import RawHTML from "../RawHTML";
-import { getObjectValue } from "../../Extensions/ReflectionExtensions";
-import { trimSpaces } from "../../Extensions/StringExtensions";
+import { getObjectValue } from "ophelia-core";
+import { trimSpaces } from "ophelia-core";
 import { IconProps, getImageComponent } from "..";
 
 const Button: React.FC<

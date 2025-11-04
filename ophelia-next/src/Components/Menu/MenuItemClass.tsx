@@ -1,6 +1,6 @@
 import { MouseEventHandler } from "react";
 import MenuClass from "./MenuClass";
-import { replaceQueryParam, urlMatch } from "../../Extensions/StringExtensions";
+import { replaceQueryParam, urlMatch } from "ophelia-core";
 import React from "react";
 
 export default class MenuItemClass {

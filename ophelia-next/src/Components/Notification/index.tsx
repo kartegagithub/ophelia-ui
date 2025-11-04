@@ -4,7 +4,7 @@ import { getImageComponent } from "../Image/Extensions";
 import { IconProps } from "../Icon";
 import RawHTML from "../RawHTML";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { listenCustomEvent } from "../../Extensions";
+import { listenCustomEvent } from "ophelia-core";
 
 const Notification: React.FC<NotificationProps> = ({
   type = "success",

@@ -5,9 +5,9 @@ import { getImageComponent } from "../Image/Extensions";
 import {
   SpeechRecognizer,
   speechRecognitionSupported,
-} from "../../Exporters/SpeechRecognizer";
-import { getCurrentRegionSetting } from "../../Localization/RegionSetting";
-import { ClientBarcodeReader } from "../../Exporters/BarcodeReader";
+} from "ophelia-core";
+import { getCurrentRegionSetting } from "ophelia-core";
+import { ClientBarcodeReader } from "ophelia-core";
 
 const Searchbar: React.FC<SearchbarProps> = React.memo(
   ({
@@ -121,7 +121,7 @@ const Searchbar: React.FC<SearchbarProps> = React.memo(
       if (barcodeReadingEnabled) {
         barcodeReader.Destroy();
       } else {
-        barcodeReader.VideoElement = videoRef;
+        barcodeReader.VideoElement = videoRef.current || undefined;
         var sb = SearchboxRef.current;
         barcodeReader.onResult = (text, format) => {
           if (sb) sb.value = text;

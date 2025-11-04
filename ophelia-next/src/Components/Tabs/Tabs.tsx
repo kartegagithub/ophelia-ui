@@ -1,5 +1,5 @@
 import React, { Children, ReactNode, useEffect, useState, useRef } from "react";
-import { deepMap } from "../../Extensions/ReflectionExtensions";
+import { deepMap } from "../../Extensions";
 import Tab from "./Tab";
 import { useScrollInlineDynamically } from "../../Extensions";
 import { useRouter } from "next/router";

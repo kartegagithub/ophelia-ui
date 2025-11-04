@@ -1,4 +1,4 @@
-import { isNullOrEmpty } from "../../Extensions/StringExtensions";
+import { isNullOrEmpty } from "ophelia-core";
 import { getAppTheme } from "../../AppTheme";
 import React, { InputHTMLAttributes, useEffect, useState } from "react";
 

@@ -1,4 +1,4 @@
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import React from "react";
 export interface MonthInputProps
   extends AdditionalHtmlAttributes,

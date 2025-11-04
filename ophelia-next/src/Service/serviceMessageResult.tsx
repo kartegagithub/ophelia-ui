@@ -1,5 +1,5 @@
 import Alert from "../Components/Alert";
-import ServiceMessage from "./serviceMessage";
+import { ServiceMessage } from "ophelia-core";
 
 const ServiceMessageResult = (props: ServiceMessage) => {
   return (

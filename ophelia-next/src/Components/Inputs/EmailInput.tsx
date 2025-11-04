@@ -1,9 +1,9 @@
 import React, { InputHTMLAttributes } from "react";
 import DataList from "./DataList";
 import { getAppTheme } from "../../AppTheme";
-import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import { IconProps } from "../Icon";
-import { maskHandler } from "../../Extensions";
+import { maskHandler } from "ophelia-core";
 import { getImageComponent } from "../Image";
 
 export interface EmailInputProps extends InputHTMLAttributes<HTMLInputElement> {

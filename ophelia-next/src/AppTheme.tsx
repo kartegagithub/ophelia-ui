@@ -1,5 +1,5 @@
 import React from "react";
-import { merge, removeEmptyProps } from "./Extensions/ReflectionExtensions";
+import { merge, removeEmptyProps } from "ophelia-core";
 
 var AppThemeConfig: any = {
   Alert: {

@@ -1,4 +1,4 @@
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import React, { SelectHTMLAttributes, useState } from "react";
 
 const SelectInput: React.FC<

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { loopInRange } from "../../Extensions/ArrayExtensions";
+import { loopInRange } from "ophelia-core";
 const Indicator: React.FC<{
   id?: string;
   visible?: boolean;

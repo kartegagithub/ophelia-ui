@@ -1,8 +1,8 @@
-import { loopInRange } from "../../Extensions/ArrayExtensions";
+import { loopInRange } from "ophelia-core";
 import Link from "next/link";
 import React from "react";
 import Select from "../Inputs/SelectInput";
-import { formatString } from "../../Extensions/StringExtensions";
+import { formatString } from "ophelia-core";
 import { getImageComponent } from "../Image/Extensions";
 
 const Pagination: React.FC<PaginationProps> = ({

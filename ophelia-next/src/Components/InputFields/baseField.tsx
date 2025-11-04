@@ -4,12 +4,12 @@ import {
   parseFloatIfCan,
   validateRange,
   validateEmail,
-} from "../../Extensions/StringExtensions";
+} from "ophelia-core";
 import React, { Ref, RefObject, SyntheticEvent } from "react";
 import RawHTML from "../RawHTML";
-import { convertToBool, randomId } from "../../Extensions/ReflectionExtensions";
+import { convertToBool, randomId } from "ophelia-core";
 import InputValidationRule from "./InputValidationRule";
-import { FileData } from "../../Models";
+import { FileData } from "ophelia-core";
 export default class BaseField<P> extends React.Component<
   P & {
     key?: any;

@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 
 export interface RangeInputProps
   extends AdditionalHtmlAttributes,

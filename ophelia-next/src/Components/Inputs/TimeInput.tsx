@@ -1,6 +1,6 @@
-import { stringToDateInputValue } from "../../Extensions";
+import { stringToDateInputValue } from "ophelia-core";
 import React, { InputHTMLAttributes } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import DataList from "./DataList";
 
 export interface TimeInputProps

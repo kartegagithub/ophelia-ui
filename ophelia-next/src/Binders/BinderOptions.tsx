@@ -1,4 +1,4 @@
-import { FileData } from "../Models";
+import { FileData } from "ophelia-core";
 import { QueryDataModel } from "./CollectionBinder";
 
 export default class BinderOptions {

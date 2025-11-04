@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from "react";
-import { AdditionalHtmlAttributes } from "../../Enums/additionalHtmlAttributes";
+import { AdditionalHtmlAttributes } from "ophelia-core";
 import DataList from "./DataList";
-import { maskHandler } from "../../Extensions";
+import { maskHandler } from "ophelia-core";
 import { IconProps } from "../Icon";
 import { getImageComponent } from "../Image";
 
