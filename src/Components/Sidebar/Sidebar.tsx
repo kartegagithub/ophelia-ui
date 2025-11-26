@@ -25,6 +25,8 @@ const Sidebar: React.FC<{
   closeOnNavigate?: boolean;
   /** Dışarı tıklamada menüyü kapat */
   closeOnOutsideClick?: boolean;
+  /** Sidebar default açık kapalı gelme durumu */
+  defaultOpen?: boolean;
 }> = React.memo(
   ({
     menu,
@@ -35,13 +37,14 @@ const Sidebar: React.FC<{
     children,
     closeOnNavigate,
     closeOnOutsideClick,
+    defaultOpen = true,
   }) => {
     const [currentState, setCurrentState] = useState({
       menu: new SidebarMenuClass(),
       searchKey: "",
       stateKey: false,
     });
-    const [menuCollapsed, setMenuCollapsed] = useState<boolean>(false);
+    const [menuCollapsed, setMenuCollapsed] = useState<boolean>(() => !defaultOpen);
     const [mobile, setMobile] = useState<boolean>(false);
     const path = usePathname();
     const searchParams = useSearchParams();
@@ -60,9 +63,9 @@ const Sidebar: React.FC<{
     }, [stateKey, menu]);
 
     useEffect(() => {
-      if (sidebarToggle != null && sidebarToggle != undefined) {
-        setMenuCollapsed(!menuCollapsed);
-      }
+    if (sidebarToggle != null && sidebarToggle != undefined) {
+      setMenuCollapsed((prev) => !prev);
+    }
     }, [sidebarToggle]);
 
     // Dışarı tıklamada kapat
