@@ -74,10 +74,16 @@ const GiftIcon: React.FC<IconProps> = ({
   visible = true,
   opacity,
   
-  className = "",
+  className,
   style,
   ...rest
 }) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
   const w = width ?? size;
   const h = height ?? size;
   
@@ -99,6 +105,9 @@ const GiftIcon: React.FC<IconProps> = ({
   if (color) {
     colorClasses.push(`text-[${color}]`);
   }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
   
   const styles: React.CSSProperties = {
     // color artık className ile yönetiliyor, inline style'dan kaldırıldı
@@ -126,11 +135,11 @@ const GiftIcon: React.FC<IconProps> = ({
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
       xmlns="http://www.w3.org/2000/svg"
-      className={[...animationClasses, ...colorClasses, className].filter(Boolean).join(" ")}
+      className={combinedClassName}
       style={styles}
       aria-hidden={title ? undefined : true}
       role={title ? "img" : "presentation"}
-      {...rest}
+      {...restProps}
     >
       {title && <title>{title}</title>}
       {description && <desc>{description}</desc>}
