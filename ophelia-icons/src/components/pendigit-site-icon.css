@@ -204,3 +204,5 @@
 .pe-icon-winner::before { content: "\EAB5"; }
 .pe-icon-xls::before { content: "\EAB6"; }
 .pe-icon-youtube::before { content: "\EAB7"; }
+.pe-icon-online::before { content: "\EAB8"; }
+.pe-icon-profile-user::before { content: "\EAB9"; }

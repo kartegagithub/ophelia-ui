@@ -181,3 +181,5 @@ export { default as WhiteLineIcon } from "./WhiteLineIcon";
 export { default as WinnerIcon } from "./WinnerIcon";
 export { default as XlsIcon } from "./XlsIcon";
 export { default as YoutubeIcon } from "./YoutubeIcon";
+export { default as OnlineIcon } from "./OnlineIcon";
+export { default as ProfileUserIcon } from "./ProfileUserIcon";
