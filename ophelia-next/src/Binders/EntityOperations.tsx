@@ -62,15 +62,15 @@ export class EntityOperations{
             if(element.FilePath) continue;
             if(element.KeyName != propName) continue;
 
-            var found = false;
+            var found = 0;
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
               const file = files[fileIndex];
-              if((element.LanguageID == 0 || element.LanguageID == languageID) && element.FileName == file.name){
-                found = true;
+              if((element.LanguageID == 0 || element.LanguageID == languageID)){
+                found = element.FileName == file.name ? 1 : -1;
                 break;
               }
             }
-            if(!found){
+            if(found == -1){
               removeAtIndex(uploadedFiles, index)
               console.log("File deleted (NOTEXISTS)", element, uploadedFiles)
             }
@@ -92,6 +92,7 @@ export class EntityOperations{
                 for (let index = uploadedFiles.length - 1; index >= 0; index--) {
                   const element = uploadedFiles[index];
                   if((element.LanguageID == 0 || element.LanguageID == languageID) && element.KeyName == propName){
+                    debugger;
                     removeAtIndex(uploadedFiles, index)
                     console.log("File deleted (SINGLE)", element, uploadedFiles)
                   }
