@@ -92,7 +92,6 @@ export class EntityOperations{
                 for (let index = uploadedFiles.length - 1; index >= 0; index--) {
                   const element = uploadedFiles[index];
                   if((element.LanguageID == 0 || element.LanguageID == languageID) && element.KeyName == propName){
-                    debugger;
                     removeAtIndex(uploadedFiles, index)
                     console.log("File deleted (SINGLE)", element, uploadedFiles)
                   }
