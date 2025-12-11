@@ -39,6 +39,7 @@
 .pe-icon-search::before { content: "\EA10"; }
 .pe-icon-sign-up::before { content: "\EA11"; }
 .pe-icon-x::before { content: "\EA12"; }
+.pe-icon-inbox::before { content: "\EA13"; }
 .pe-icon-flag::before { content: "\EA14"; }
 .pe-icon-like::before { content: "\EA15"; }
 .pe-icon-spinner::before { content: "\EA16"; }
@@ -203,3 +204,5 @@
 .pe-icon-winner::before { content: "\EAB5"; }
 .pe-icon-xls::before { content: "\EAB6"; }
 .pe-icon-youtube::before { content: "\EAB7"; }
+.pe-icon-online::before { content: "\EAB8"; }
+.pe-icon-profile-user::before { content: "\EAB9"; }
