@@ -20,7 +20,9 @@ export class EntityOperations{
     
         if(name === "id") return data.id
         if(name === "uid") return data.uid
-        if(name === "selectedLanguageID") return data.languageID
+        if(name === "selectedLanguageID") {
+          return languageID ?? data.languageID
+        }
         if(name == "dateCreated") return data.dateCreated
         if(name == "dateModified") return data.dateModified
         if(name == "statusID") return data.statusID
