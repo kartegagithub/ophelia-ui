@@ -206,3 +206,5 @@
 .pe-icon-youtube::before { content: "\EAB7"; }
 .pe-icon-online::before { content: "\EAB8"; }
 .pe-icon-profile-user::before { content: "\EAB9"; }
+.pe-icon-image-edit::before { content: "\EABA"; }
+.pe-icon-trash::before { content: "\EABB"; }

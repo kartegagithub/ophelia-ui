@@ -183,3 +183,5 @@ export { default as XlsIcon } from "./XlsIcon";
 export { default as YoutubeIcon } from "./YoutubeIcon";
 export { default as OnlineIcon } from "./OnlineIcon";
 export { default as ProfileUserIcon } from "./ProfileUserIcon";
+export { default as ImageEditIcon } from "./ImageEditIcon";
+export { default as TrashIcon } from "./TrashIcon";
