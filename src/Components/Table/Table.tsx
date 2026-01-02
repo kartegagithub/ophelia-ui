@@ -154,8 +154,8 @@ const Table: React.FC<TableProps> = React.memo(
       var column = table.Columns.filter((column) => isColumnVisible(column)).find((column, index) => index == columnIndex)
 
       setEditingCell(undefined);
-      setSelectedCell([-1, -1]);
       if (e.key == "Escape"){
+        setSelectedCell([-1, -1]);
         if (listener && listener.onCellValueCancelled)
           listener.onCellValueCancelled(row, column, rowIndex, columnIndex);
       }
