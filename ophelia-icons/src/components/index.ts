@@ -185,3 +185,5 @@ export { default as OnlineIcon } from "./OnlineIcon";
 export { default as ProfileUserIcon } from "./ProfileUserIcon";
 export { default as ImageEditIcon } from "./ImageEditIcon";
 export { default as TrashIcon } from "./TrashIcon";
+export { default as MembersIcon } from "./MembersIcon";
+export { default as PostIcon } from "./PostIcon";

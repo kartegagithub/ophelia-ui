@@ -208,3 +208,5 @@
 .pe-icon-profile-user::before { content: "\EAB9"; }
 .pe-icon-image-edit::before { content: "\EABA"; }
 .pe-icon-trash::before { content: "\EABB"; }
+.pe-icon-members::before { content: "\EABC"; }
+.pe-icon-post::before { content: "\EABD"; }
