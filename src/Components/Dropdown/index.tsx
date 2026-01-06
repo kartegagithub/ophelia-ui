@@ -17,6 +17,7 @@ import Navigation from "../Navigation";
 import Backdrop from "../Backdrop";
 import { useRouter } from "next/router";
 import { TableColumnClass } from "../Table";
+import RawHTML from "../RawHTML";
 const Dropdown: React.FC<DropdownProps> = ({
   id = "",
   multipleSelection = undefined,
@@ -434,7 +435,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                       )}
                       {!optionTemplateFn && (
                         <label className={"oph-dropdown-options-item-label"}>
-                          {getObjectValue(option, displayProp)}
+                          <RawHTML html={getObjectValue(option, displayProp)}></RawHTML>
                         </label>
                       )}
                       {optionTemplateFn && optionTemplateFn(option)}
