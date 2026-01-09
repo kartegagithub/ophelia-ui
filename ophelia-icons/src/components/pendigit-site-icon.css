@@ -211,3 +211,4 @@
 .pe-icon-members::before { content: "\EABC"; }
 .pe-icon-post::before { content: "\EABD"; }
 .pe-icon-c::before { content: "\EABE"; }
+.pe-icon-message::before { content: "\EABF"; }

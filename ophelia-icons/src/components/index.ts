@@ -188,3 +188,4 @@ export { default as TrashIcon } from "./TrashIcon";
 export { default as MembersIcon } from "./MembersIcon";
 export { default as PostIcon } from "./PostIcon";
 export { default as CIcon } from "./CIcon";
+export { default as MessageIcon } from "./MessageIcon";
