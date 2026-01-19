@@ -1,0 +1,161 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const AddIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className,
+  style,
+  ...rest
+}) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 22 22"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={combinedClassName}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...restProps}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-AddIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-AddIcon)` : undefined}>
+         <path d="M22 11C22 17.0751 17.0751 22 11 22C4.92487 22 0 17.0751 0 11C0 4.92487 4.92487 0 11 0C17.0751 0 22 4.92487 22 11Z"/> <path fillRule="evenodd" clipRule="evenodd" d="M6.5 11C6.5 10.7238 6.72386 10.5 7 10.5H15C15.2761 10.5 15.5 10.7238 15.5 11C15.5 11.2761 15.2761 11.5 15 11.5H7C6.72386 11.5 6.5 11.2761 6.5 11Z"/> <path fillRule="evenodd" clipRule="evenodd" d="M11 6.50003C11.2761 6.50003 11.5 6.72389 11.5 7.00003V15C11.5 15.2762 11.2761 15.5 11 15.5C10.7239 15.5 10.5 15.2762 10.5 15V7.00003C10.5 6.72389 10.7239 6.50003 11 6.50003Z"/> 
+      </g>
+    </svg>
+  );
+};
+
+export default AddIcon;

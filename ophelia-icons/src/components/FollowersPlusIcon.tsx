@@ -1,0 +1,161 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const FollowersPlusIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className,
+  style,
+  ...rest
+}) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 24 24"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={combinedClassName}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...restProps}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-FollowersPlusIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-FollowersPlusIcon)` : undefined}>
+         <path d="M17.5 13C17.4999 13.1313 17.5258 13.2614 17.576 13.3827C17.6263 13.5041 17.6999 13.6143 17.7928 13.7072C17.8857 13.8001 17.9959 13.8738 18.1172 13.924C18.2386 13.9743 18.3686 14.0002 18.5 14.0002C18.6313 14.0002 18.7613 13.9743 18.8827 13.924C19.004 13.8738 19.1143 13.8001 19.2071 13.7072C19.3 13.6143 19.3736 13.5041 19.4239 13.3827C19.4741 13.2614 19.5 13.1313 19.5 13V12H20.5C20.6313 12 20.7613 11.9742 20.8827 11.9239C21.004 11.8737 21.1143 11.8 21.2072 11.7072C21.3 11.6143 21.3737 11.5041 21.424 11.3827C21.4742 11.2614 21.5001 11.1313 21.5001 11C21.5001 10.8687 21.4742 10.7386 21.424 10.6173C21.3737 10.4959 21.3 10.3857 21.2072 10.2928C21.1143 10.2 21.004 10.1263 20.8827 10.0761C20.7613 10.0258 20.6313 9.99998 20.5 10H19.5V9C19.5 8.86866 19.4741 8.73861 19.4239 8.61727C19.3736 8.49592 19.3 8.38567 19.2071 8.29279C19.1143 8.19992 19.004 8.12624 18.8827 8.07598C18.7613 8.02572 18.6313 7.99985 18.5 7.99985C18.3686 7.99985 18.2386 8.02572 18.1172 8.07598C17.9959 8.12624 17.8857 8.19992 17.7928 8.29279C17.6999 8.38567 17.6263 8.49592 17.576 8.61727C17.5258 8.73861 17.4999 8.86866 17.5 9V10H16.5C16.3686 9.99998 16.2386 10.0258 16.1172 10.0761C15.9959 10.1263 15.8856 10.2 15.7927 10.2928C15.6999 10.3857 15.6262 10.4959 15.5759 10.6173C15.5257 10.7386 15.4998 10.8687 15.4998 11C15.4998 11.1313 15.5257 11.2614 15.5759 11.3827C15.6262 11.5041 15.6999 11.6143 15.7927 11.7072C15.8856 11.8 15.9959 11.8737 16.1172 11.9239C16.2386 11.9742 16.3686 12 16.5 12H17.5V13ZM14.863 7.219C14.863 8.33801 14.4184 9.4112 13.6272 10.2025C12.8359 10.9937 11.7627 11.4382 10.6437 11.4382C9.52469 11.4382 8.45151 10.9937 7.66024 10.2025C6.86898 9.4112 6.42445 8.33801 6.42445 7.219C6.42445 6.09998 6.86898 5.0268 7.66024 4.23554C8.45151 3.44427 9.52469 2.99975 10.6437 2.99975C11.7627 2.99975 12.8359 3.44427 13.6272 4.23554C14.4184 5.0268 14.863 6.09998 14.863 7.219ZM3.16995 16.469C4.55495 15.3795 7.31145 13.6165 10.6435 13.6165C13.976 13.6165 16.7325 15.3795 18.1175 16.469C18.736 16.955 18.929 17.777 18.6845 18.525L18.3515 19.545C18.2133 19.9679 17.9451 20.3364 17.585 20.5977C17.2249 20.859 16.7914 20.9998 16.3465 21H4.94095C4.49586 21 4.06215 20.8593 3.70185 20.598C3.34155 20.3367 3.07312 19.9681 2.93495 19.545L2.60195 18.525C2.35795 17.777 2.55095 16.955 3.16895 16.469H3.16995Z"/> 
+      </g>
+    </svg>
+  );
+};
+
+export default FollowersPlusIcon;

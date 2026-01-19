@@ -1,0 +1,161 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const ImagePlusIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className,
+  style,
+  ...rest
+}) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 24 24"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={combinedClassName}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...restProps}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-ImagePlusIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-ImagePlusIcon)` : undefined}>
+         <path d="M19 1.45C19.1458 1.45 19.2857 1.50794 19.3889 1.61109C19.492 1.71423 19.55 1.85413 19.55 2V4.45H22C22.0722 4.44998 22.1437 4.4642 22.2105 4.49183C22.2772 4.51946 22.3378 4.55997 22.3889 4.61105C22.44 4.66212 22.4805 4.72276 22.5082 4.78949C22.5358 4.85623 22.5501 4.92776 22.5501 5C22.5501 5.07223 22.5358 5.14376 22.5082 5.2105C22.4805 5.27724 22.44 5.33787 22.3889 5.38895C22.3378 5.44002 22.2772 5.48053 22.2105 5.50816C22.1437 5.5358 22.0722 5.55001 22 5.55H19.55V8C19.55 8.07223 19.5357 8.14377 19.5081 8.21051C19.4805 8.27725 19.44 8.33789 19.3889 8.38898C19.3378 8.44006 19.2772 8.48059 19.2105 8.50823C19.1437 8.53588 19.0722 8.55011 19 8.55011C18.9277 8.55011 18.8562 8.53588 18.7894 8.50823C18.7227 8.48059 18.6621 8.44006 18.611 8.38898C18.5599 8.33789 18.5194 8.27725 18.4918 8.21051C18.4642 8.14377 18.4499 8.07223 18.45 8V5.55H16C15.9277 5.55001 15.8562 5.5358 15.7894 5.50816C15.7227 5.48053 15.6621 5.44002 15.611 5.38895C15.5599 5.33787 15.5194 5.27724 15.4917 5.2105C15.4641 5.14376 15.4498 5.07223 15.4498 5C15.4498 4.92776 15.4641 4.85623 15.4917 4.78949C15.5194 4.72276 15.5599 4.66212 15.611 4.61105C15.6621 4.55997 15.7227 4.51946 15.7894 4.49183C15.8562 4.4642 15.9277 4.44998 16 4.45H18.45V2C18.45 1.85413 18.5079 1.71423 18.611 1.61109C18.7142 1.50794 18.8541 1.45 19 1.45ZM7.77595 2.45H12.5C12.6458 2.45 12.7857 2.50794 12.8889 2.61109C12.992 2.71423 13.05 2.85413 13.05 3C13.05 3.14587 12.992 3.28576 12.8889 3.38891C12.7857 3.49205 12.6458 3.55 12.5 3.55H7.79995C6.95095 3.55 6.34695 3.55 5.87495 3.59C5.40795 3.627 5.11795 3.7 4.88795 3.817C4.42732 4.05182 4.05278 4.42636 3.81795 4.887C3.69995 5.118 3.62795 5.408 3.58895 5.875C3.55095 6.347 3.54995 6.951 3.54995 7.8V16.2C3.54995 17.05 3.54995 17.653 3.58995 18.126C3.62695 18.592 3.69995 18.882 3.81695 19.112C4.05195 19.574 4.42695 19.948 4.88695 20.183C4.99495 20.238 5.11495 20.283 5.25995 20.319C5.30995 20.065 5.47295 19.871 5.58995 19.745C5.72795 19.595 5.91995 19.42 6.14295 19.218L14.6339 11.498C14.8019 11.347 14.9489 11.212 15.0809 11.11C15.222 11 15.376 10.9 15.563 10.84C15.843 10.749 16.1419 10.74 16.4269 10.813C16.617 10.861 16.7769 10.951 16.9239 11.051C17.0619 11.146 17.2179 11.271 17.3949 11.411L20.207 13.661L20.254 13.699C20.587 13.965 20.8239 14.154 21.0059 14.387C21.2359 14.679 21.3979 15.017 21.4829 15.379C21.5499 15.667 21.5499 15.969 21.5499 16.396V16.977C21.5501 16.9847 21.5501 16.9923 21.5499 17V17.094C21.5499 17.934 21.5499 18.466 21.43 18.919C21.2689 19.5212 20.952 20.0702 20.5112 20.5109C20.0704 20.9515 19.5212 21.2682 18.919 21.429C18.466 21.551 17.934 21.55 17.094 21.55H7.04495C6.77395 21.55 6.53495 21.55 6.34195 21.537C6.14195 21.531 5.95595 21.522 5.78495 21.507C5.25095 21.464 4.79995 21.373 4.38895 21.163C3.72082 20.8229 3.17753 20.2799 2.83695 19.612C2.62695 19.201 2.53695 18.75 2.49295 18.215C2.44995 17.693 2.44995 17.044 2.44995 16.225V7.775C2.44995 6.956 2.44995 6.308 2.49295 5.785C2.53695 5.251 2.62795 4.8 2.83695 4.389C3.17762 3.72056 3.72129 3.17723 4.38995 2.837C4.79995 2.627 5.25195 2.537 5.78595 2.493C6.30895 2.45 6.95695 2.45 7.77595 2.45ZM19.9349 19.504C20.0636 19.3384 20.1705 19.1569 20.253 18.964C20.3389 18.761 20.393 18.509 20.4209 18.107C20.45 17.701 20.4509 17.183 20.4509 16.457C20.4509 15.946 20.4469 15.779 20.4109 15.63C20.363 15.4246 20.2709 15.2321 20.1409 15.066C20.0459 14.946 19.9179 14.839 19.52 14.52L16.7219 12.282C16.5863 12.17 16.4468 12.0626 16.304 11.96C16.259 11.9244 16.2082 11.8966 16.1539 11.878C16.0712 11.8568 15.9842 11.8596 15.903 11.886C15.8495 11.9079 15.8001 11.9386 15.7569 11.977C15.662 12.051 15.5459 12.157 15.36 12.325L6.90095 20.015C6.69195 20.205 6.54795 20.337 6.44695 20.44C6.81795 20.45 7.25895 20.45 7.79995 20.45H16.456C17.183 20.45 17.7009 20.45 18.1069 20.421C18.5089 20.393 18.761 20.339 18.964 20.253C19.3457 20.0893 19.6795 19.8312 19.934 19.503L19.9349 19.504ZM8.49995 7.05C8.30952 7.04997 8.12095 7.08746 7.945 7.16032C7.76906 7.23318 7.60919 7.33998 7.47453 7.47463C7.33986 7.60927 7.23304 7.76913 7.16016 7.94506C7.08728 8.121 7.04977 8.30956 7.04977 8.5C7.04977 8.69043 7.08728 8.879 7.16016 9.05493C7.23304 9.23087 7.33986 9.39072 7.47453 9.52537C7.60919 9.66001 7.76906 9.76682 7.945 9.83967C8.12095 9.91253 8.30952 9.95002 8.49995 9.95C8.88448 9.94995 9.25325 9.79716 9.52514 9.52524C9.79702 9.25331 9.94977 8.88453 9.94977 8.5C9.94977 8.11546 9.79702 7.74668 9.52514 7.47476C9.25325 7.20283 8.88448 7.05005 8.49995 7.05ZM5.94995 8.5C5.94995 7.82369 6.21861 7.17509 6.69683 6.69687C7.17505 6.21866 7.82365 5.95 8.49995 5.95C9.17625 5.95 9.82486 6.21866 10.3031 6.69687C10.7813 7.17509 11.05 7.82369 11.05 8.5C11.05 9.1763 10.7813 9.8249 10.3031 10.3031C9.82486 10.7813 9.17625 11.05 8.49995 11.05C7.82365 11.05 7.17505 10.7813 6.69683 10.3031C6.21861 9.8249 5.94995 9.1763 5.94995 8.5Z"/> 
+      </g>
+    </svg>
+  );
+};
+
+export default ImagePlusIcon;
