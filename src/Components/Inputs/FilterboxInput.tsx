@@ -16,7 +16,7 @@ import {
   ArrowTopRightOnSquareIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { getObjectValue, randomKey } from "../../Extensions";
+import { getObjectValue, randomKey, setObjectValue } from "../../Extensions";
 import TextInput from "./TextInput";
 import Link from "next/link";
 import Icon from "../Icon";
@@ -57,7 +57,7 @@ export default class FilterboxInput<P> extends React.Component<
       allowSorting?: boolean;
       selectedOptionDetailUrlPattern?: string | ((item: any) => string);
       newTextInputPlaceholder?: string;
-      onNewAction?: (text: string) => Promise<void>;
+      onNewAction?: (text: string) => Promise<any>;
       hooks?: any;
       id?: string;
       alwaysOpen?: boolean;
@@ -67,6 +67,7 @@ export default class FilterboxInput<P> extends React.Component<
       selectAllOptionsTitle?: string;
       optionTemplateFn?: (item: any) => React.JSX.Element;
       usePortal?: boolean;
+      disabledOptions?: Array<any>;
     },
   {
     filteredOptions: Array<any>;
@@ -393,8 +394,29 @@ export default class FilterboxInput<P> extends React.Component<
     if (e.key == "Enter") {
       var target: any = e.currentTarget ?? e.target;
       if (target && target.value) {
-        if (this.props.onNewAction) await this.props.onNewAction(target.value);
+        let newItem = null;
+        if (this.props.onNewAction) {
+          newItem = await this.props.onNewAction(target.value);
+        }
         target.value = "";
+        
+        // Yeni eklenen tag'ı otomatik seç
+        if (newItem) {
+          const displayProp = this.props.displayProp || "name";
+          const valueProp = this.props.valueProp || "id";
+          
+          // Yeni option'ı seçili listeye ekle
+          const newOption: any = {};
+          setObjectValue(newOption, displayProp, getObjectValue(newItem, displayProp) || getObjectValue(newItem, "name"));
+          setObjectValue(newOption, valueProp, getObjectValue(newItem, valueProp) || getObjectValue(newItem, "id"));
+          newOption.rawData = newItem;
+          
+          const updatedSelectedOptions = [...this.state.selectedOptions, newOption];
+          
+          // onSelection metodu ile onChange callback'ini çağır
+          this.onSelection(updatedSelectedOptions);
+        }
+        
         this.setState({ refreshSearchList: true, refreshKey: randomKey(5) });
         setTimeout(() => {
           target.focus();
@@ -512,6 +534,7 @@ export default class FilterboxInput<P> extends React.Component<
                     handleOutboundClick={true}
                     selectAllOptions={this.props.selectAllOptions}
                     selectAllOptionsTitle={this.props.selectAllOptionsTitle}
+                    disabledOptions={this.props.disabledOptions}
                   >
                     {this.props.allowNew == true && (
                       <div
@@ -567,6 +590,7 @@ export default class FilterboxInput<P> extends React.Component<
                   handleOutboundClick={true}
                   selectAllOptions={this.props.selectAllOptions}
                   selectAllOptionsTitle={this.props.selectAllOptionsTitle}
+                  disabledOptions={this.props.disabledOptions}
                 >
                   {this.props.allowNew == true && (
                     <div

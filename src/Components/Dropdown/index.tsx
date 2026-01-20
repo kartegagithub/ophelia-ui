@@ -49,7 +49,8 @@ const Dropdown: React.FC<DropdownProps> = ({
   refreshKey = undefined,
   selectAllOptions = false,
   selectAllOptionsTitle = "Select All",
-  getCollectionBinder = undefined
+  getCollectionBinder = undefined,
+  disabledOptions = []
 }) => {
   const [selectedOptions, setSelectedOptions] = useState(new Array<any>());
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -107,7 +108,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       setSearching(false);
     }, 500);
     setTimer(Timer);
-  }, [searchText, page, open]);
+  }, [searchText, page, open, refreshKey]);
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -404,8 +405,16 @@ const Dropdown: React.FC<DropdownProps> = ({
                   selectedItemValueProp,
                   valueProp
                 ).index > -1;
+              
+              // Disabled kontrolü
+              const optionValue = getObjectValue(option, valueProp);
+              const isDisabled = disabledOptions && disabledOptions.includes(optionValue);
+              
               return (
-                <li key={i}>
+                <li 
+                  key={i}
+                  style={isDisabled ? { opacity: 0.5 } : undefined}
+                >
                   <Link
                     href={
                       urlProp && option[urlProp] != undefined
@@ -415,22 +424,23 @@ const Dropdown: React.FC<DropdownProps> = ({
                   >
                     <div
                       id={`${id}_option_${i}`}
-                      className={"oph-dropdown-options-item"}
-                      onClick={(e) => onOptionSelectionChanged(e, option)}
+                      className={`oph-dropdown-options-item ${isDisabled ? "disabled" : ""}`}
+                      onClick={(e) => !isDisabled && onOptionSelectionChanged(e, option)}
                     >
                       {iconProp &&
                         getObjectValue(option, iconProp) &&
                         getImageComponent(getObjectValue(option, iconProp))}
                       {multipleSelection != undefined && (
                         <input
-                          // disabled
+                          disabled={isDisabled}
                           id={`${id}_selectedvalue_${i}`}
                           name={`${id}_selectedvalue`}
                           type={multipleSelection ? "checkbox" : "radio"}
-                          value={getObjectValue(option, valueProp)}
+                          value={optionValue}
                           checked={checked}
                           className={multipleSelection ? "checkbox" : "radio"}
                           readOnly={true}
+                          style={isDisabled ? { cursor: "not-allowed" } : undefined}
                         />
                       )}
                       {!optionTemplateFn && (
@@ -528,6 +538,7 @@ var dropdownProps: {
   alwaysOpen?: boolean;
   selectAllOptions?: boolean;
   selectAllOptionsTitle?: string;
-  getCollectionBinder?: (listener: any, checkedItems: Array<any>) => React.ReactNode
+  getCollectionBinder?: (listener: any, checkedItems: Array<any>) => React.ReactNode;
+  disabledOptions?: Array<any>;
 };
 export type DropdownProps = typeof dropdownProps;
