@@ -225,6 +225,7 @@
 .pe-icon-copy-right::before { content: "\EACA"; }
 .pe-icon-dark-mode-moon::before { content: "\EACB"; }
 .pe-icon-desktop::before { content: "\EACC"; }
+.pe-icon-pause::before { content: "\EACD"; }
 .pe-icon-empty-folder::before { content: "\EACE"; }
 .pe-icon-followers-plus::before { content: "\EACF"; }
 .pe-icon-hearth-solid::before { content: "\EAD0"; }

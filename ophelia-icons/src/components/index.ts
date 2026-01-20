@@ -202,6 +202,7 @@ export { default as ClockCircleIcon } from "./ClockCircleIcon";
 export { default as CopyRightIcon } from "./CopyRightIcon";
 export { default as DarkModeMoonIcon } from "./DarkModeMoonIcon";
 export { default as DesktopIcon } from "./DesktopIcon";
+export { default as PauseIcon } from "./PauseIcon";
 export { default as EmptyFolderIcon } from "./EmptyFolderIcon";
 export { default as FollowersPlusIcon } from "./FollowersPlusIcon";
 export { default as HearthSolidIcon } from "./HearthSolidIcon";
