@@ -211,6 +211,7 @@
 .pe-icon-members::before { content: "\EABC"; }
 .pe-icon-post::before { content: "\EABD"; }
 .pe-icon-c::before { content: "\EABE"; }
+.pe-icon-not-full-screen::before { content: "\EABF"; }
 .pe-icon-lock::before { content: "\EAC0"; }
 .pe-icon-account-multiple-plus::before { content: "\EAC1"; }
 .pe-icon-add::before { content: "\EAC2"; }

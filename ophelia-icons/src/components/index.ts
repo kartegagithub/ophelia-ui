@@ -188,6 +188,7 @@ export { default as TrashIcon } from "./TrashIcon";
 export { default as MembersIcon } from "./MembersIcon";
 export { default as PostIcon } from "./PostIcon";
 export { default as CIcon } from "./CIcon";
+export { default as NotFullScreenIcon } from "./NotFullScreenIcon";
 export { default as LockIcon } from "./LockIcon";
 export { default as AccountMultiplePlusIcon } from "./AccountMultiplePlusIcon";
 export { default as AddIcon } from "./AddIcon";
