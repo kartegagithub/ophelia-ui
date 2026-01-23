@@ -233,3 +233,4 @@ export { default as PipIcon } from "./PipIcon";
 export { default as SendIcon } from "./SendIcon";
 export { default as Tv2Icon } from "./Tv2Icon";
 export { default as VoiceIcon } from "./VoiceIcon";
+export { default as WebinarIcon } from "./WebinarIcon";
