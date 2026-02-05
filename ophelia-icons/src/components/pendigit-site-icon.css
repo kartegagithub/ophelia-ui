@@ -259,3 +259,4 @@
 .pe-icon-webinar::before { content: "\EAEC"; }
 .pe-icon-discover::before { content: "\EAED"; }
 .pe-icon-follow::before { content: "\EAEE"; }
+.pe-icon-unfollow::before { content: "\EAEF"; }
