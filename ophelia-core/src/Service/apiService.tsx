@@ -21,7 +21,7 @@ export default class APIService {
     return this.RootURL + url;
   }
 
-  private getData(endpoint: Endpoint) {
+  getData(endpoint: Endpoint) {
     var data: any = endpoint.Options.Payload
       ? JSON.stringify(endpoint.Options.Payload)
       : null;
@@ -38,7 +38,7 @@ export default class APIService {
     }
     return data;
   }
-  private getUploaderStream(endpoint: Endpoint) {
+  getUploaderStream(endpoint: Endpoint) {
     var data = this.getData(endpoint);
     if (true) return data;
     if (!data) return null;
