@@ -260,3 +260,8 @@
 .pe-icon-discover::before { content: "\EAED"; }
 .pe-icon-follow::before { content: "\EAEE"; }
 .pe-icon-unfollow::before { content: "\EAEF"; }
+.pe-icon-save::before { content: "\EAF0"; }
+.pe-icon-refresh-circle::before { content: "\EAF1"; }
+.pe-icon-muted::before { content: "\EAF2"; }
+.pe-icon-voice-low::before { content: "\EAF3"; }
+.pe-icon-minus::before { content: "\EAF4"; }

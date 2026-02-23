@@ -237,3 +237,8 @@ export { default as WebinarIcon } from "./WebinarIcon";
 export { default as DiscoverIcon } from "./DiscoverIcon";
 export { default as FollowIcon } from "./FollowIcon";
 export { default as UnfollowIcon } from "./UnfollowIcon";
+export { default as SaveIcon } from "./SaveIcon";
+export { default as RefreshCircleIcon } from "./RefreshCircleIcon";
+export { default as MutedIcon } from "./MutedIcon";
+export { default as VoiceLowIcon } from "./VoiceLowIcon";
+export { default as MinusIcon } from "./MinusIcon";
