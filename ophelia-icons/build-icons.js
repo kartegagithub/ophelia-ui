@@ -1,9 +1,9 @@
 /**
-* 🔤 Pendigit Icon Font Builder
-* 1️⃣ SVG'leri temizler (stroke → fill)
-* 2️⃣ Font & CSS üretir
-* 3️⃣ Otomatik HTML önizleme (preview.html) oluşturur
-*/
+ * 🔤 Ophelia Icons Font Builder
+ * 1️⃣ SVG'leri temizler (stroke → fill)
+ * 2️⃣ Font & CSS üretir
+ * 3️⃣ Otomatik HTML önizleme (preview.html) oluşturur
+ */
 
 const webfont = require("webfont").default;
 const fs = require("fs");
@@ -17,7 +17,7 @@ try {
 
 const SVG_DIR = "src/icons";
 const DIST_DIR = "src/components";
-const FONT_NAME = "pendigit-site-icon";
+const FONT_NAME = "ophelia-icons-site-icon";
 
 /* ----------------------------- 🧩 1. SVG Fixleme ----------------------------- */
 function toPascalCase(name) {
@@ -40,34 +40,41 @@ function normalizeSVG(svg) {
   // CurrentColor kullan; dolmayan path'leri düzelt
   let s = svg
     // Önce boş attribute'ları temizle (name= /> veya name= > gibi)
-    .replace(/\s+[a-zA-Z-]+=\s*\/>/g, ' />')
-    .replace(/\s+[a-zA-Z-]+=\s*>/g, '>')
-    .replace(/\s+[a-zA-Z-]+=\s+(?=\s)/g, ' ')
+    .replace(/\s+[a-zA-Z-]+=\s*\/>/g, " />")
+    .replace(/\s+[a-zA-Z-]+=\s*>/g, ">")
+    .replace(/\s+[a-zA-Z-]+=\s+(?=\s)/g, " ")
     // sabit fill renklerini currentColor'a dönüştür
     .replace(/fill="#?[0-9a-fA-F]{3,6}"/g, 'fill="currentColor"')
     .replace(/fill='#?[0-9a-fA-F]{3,6}'/g, 'fill="currentColor"')
-    .replace(/fill="(black|white|red|blue|green|yellow|gray|grey|silver|maroon|navy|olive|teal|lime|aqua|fuchsia|purple)"/gi, 'fill="currentColor"')
+    .replace(
+      /fill="(black|white|red|blue|green|yellow|gray|grey|silver|maroon|navy|olive|teal|lime|aqua|fuchsia|purple)"/gi,
+      'fill="currentColor"'
+    )
     .replace(/fill="none"/g, 'fill="currentColor"')
     .replace(/stroke="[^"]*"/g, 'stroke="currentColor"')
     .replace(/\s*stroke-(linecap|linejoin|width)="[^"]*"/g, "")
     // Boş attribute'ları temizle (normalize işleminden önce)
-    .replace(/\s+[a-zA-Z-]+=\s*\/>/g, ' />')
-    .replace(/\s+[a-zA-Z-]+=\s*>/g, '>');
+    .replace(/\s+[a-zA-Z-]+=\s*\/>/g, " />")
+    .replace(/\s+[a-zA-Z-]+=\s*>/g, ">");
   // style="fill:#000; stroke:#000" gibi değerleri currentColor'a çevir
   s = s.replace(/style="([^"]*)"/gi, (m, css) => {
     const c = css
-      .replace(/fill:\s*#[0-9a-fA-F]{3,6}/gi, 'fill:currentColor')
-      .replace(/stroke:\s*#[0-9a-fA-F]{3,6}/gi, 'stroke:currentColor')
-      .replace(/fill:\s*none/gi, 'fill:currentColor');
+      .replace(/fill:\s*#[0-9a-fA-F]{3,6}/gi, "fill:currentColor")
+      .replace(/stroke:\s*#[0-9a-fA-F]{3,6}/gi, "stroke:currentColor")
+      .replace(/fill:\s*none/gi, "fill:currentColor");
     return `style="${c}"`;
   });
-  
+
   // Grup seviyesi fill/stroke'ları currentColor'a çevir
-  s = s.replace(/\sfill="#[0-9a-fA-F]{3,6}"/gi, ' fill="currentColor"')
-       .replace(/\sstroke="#[0-9a-fA-F]{3,6}"/gi, ' stroke="currentColor"');
-  
+  s = s
+    .replace(/\sfill="#[0-9a-fA-F]{3,6}"/gi, ' fill="currentColor"')
+    .replace(/\sstroke="#[0-9a-fA-F]{3,6}"/gi, ' stroke="currentColor"');
+
   // Her path için en azından fill ya da stroke olsun
-  s = s.replace(/<path(?![^>]*\b(fill|stroke)\b)/g, '<path fill="currentColor"');
+  s = s.replace(
+    /<path(?![^>]*\b(fill|stroke)\b)/g,
+    '<path fill="currentColor"'
+  );
   s = ensureViewBox(s);
 
   // Açık path'leri (Z yok) stroke ikonuna çevir (ok vs.)
@@ -75,44 +82,47 @@ function normalizeSVG(svg) {
     const closed = /[Zz]/.test(d);
     if (closed) return m;
     // fill'leri kaldır, stroke ekle
-    let attrs = (pre + ' ' + post)
-      .replace(/\s*fill="[^"]*"/gi, '')
-      .replace(/\s*stroke="[^"]*"/gi, '')
-      .replace(/\s*stroke-width="[^"]*"/gi, '')
-      .replace(/\s*stroke-linecap="[^"]*"/gi, '')
-      .replace(/\s*stroke-linejoin="[^"]*"/gi, '')
+    let attrs = (pre + " " + post)
+      .replace(/\s*fill="[^"]*"/gi, "")
+      .replace(/\s*stroke="[^"]*"/gi, "")
+      .replace(/\s*stroke-width="[^"]*"/gi, "")
+      .replace(/\s*stroke-linecap="[^"]*"/gi, "")
+      .replace(/\s*stroke-linejoin="[^"]*"/gi, "")
       // self-closing '/>' kalıntı slash'larını temizle
-      .replace(/\s*\/\s*/g, ' ')
+      .replace(/\s*\/\s*/g, " ")
       // Boş attribute'ları kaldır (name= gibi) - sonradan temizle
-      .replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, ' ')
+      .replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, " ")
       .trim();
     // Eğer attrs boşsa, sadece boşluk bırak
-    const attrsPart = attrs ? ` ${attrs}` : '';
+    const attrsPart = attrs ? ` ${attrs}` : "";
     return `<path${attrsPart} d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />`;
   });
 
   // Diğer şekiller: circle/ellipse/line/polyline/polygon
-  s = s.replace(/<(circle|ellipse|line|polyline|polygon)([^>]*?)(?:\s*\/\s*)?>(?![^<]*<\/(circle|ellipse|line|polyline|polygon)>)/gi,
+  s = s.replace(
+    /<(circle|ellipse|line|polyline|polygon)([^>]*?)(?:\s*\/\s*)?>(?![^<]*<\/(circle|ellipse|line|polyline|polygon)>)/gi,
     (m, tag, rest) => {
       let r = rest
-        .replace(/\sfill="[^"]*"/gi, '')
-        .replace(/\sstroke="[^"]*"/gi, '')
-        .replace(/\s*\/\s*/g, ' ')
+        .replace(/\sfill="[^"]*"/gi, "")
+        .replace(/\sstroke="[^"]*"/gi, "")
+        .replace(/\s*\/\s*/g, " ")
         // Boş attribute'ları kaldır (name= gibi)
-        .replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, ' ')
+        .replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, " ")
         .trim();
       if (!/stroke=/i.test(r)) r += ' stroke="currentColor"';
-      if (!/fill=/i.test(r) && /^(line|polyline)$/i.test(tag)) r += ' fill="none"';
-      return `<${tag}${r ? ' ' + r : ''} />`;
-    });
+      if (!/fill=/i.test(r) && /^(line|polyline)$/i.test(tag))
+        r += ' fill="none"';
+      return `<${tag}${r ? " " + r : ""} />`;
+    }
+  );
 
   // Final temizleme: Boş attribute'ları kaldır
-  s = s.replace(/\s+[a-zA-Z-]+=\s*\/>/g, ' />');
-  s = s.replace(/\s+[a-zA-Z-]+=\s*>/g, '>');
-  s = s.replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, ' ');
+  s = s.replace(/\s+[a-zA-Z-]+=\s*\/>/g, " />");
+  s = s.replace(/\s+[a-zA-Z-]+=\s*>/g, ">");
+  s = s.replace(/\s+[a-zA-Z-]+=\s+(?=\s|>|\/>)/g, " ");
   // Çoklu boşlukları temizle
-  s = s.replace(/\s{2,}/g, ' ');
-  
+  s = s.replace(/\s{2,}/g, " ");
+
   return s;
 }
 
@@ -127,13 +137,13 @@ function fixSVGs() {
         const optimized = optimize(svg, {
           multipass: true,
           plugins: [
-            { name: 'removeDimensions', active: false },
-            { name: 'removeXMLNS', active: true },
-            { name: 'removeDoctype', active: true },
-            { name: 'removeComments', active: true },
-            { name: 'removeEmptyAttrs', active: true },
-            { name: 'convertShapeToPath', active: true },
-            { name: 'convertStyleToAttrs', active: true },
+            { name: "removeDimensions", active: false },
+            { name: "removeXMLNS", active: true },
+            { name: "removeDoctype", active: true },
+            { name: "removeComments", active: true },
+            { name: "removeEmptyAttrs", active: true },
+            { name: "convertShapeToPath", active: true },
+            { name: "convertStyleToAttrs", active: true },
           ],
         });
         svg = optimized.data;
@@ -160,14 +170,17 @@ async function generateFont() {
       prependUnicode: true,
     });
 
-  if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
+    if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
 
-  for (const format of ["woff2", "woff", "ttf", "eot"]) {
-    fs.writeFileSync(path.join(DIST_DIR, `${FONT_NAME}.${format}`), result[format]);
-  }
+    for (const format of ["woff2", "woff", "ttf", "eot"]) {
+      fs.writeFileSync(
+        path.join(DIST_DIR, `${FONT_NAME}.${format}`),
+        result[format]
+      );
+    }
 
-  console.log("💾 Font files generated successfully.");
-  return result;
+    console.log("💾 Font files generated successfully.");
+    return result;
   } catch (error) {
     console.error("❌ Font generation error:", error.message);
     if (error.message && error.message.includes("Attribute without value")) {
@@ -204,7 +217,10 @@ function generateCSS() {
   -moz-osx-font-smoothing: grayscale;
 }\n`;
 
-  const svgFiles = fs.readdirSync(SVG_DIR).filter((f) => f.endsWith(".svg")).sort();
+  const svgFiles = fs
+    .readdirSync(SVG_DIR)
+    .filter((f) => f.endsWith(".svg"))
+    .sort();
 
   svgFiles.forEach((file) => {
     const baseName = path.basename(file, ".svg");
@@ -225,10 +241,15 @@ function generateReactComponents() {
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
   if (!fs.existsSync(SVG_DIR)) {
-    console.log("⚠️  SVG directory not found, skipping React component generation");
+    console.log(
+      "⚠️  SVG directory not found, skipping React component generation"
+    );
     return;
   }
-  const files = fs.readdirSync(SVG_DIR).filter((f) => f.endsWith(".svg")).sort();
+  const files = fs
+    .readdirSync(SVG_DIR)
+    .filter((f) => f.endsWith(".svg"))
+    .sort();
 
   const toReactAttrs = (s) => {
     const map = [
@@ -275,14 +296,17 @@ function generateReactComponents() {
     let out = s;
     ids.forEach((id) => {
       const newId = `${prefix}-${id}`;
-      const idRe = new RegExp(`(id=")${id}(\")`, 'g');
-      const urlRe = new RegExp(`url\(#${id}\)`, 'g');
-      const hrefRe = new RegExp(`([#\"]+)${id}(\")`, 'g');
+      const idRe = new RegExp(`(id=")${id}(\")`, "g");
+      const urlRe = new RegExp(`url\(#${id}\)`, "g");
+      const hrefRe = new RegExp(`([#\"]+)${id}(\")`, "g");
       out = out.replace(idRe, `$1${newId}$2`);
       out = out.replace(urlRe, `url(#${newId})`);
       // href and xlinkHref with #id
-      out = out.replace(new RegExp(`xlinkHref="#${id}"`, 'g'), `xlinkHref="#${newId}"`);
-      out = out.replace(new RegExp(`href="#${id}"`, 'g'), `href="#${newId}"`);
+      out = out.replace(
+        new RegExp(`xlinkHref="#${id}"`, "g"),
+        `xlinkHref="#${newId}"`
+      );
+      out = out.replace(new RegExp(`href="#${id}"`, "g"), `href="#${newId}"`);
     });
     return out;
   };
@@ -484,7 +508,10 @@ export default ${compName};
 
 /* --------------------------- 🌐 5. Preview HTML ------------------------------ */
 function generatePreviewHTML() {
-  const svgFiles = fs.readdirSync(SVG_DIR).filter((f) => f.endsWith(".svg")).sort();
+  const svgFiles = fs
+    .readdirSync(SVG_DIR)
+    .filter((f) => f.endsWith(".svg"))
+    .sort();
 
   const icons = svgFiles.map((file) => {
     const baseName = path.basename(file, ".svg");
@@ -498,7 +525,7 @@ function generatePreviewHTML() {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pendigit Icons Preview</title>
+  <title>Ophelia Icons Preview</title>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./${FONT_NAME}.css" />
@@ -566,7 +593,7 @@ function generatePreviewHTML() {
   </style>
 </head>
 <body>
-  <h1 class="title">Pendigit Icon Preview</h1>
+  <h1 class="title">Ophelia Icons Preview</h1>
   <div class="search-box">
     <input type="text" id="search" placeholder="Search icons..." />
   </div>
@@ -575,13 +602,15 @@ function generatePreviewHTML() {
     <button id="applyClass">Apply</button>
   </div>
   <section class="icons">
-    ${icons.map(
-      (icon) => `
+    ${icons
+      .map(
+        (icon) => `
       <div class="icon" data-name="${icon}">
         <i class="pe-icon pe-icon-${icon}" data-base="pe-icon pe-icon-${icon}"></i>
         <span>&lt;i class="pe-icon pe-icon-${icon}"&gt;&lt;/i&gt;</span>
       </div>`
-    ).join("")}
+      )
+      .join("")}
   </section>
   <script>
     $("#search").on("input", function() {
@@ -620,7 +649,7 @@ function generatePreviewHTML() {
 
 /* --------------------------- 🚀 6. Build Çalıştır ----------------------------- */
 (async () => {
-  console.log("🔧 Starting Pendigit Icon Font build...\n");
+  console.log("🔧 Starting Ophelia Icons Font build...\n");
   fixSVGs();
   await generateFont();
   generateCSS();
