@@ -634,7 +634,8 @@ const Table: React.FC<TableProps> = React.memo(
         var rowProps: { className?: string } = {};
         if (listener && listener.getRowProps)
           rowProps = listener?.getRowProps(row, index);
-        var { className, ...otherProps } = rowProps;
+        var { className, key: ignoredRowKey, ...otherProps } = rowProps as any;
+        void ignoredRowKey;
         return (
           <>
             <tr
@@ -867,9 +868,11 @@ const Table: React.FC<TableProps> = React.memo(
         var type = column.Filtering?.Type ?? column.Type;
         if (type == "richtext" || type == "url") type = "text";
 
+        const { key: ignoredInputKey, ...inputProps } = (column.InputProps ?? {}) as any;
+        void ignoredInputKey;
         return (
           <InputField
-            {...column.InputProps}
+            {...inputProps}
             id={`${fieldName}${rowIndex}`}
             switchbox={column.Type == "checkbox"}
             labelVisible={false}
@@ -1078,7 +1081,8 @@ const Table: React.FC<TableProps> = React.memo(
       var cellProps: { className?: string } = {};
       if (listener && listener.getCellProps)
         cellProps = listener?.getCellProps(row, column, rowIndex, columnIndex);
-      var { className, ...otherProps } = cellProps;
+      var { className, key: ignoredCellKey, ...otherProps } = cellProps as any;
+      void ignoredCellKey;
       return (
         <td
           key={`${rowIndex}${columnIndex}`}
