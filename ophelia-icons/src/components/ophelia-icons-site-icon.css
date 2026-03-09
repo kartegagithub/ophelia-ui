@@ -265,3 +265,5 @@
 .pe-icon-muted::before { content: "\EAF2"; }
 .pe-icon-voice-low::before { content: "\EAF3"; }
 .pe-icon-minus::before { content: "\EAF4"; }
+.pe-icon-twitter::before { content: "\EAF5"; }
+.pe-icon-whatsapp::before { content: "\EAF6"; }

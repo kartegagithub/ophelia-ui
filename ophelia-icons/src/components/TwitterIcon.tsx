@@ -40,7 +40,7 @@ export interface IconProps extends React.SVGAttributes<SVGElement> {
   opacity?: number;
 }
 
-const FacebookIcon: React.FC<IconProps> = ({
+const TwitterIcon: React.FC<IconProps> = ({
   // Boyut
   size = 24,
   width,
@@ -128,7 +128,7 @@ const FacebookIcon: React.FC<IconProps> = ({
     <svg
       width={w}
       height={h}
-      viewBox="0 0 60 60"
+      viewBox="0 0 512.000000 512.000000"
       fill={fillValue}
       stroke={strokeValue}
       strokeWidth={strokeWidth}
@@ -145,17 +145,17 @@ const FacebookIcon: React.FC<IconProps> = ({
       {description && <desc>{description}</desc>}
       {isDuotone && secondaryColor && (
         <defs>
-          <linearGradient id="duotone-FacebookIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="duotone-TwitterIcon" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={color || 'currentColor'} />
             <stop offset="100%" stopColor={secondaryColor} />
           </linearGradient>
         </defs>
       )}
-      <g fill={isDuotone ? `url(#duotone-FacebookIcon)` : undefined}>
-         <ellipse cx="30" cy="30" rx="30" ry="30" /> <path d="M36.9804 32.9498L37.8306 27.5479H32.5934V24.0367C32.5934 22.5596 33.3246 21.1163 35.6626 21.1163H38.0772V16.5163C36.6711 16.292 35.2502 16.1707 33.8262 16.1533C29.5156 16.1533 26.7015 18.7445 26.7015 23.429V27.5479H21.9233V32.9498H26.7015V46.0156H32.5934V32.9498H36.9804Z"/> 
+      <g fill={isDuotone ? `url(#duotone-TwitterIcon)` : undefined}>
+         <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"> <path d="M2315 5109 c-800 -83 -1501 -518 -1927 -1196 -604 -961 -490 -2237 274 -3068 425 -462 951 -737 1583 -827 119 -17 512 -16 635 1 622 86 1148 360 1572 820 349 378 572 862 650 1406 17 118 17 512 0 630 -59 416 -191 769 -410 1099 -92 140 -185 254 -315 385 -399 404 -893 653 -1462 737 -123 18 -478 26 -600 13z m27 -1592 c207 -302 379 -549 382 -550 3 -1 218 246 479 548 l473 550 128 3 c75 1 126 -1 124 -7 -1 -5 -123 -148 -269 -317 -146 -170 -390 -454 -542 -631 l-277 -321 531 -774 c292 -425 560 -815 596 -865 l64 -93 -439 0 -439 0 -398 580 c-219 319 -401 580 -404 579 -3 0 -229 -260 -501 -577 l-496 -577 -132 -3 -132 -3 574 668 574 667 -32 46 c-36 49 -1071 1557 -1101 1603 l-17 27 438 -2 439 -3 377 -548z"/> <path d="M2359 2558 l918 -1313 196 -3 c108 -1 197 1 197 5 0 5 -411 595 -913 1313 l-913 1305 -202 3 -201 2 918 -1312z"/> </g> 
       </g>
     </svg>
   );
 };
 
-export default FacebookIcon;
+export default TwitterIcon;
