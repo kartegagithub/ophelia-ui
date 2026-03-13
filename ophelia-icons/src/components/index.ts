@@ -244,3 +244,4 @@ export { default as VoiceLowIcon } from "./VoiceLowIcon";
 export { default as MinusIcon } from "./MinusIcon";
 export { default as TwitterIcon } from "./TwitterIcon";
 export { default as WhatsappIcon } from "./WhatsappIcon";
+export { default as AnalyticsIcon } from "./AnalyticsIcon";
