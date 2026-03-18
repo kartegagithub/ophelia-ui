@@ -38,6 +38,7 @@ const Button: React.FC<
     <button
       id={id}
       className={`group oph-button ${className} ${inlineStyle}`}
+      type={props.type ?? "button"}
       {...props}
     >
       {leftIcon && getImageComponent(leftIcon)}
