@@ -1,7 +1,7 @@
 import React from "react";
 import BinderOptions, { ExportOption } from "../BinderOptions";
 import AppClient from "../../AppClient";
-import Tab from "../..//Components/Tabs/Tab";
+import Tab from "../../Components/Tabs/Tab";
 import Tabs from "../../Components/Tabs/Tabs";
 import InputField from "../../Components/InputFields/inputField";
 import Router from "next/router";
@@ -63,6 +63,10 @@ export default class EntityBinder<P> extends React.Component<
   AfterSaveAction: "BackToList" | "PreviousPage" | "RefreshData" = "RefreshData"
   RefreshDataOnLoad: boolean = false;
   PreviousStateData: any;
+
+  get uniqueKeyName(): string {
+    return this.Options.UniqueKeyName ?? "id";
+  }
 
   constructor(props: P & EntityBinderProps){
     super(props)
@@ -203,21 +207,21 @@ export default class EntityBinder<P> extends React.Component<
       this.setState({processing: true});
       var newData = this.ProcessCopiedData(clone(this.state.data));
       if(this.Options.IsUniqueKeyNumeric == true)
-        newData[this.Options.UniqueKeyName] = 0;
+        newData[this.uniqueKeyName] = 0;
       else
-        newData[this.Options.UniqueKeyName] = "";
+        newData[this.uniqueKeyName] = "";
 
       if(Object.hasOwn(newData, "name")) newData.name += " (Copy)";
       else if(Object.hasOwn(newData, "title")) newData.title += " (Copy)";
       else if(Object.hasOwn(newData, "text")) newData.text += " (Copy)";
-      var result = await this.EntityOperations.SaveEntity(this.state.languageID, newData, [], this.Options.UniqueKeyName);
+      var result = await this.EntityOperations.SaveEntity(this.state.languageID, newData, [], this.uniqueKeyName);
       this.setState({processing: false});
       if(result.data){
         if(this.props.shownInParent == true){
-          this.props.parent?.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)).data: undefined);
+          this.props.parent?.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data[this.uniqueKeyName], undefined)).data: undefined);
         }
         else
-          Router.push(this.getEditUrl(result.data[this.Options.UniqueKeyName]));
+          Router.push(this.getEditUrl(result.data[this.uniqueKeyName]));
       }
       else if (result.messages && result.messages.length > 0) {
         this.setState({messages: result.messages})
@@ -231,7 +235,7 @@ export default class EntityBinder<P> extends React.Component<
     }
     else if(key === "Reload"){
       if(this.Options.AllowRefresh != false){
-        await this.setInitData(false, false, this.state.data[this.Options.UniqueKeyName])
+        await this.setInitData(false, false, this.state.data[this.uniqueKeyName])
       }
     }
   }
@@ -270,7 +274,7 @@ export default class EntityBinder<P> extends React.Component<
   setMetaTags(data: any){
     if(!data || !this.props.AppClient) return
     if(!this.props.AppClient.DynamicSEO) this.props.AppClient.DynamicSEO = {};
-    if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = this.props.AppClient?.Translate(this.Entity) + " (#" + data[this.Options.UniqueKeyName] + ")"
+    if(!this.props.AppClient.DynamicSEO.Title) this.props.AppClient.DynamicSEO.Title = this.props.AppClient?.Translate(this.Entity) + " (#" + data[this.uniqueKeyName] + ")"
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient.DynamicSEO.Title;
     if(!this.Options.PageTitle) this.Options.PageTitle = this.props.AppClient?.Translate(this.Entity);
   }
@@ -315,13 +319,13 @@ export default class EntityBinder<P> extends React.Component<
   //         //console.log("getVisibility", field.getVisibility, field.checkVisibility(false));
   //       }
   //     }
-      
+    
   //   })
   //   if(rerender) this.setState({rerenderCounter: this.state.rerenderCounter + 1})
   // }
   async GetEntity(id: any, data: any): Promise<any>{
     this.setState({loadingState: LoadingState.Loading})
-    var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters, this.Options.UniqueKeyName);
+    var result = await this.EntityOperations.GetEntity(id, data, this.props.initialFilters, this.uniqueKeyName);
     this.PreviousStateData = clone(result.data);
 
     this.UploadFiles = [];
@@ -336,15 +340,16 @@ export default class EntityBinder<P> extends React.Component<
   async SaveEntity(){
       if(!this.validateFields() || this.state.processing) return;
       var data: any = clone(this.state.data);
+      const uniqueKeyName = this.Options.UniqueKeyName ?? "id";
       var redirect: boolean = true
-      var id = data[this.Options.UniqueKeyName];
+      var id = data[uniqueKeyName];
       if (id && this.Options.IsUniqueKeyNumeric && id > 0) redirect = false;
       if (id && !this.Options.IsUniqueKeyNumeric && !isNullOrEmpty(id)) redirect = false;
 
       try {
         data = this.beforeSendRequest(data);
         this.setState({processing: true})
-        var result = await this.EntityOperations.SaveEntity(this.state.languageID, data, this.UploadFiles, this.Options.UniqueKeyName);
+        var result = await this.EntityOperations.SaveEntity(this.state.languageID, data, this.UploadFiles, uniqueKeyName);
         this.setState({processing: false})
         if(!result) {
           raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Error"), description: this.props.AppClient?.Translate("CouldNotReachToAPI")  })
@@ -363,7 +368,7 @@ export default class EntityBinder<P> extends React.Component<
                 Router.push(redirectURL)
               else{
                 if(this.AfterSaveAction == "RefreshData"){
-                  await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)
+                  await this.GetEntity(result.data[uniqueKeyName], undefined)
                 }
                 if(this.AfterSaveAction == "PreviousPage" && window?.history?.length > 1){
                   Router.back();
@@ -374,13 +379,13 @@ export default class EntityBinder<P> extends React.Component<
             }
             else{
               if(this.props.parent != null){
-                this.props.parent.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)).data: undefined)
+                this.props.parent.onChildAction("refreshData", this.AfterSaveAction == "RefreshData"? (await this.GetEntity(result.data[uniqueKeyName], undefined)).data: undefined)
               }
               else if(!redirect){
                 if(redirectURL)
                   Router.push(redirectURL)
                 else
-                  await this.GetEntity(result.data[this.Options.UniqueKeyName], undefined)
+                  await this.GetEntity(result.data[uniqueKeyName], undefined)
               }
             }            
             raiseCustomEvent("notification", { type:"info", title: this.props.AppClient?.Translate("Info"), description: this.props.AppClient?.Translate("EntitySavedSuccessfully")  })
@@ -508,8 +513,8 @@ export default class EntityBinder<P> extends React.Component<
     if(resetForNew) id = 0;
     var data: any = undefined;
     if(firstLoad){
-      if(this.RefreshDataOnLoad && this.props.Data && this.props.Data[this.Options.UniqueKeyName] > 0){
-        id = this.props.Data[this.Options.UniqueKeyName];
+      if(this.RefreshDataOnLoad && this.props.Data && this.props.Data[this.uniqueKeyName] > 0){
+        id = this.props.Data[this.uniqueKeyName];
       }
       else
         data = this.props.Data 
@@ -529,13 +534,13 @@ export default class EntityBinder<P> extends React.Component<
       else if(!data && id && !this.Options.IsUniqueKeyNumeric && !isNullOrEmpty(id))
         this.Options.IsNewEntity = false;
       else if(data){
-        if(isNullOrEmpty(data[this.Options.UniqueKeyName])){
+        if(isNullOrEmpty(data[this.uniqueKeyName])){
           if(this.Options.IsUniqueKeyNumeric)
-            data[this.Options.UniqueKeyName] = 0;
+            data[this.uniqueKeyName] = 0;
           else
-            data[this.Options.UniqueKeyName] = "";
+            data[this.uniqueKeyName] = "";
         }
-        this.Options.IsNewEntity = data[this.Options.UniqueKeyName] == 0 || isNullOrEmpty(data[this.Options.UniqueKeyName]);
+        this.Options.IsNewEntity = data[this.uniqueKeyName] == 0 || isNullOrEmpty(data[this.uniqueKeyName]);
       }
     }
     this.setState({loadingState: data? LoadingState.Loaded: LoadingState.Waiting, id: id, data: data, messages: [], languageID: this.DefaultLanguageID})
