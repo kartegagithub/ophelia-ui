@@ -291,25 +291,25 @@ export default class BaseField<P> extends React.Component<
           this
         );
       }
-      if (isValid) {
-        if (this.getListener()?.setFileDeleted && deletedFile) {
-          deletedFile.KeyName = this.props.name;
-          this.getListener()?.setFileDeleted(deletedFile);
-        }
-        if (this.getListener()?.setFieldData) {
-          if(this.props.setDataCallback){
-            var tmpVal = this.props.setDataCallback(value)
-            if(tmpVal != undefined && tmpVal != null){
-              value = tmpVal;
-            }
+      // Her durumda setFieldData çağrılmalı - validation başarısız olsa bile state güncellenmeli
+      // Böylece kaydet sırasında validateFields doğru (güncel) değeri okuyabilir
+      if (this.getListener()?.setFileDeleted && deletedFile) {
+        deletedFile.KeyName = this.props.name;
+        this.getListener()?.setFileDeleted(deletedFile);
+      }
+      if (this.getListener()?.setFieldData) {
+        if(this.props.setDataCallback){
+          var tmpVal = this.props.setDataCallback(value)
+          if(tmpVal != undefined && tmpVal != null){
+            value = tmpVal;
           }
-          this.getListener()?.setFieldData(
-            this.props.valueName ?? this.props.name,
-            value,
-            this,
-            e.rawValue
-          );
         }
+        this.getListener()?.setFieldData(
+          this.props.valueName ?? this.props.name,
+          value,
+          this,
+          e.rawValue
+        );
       }
     }
     return true;
