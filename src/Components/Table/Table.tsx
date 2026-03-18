@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import TableClass from "./TableClass";
 import TableColumnClass from "./TableColumnClass";
 import InputField from "../InputFields/inputField";
-import {
-  convertToBool,
-  enumToArray,
-  getObjectValue,
-  setObjectValue,
-} from "../../Extensions/ReflectionExtensions";
+import { convertToBool, enumToArray, getObjectValue, setObjectValue } from "../../Extensions/ReflectionExtensions";
 import { getAppTheme } from "../../AppTheme";
 import { getImageComponent } from "../Image/Extensions";
 import {
@@ -16,18 +12,14 @@ import {
   isNullOrEmpty,
   padLeft,
   removeHtml,
-  sanitizeHtml,
+  sanitizeHtml
 } from "../../Extensions/StringExtensions";
 import Dropdown from "../Dropdown";
 import { DataComparison } from "../../Binders/CollectionBinder/query/queryFilter";
 import Select from "../Inputs/SelectInput";
 import AppClient from "../../AppClient";
 import { IconProps } from "../Icon";
-import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  PencilIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowDownIcon, ArrowRightIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Checkbox from "../Inputs/CheckboxInput";
 import RawHTML from "../RawHTML";
 import Image from "../Image/Image";
@@ -59,7 +51,7 @@ const Table: React.FC<TableProps> = React.memo(
     checkboxes = false,
     checkedItems = undefined,
     columnData,
-    isHeaderSticky = false,
+    isHeaderSticky = false
   }) => {
     var [selectedRow, setSelectedRow] = useState(selectedRowIndex);
     var [selectedCell, setSelectedCell] = useState([-1, -1]);
@@ -67,9 +59,12 @@ const Table: React.FC<TableProps> = React.memo(
     var [hoveredCell, setHoveredCell] = useState([-1, -1]);
     var [selectedColumn, setSelectedColumn] = useState(-1);
     var [filteredColumns, setFilteredColumns] = useState([""]);
-    var [selectedColumnToFilter, setSelectedColumnToFilter] = useState(
-      new TableColumnClass()
-    );
+    var [selectedColumnToFilter, setSelectedColumnToFilter] = useState(new TableColumnClass());
+    const filterThRef = React.useRef<HTMLTableCellElement>(null);
+    const [filterModalPosition, setFilterModalPosition] = useState<{
+      top: number;
+      left: number;
+    } | null>(null);
     var [sortedColumn, setSortedColumn] = useState(
       table?.Columns.find((column) => column.IsSorted === true)?.PropertyName
     );
@@ -79,95 +74,91 @@ const Table: React.FC<TableProps> = React.memo(
     const Theme = getAppTheme({ Table: theme }).Table;
     const containerRef = React.createRef<HTMLDivElement>();
     const topScrollRef = React.createRef<HTMLDivElement>();
+    const tableRootRef = React.useRef<HTMLDivElement>(null);
     const ComparisonSigns = [
       {
         text: appClient?.Translate("Equal"),
         comparison: DataComparison.Equal,
         types: ["numeric", "date", "time", "datetime", "text", "month", "week"],
         sign: "=",
-        defaultFor: ["numeric", "date", "time", "datetime", "month", "week"],
+        defaultFor: ["numeric", "date", "time", "datetime", "month", "week"]
       },
       {
         text: appClient?.Translate("Different"),
         comparison: DataComparison.Different,
         types: ["numeric", "date", "time", "datetime", "text", "month", "week"],
-        sign: "!=",
+        sign: "!="
       },
       {
         text: appClient?.Translate("Greater"),
         comparison: DataComparison.Greater,
         types: ["numeric", "date", "time", "datetime", "month", "week"],
-        sign: ">",
+        sign: ">"
       },
       {
         text: appClient?.Translate("Less"),
         comparison: DataComparison.Less,
         types: ["numeric", "date", "time", "datetime", "month", "week"],
-        sign: "<",
+        sign: "<"
       },
       {
         text: appClient?.Translate("GreaterOrEqual"),
         comparison: DataComparison.GreaterOrEqual,
         types: ["numeric", "date", "time", "datetime", "month", "week"],
-        sign: ">=",
+        sign: ">="
       },
       {
         text: appClient?.Translate("LessOrEqual"),
         comparison: DataComparison.LessOrEqual,
         types: ["numeric", "date", "time", "datetime", "month", "week"],
-        sign: "<=",
+        sign: "<="
       },
       {
         text: appClient?.Translate("Between"),
         comparison: DataComparison.Between,
         types: ["text"],
-        sign: "*.*",
+        sign: "*.*"
       },
       {
         text: appClient?.Translate("StartsWith"),
         comparison: DataComparison.StartsWith,
         types: ["text"],
-        sign: ".*",
+        sign: ".*"
       },
       {
         text: appClient?.Translate("EndsWith"),
         comparison: DataComparison.EndsWith,
         types: ["text"],
-        sign: "*.",
+        sign: "*."
       },
       {
         text: appClient?.Translate("Contains"),
         comparison: DataComparison.Contains,
         types: ["text"],
         sign: "*.*",
-        defaultFor: ["text"],
-      },
+        defaultFor: ["text"]
+      }
     ];
 
     const onKeyDown = (e: any) => {
-      if(!table || selectedCell[0] == -1 || (e.key != "Escape" && e.key != "Enter")) return;
+      if (!table || selectedCell[0] == -1 || (e.key != "Escape" && e.key != "Enter")) return;
 
       var rowIndex = selectedCell[0];
       var columnIndex = selectedCell[1];
 
       var row = data?.find((item) => item.viewOrderIndex == rowIndex);
-      var column = table.Columns.filter((column) => isColumnVisible(column)).find((column, index) => index == columnIndex)
+      var column = table.Columns.filter((column) => isColumnVisible(column)).find(
+        (column, index) => index == columnIndex
+      );
 
       setEditingCell(undefined);
-      if (e.key == "Escape"){
+      if (e.key == "Escape") {
         setSelectedCell([-1, -1]);
         if (listener && listener.onCellValueCancelled)
           listener.onCellValueCancelled(row, column, rowIndex, columnIndex);
-      }
-      else if (e.key == "Enter") {
+      } else if (e.key == "Enter") {
         if (listener && listener.onCellValueChanged)
-          listener.onCellValueChanged(
-            row,
-            column,
-            rowIndex,
-            columnIndex,
-            e.key
-          );
+          listener.onCellValueChanged(row, column, rowIndex, columnIndex, e.key);
       }
     };
     useEffect(() => {
@@ -181,32 +172,38 @@ const Table: React.FC<TableProps> = React.memo(
           containerRef.current.classList.add("filter-opened");
         else containerRef.current.classList.remove("filter-opened");
 
-        for (
-          let index = containerRef.current.classList.length - 1;
-          index >= 0;
-          index--
-        ) {
+        for (let index = containerRef.current.classList.length - 1; index >= 0; index--) {
           const element = containerRef.current.classList[index];
-          if (element && element.indexOf("editing-input") > -1)
-            containerRef.current.classList.remove(element);
+          if (element && element.indexOf("editing-input") > -1) containerRef.current.classList.remove(element);
         }
 
         if (editingCell) {
           containerRef.current.classList.add("editing-input");
           if (editingCell.Filtering)
-            containerRef.current.classList.add(
-              "editing-input-type-" + editingCell.Filtering.Type
-            );
-          else
-            containerRef.current.classList.add(
-              "editing-input-type-" + editingCell.Type
-            );
+            containerRef.current.classList.add("editing-input-type-" + editingCell.Filtering.Type);
+          else containerRef.current.classList.add("editing-input-type-" + editingCell.Type);
         }
       }
     };
     useEffect(() => {
       recalculateHeight();
     }, [selectedColumnToFilter, editingCell]);
+
+    useLayoutEffect(() => {
+      if (!selectedColumnToFilter?.PropertyName) {
+        setFilterModalPosition(null);
+        return;
+      }
+      if (filterThRef.current) {
+        const rect = filterThRef.current.getBoundingClientRect();
+        const dropdownWidth = 225;
+        let left = rect.left + 12;
+        if (left + dropdownWidth > window.innerWidth - 40) {
+          left = window.innerWidth - dropdownWidth - 40;
+        }
+        setFilterModalPosition({ top: rect.bottom + 4, left });
+      }
+    }, [selectedColumnToFilter]);
 
     useEffect(() => {
       onTableScroll();
@@ -224,13 +221,7 @@ const Table: React.FC<TableProps> = React.memo(
             return col.AllowEditingOnNewRow != false;
           });
           if (firstEditableColumn) {
-            onCellClick(
-              undefined,
-              newRow,
-              firstEditableColumn,
-              rowIndex,
-              columnIndex
-            );
+            onCellClick(undefined, newRow, firstEditableColumn, rowIndex, columnIndex);
           }
         }
       }
@@ -248,8 +239,7 @@ const Table: React.FC<TableProps> = React.memo(
 
     const onCheckAllChange = (e: any) => {
       var checked = e.target.checked;
-      if (listener?.setCheckedItems)
-        listener?.setCheckedItems(undefined, -1, checked ? "ALL" : "NONE");
+      if (listener?.setCheckedItems) listener?.setCheckedItems(undefined, -1, checked ? "ALL" : "NONE");
     };
 
     const renderColumns = () => {
@@ -258,101 +248,80 @@ const Table: React.FC<TableProps> = React.memo(
           {emptyColumnToBeginning == true && <th></th>}
           {checkboxes == true && (
             <th className={`px-4 py-2`}>
-              <CheckboxInput
-                onChange={(e) => onCheckAllChange(e)}
-              ></CheckboxInput>
+              <CheckboxInput onChange={(e) => onCheckAllChange(e)}></CheckboxInput>
             </th>
           )}
           {hierarchycalDisplayEnabled() && <th></th>}
-          {table.Columns.filter((column) => isColumnVisible(column)).map(
-            (column, index) => {
-              return (
-                <th
-                  key={index}
-                  className={`oph-table-columns-column ${
-                    column.Freeze ? "sticky-col" : ""
-                  } col-${index} ${selectedColumn == index ? "selected" : ""}`}
-                >
-                  <div className="oph-table-columns-column-rootComponent">
-                    <div className="oph-table-columns-column-title">
-                      <RawHTML html={column.HeaderText} />
-                    </div>
-                    <div className="oph-table-columns-column-buttons">
-                      {allowSorting && column.AllowSorting !== false && (
-                        <>
-                          <span
-                            onClick={(e) => onSortingClick(e, column)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {!column.SortDirection &&
-                              getImageComponent(Theme?.Icons?.NotSorted)}
-                            {column.IsSorted &&
-                              column.SortDirection === "DESC" &&
-                              getImageComponent(Theme?.Icons?.DescSorted)}
-                            {column.IsSorted &&
-                              column.SortDirection === "ASC" &&
-                              getImageComponent(Theme?.Icons?.AscSorted)}
-                          </span>
-                        </>
-                      )}
-                      {allowFiltering && column.AllowFiltering !== false && (
-                        <>
-                          <span
-                            onClick={(e) => onFilteringClick(e, column)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {!column.IsFiltered &&
-                              getImageComponent(Theme?.Icons?.NotFiltered)}
-                            {column.IsFiltered &&
-                              getImageComponent(Theme?.Icons?.Filtered)}
-                          </span>
-                        </>
-                      )}
-                    </div>
+          {table.Columns.filter((column) => isColumnVisible(column)).map((column, index) => {
+            return (
+              <th
+                key={index}
+                ref={selectedColumnToFilter?.PropertyName === column.PropertyName ? filterThRef : undefined}
+                className={`oph-table-columns-column ${
+                  column.Freeze ? "sticky-col" : ""
+                } col-${index} ${selectedColumn == index ? "selected" : ""}`}
+              >
+                <div className="oph-table-columns-column-rootComponent">
+                  <div className="oph-table-columns-column-title">
+                    <RawHTML html={column.HeaderText} />
                   </div>
-                  {selectedColumnToFilter &&
-                    selectedColumnToFilter.PropertyName ==
-                      column.PropertyName &&
-                    showFilterModal(selectedColumnToFilter, index)}
-                </th>
-              );
-            }
-          )}
+                  <div className="oph-table-columns-column-buttons">
+                    {allowSorting && column.AllowSorting !== false && (
+                      <>
+                        <span onClick={(e) => onSortingClick(e, column)} style={{ cursor: "pointer" }}>
+                          {!column.SortDirection && getImageComponent(Theme?.Icons?.NotSorted)}
+                          {column.IsSorted &&
+                            column.SortDirection === "DESC" &&
+                            getImageComponent(Theme?.Icons?.DescSorted)}
+                          {column.IsSorted &&
+                            column.SortDirection === "ASC" &&
+                            getImageComponent(Theme?.Icons?.AscSorted)}
+                        </span>
+                      </>
+                    )}
+                    {allowFiltering && column.AllowFiltering !== false && (
+                      <>
+                        <span
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            onFilteringClick(e as any, column);
+                          }}
+                          style={{ cursor: "pointer" }}
+                        >
+                          {!column.IsFiltered && getImageComponent(Theme?.Icons?.NotFiltered)}
+                          {column.IsFiltered && getImageComponent(Theme?.Icons?.Filtered)}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </th>
+            );
+          })}
           {emptyColumnToEnd == true && <th></th>}
         </tr>
       );
     };
 
-    const setColumnFilterValue = (
-      column: TableColumnClass,
-      value: any,
-      propName: string
-    ) => {
+    const setColumnFilterValue = (column: TableColumnClass, value: any, propName: string) => {
       if (!column.Filtering) return;
 
       if (propName.indexOf("_low") > -1 || propName.indexOf("_high") > -1) {
         setComparison(column, DataComparison.Between);
         if (propName.indexOf("_low") > -1) column.Filtering.LowValue = value;
         else column.Filtering.HighValue = value;
-        column.IsFiltered =
-          !!column.Filtering.HighValue || !!column.Filtering.LowValue;
+        column.IsFiltered = !!column.Filtering.HighValue || !!column.Filtering.LowValue;
       } else if (value && value != "") {
         column.IsFiltered = true;
         if (column.Filtering) {
           var valueProp = column.PropertyName;
-          if (column.Filtering?.RemoteDataSource?.ValueProp)
-            valueProp = column.Filtering?.RemoteDataSource?.ValueProp;
-          if (
-            Array.isArray(value) &&
-            value.length > 0 &&
-            typeof value[0] == "object"
-          ) {
+          if (column.Filtering?.RemoteDataSource?.ValueProp) valueProp = column.Filtering?.RemoteDataSource?.ValueProp;
+          if (Array.isArray(value) && value.length > 0 && typeof value[0] == "object") {
             value = value.map((item) => {
               return getObjectValue(item, valueProp);
             });
           } else if (typeof value == "object") {
-            if (column.Filtering?.RemoteDataSource?.ValueProp)
-              value = getObjectValue(value, valueProp);
+            if (column.Filtering?.RemoteDataSource?.ValueProp) value = getObjectValue(value, valueProp);
           }
           column.Filtering.Value = value;
         }
@@ -373,13 +342,10 @@ const Table: React.FC<TableProps> = React.memo(
     };
     const SetFilteredColumnsState = () => {
       setFilteredColumns(
-        table.Columns.map((item) =>
-          item.IsFiltered === true && item.PropertyName ? item.PropertyName : ""
-        )
+        table.Columns.map((item) => (item.IsFiltered === true && item.PropertyName ? item.PropertyName : ""))
       );
       // console.log(filteredColumns)
-      if (listener?.onFilteringChanged)
-        listener?.onFilteringChanged(table.Columns);
+      if (listener?.onFilteringChanged) listener?.onFilteringChanged(table.Columns);
       setSelectedColumnToFilter({});
     };
     const setComparison = (column: TableColumnClass, val?: number) => {
@@ -392,33 +358,19 @@ const Table: React.FC<TableProps> = React.memo(
       if (type == "date" || type == "datetime") type = "daterange";
       if (type == "time") type = "timerange";
 
-      var comparisons = ComparisonSigns.filter(
-        (comp) => comp.types.indexOf(type) > -1
-      ).map((comp) => {
+      var comparisons = ComparisonSigns.filter((comp) => comp.types.indexOf(type) > -1).map((comp) => {
         return {
           text: comp.text ?? comp.sign,
-          value: comp.comparison.toString(),
+          value: comp.comparison.toString()
         };
       });
-      if (
-        column.Filtering &&
-        !column.Filtering?.Comparison &&
-        comparisons.length > 0
-      ) {
-        var defaultComparison = ComparisonSigns.find(
-          (comp) => comp.defaultFor && comp.defaultFor.indexOf(type) > -1
-        );
-        if (defaultComparison)
-          column.Filtering.Comparison = parseInt(
-            defaultComparison.comparison.toString()
-          );
+      if (column.Filtering && !column.Filtering?.Comparison && comparisons.length > 0) {
+        var defaultComparison = ComparisonSigns.find((comp) => comp.defaultFor && comp.defaultFor.indexOf(type) > -1);
+        if (defaultComparison) column.Filtering.Comparison = parseInt(defaultComparison.comparison.toString());
         else column.Filtering.Comparison = parseInt(comparisons[0].value);
       }
 
-      var fieldName =
-        column.Filtering?.ValueName ??
-        column.Filtering?.Name ??
-        column.PropertyName;
+      var fieldName = column.Filtering?.ValueName ?? column.Filtering?.Name ?? column.PropertyName;
       var lowValueName: string | undefined = undefined;
       var highValueName: string | undefined = undefined;
       if (type == "timerange" || type == "daterange") {
@@ -428,9 +380,7 @@ const Table: React.FC<TableProps> = React.memo(
       return (
         <Dropdown
           multipleSelection={true}
-          visibilityCallback={(visible) =>
-            !visible && setSelectedColumnToFilter({})
-          }
+          visibilityCallback={(visible) => !visible && setSelectedColumnToFilter({})}
           key={`${modalID}-dropdown-${column.PropertyName}`}
           visible={true}
           id={modalID}
@@ -448,18 +398,18 @@ const Table: React.FC<TableProps> = React.memo(
             {
               id: 0,
               text: appClient?.Translate("Clear") ?? "Clear",
-              hideDropdownOnClick: true,
+              hideDropdownOnClick: true
             },
             {
               id: 1,
               text: appClient?.Translate("Apply") ?? "Apply",
-              hideDropdownOnClick: true,
+              hideDropdownOnClick: true
             },
             {
               id: -1,
               text: appClient?.Translate("Dismiss") ?? "Dismiss",
-              hideDropdownOnClick: true,
-            },
+              hideDropdownOnClick: true
+            }
           ]}
         >
           {comparisons && comparisons.length > 0 && (
@@ -467,9 +417,7 @@ const Table: React.FC<TableProps> = React.memo(
               className="filter-comparison"
               defaultValue={column.Filtering?.Comparison}
               options={comparisons}
-              onChange={(e) =>
-                setComparison(column, parseInt(e.currentTarget.value))
-              }
+              onChange={(e) => setComparison(column, parseInt(e.currentTarget.value))}
             ></Select>
           )}
           <InputField
@@ -480,19 +428,12 @@ const Table: React.FC<TableProps> = React.memo(
             labelVisible={false}
             valueName={column.Filtering?.ValueName}
             valueProp={column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
-            displayProp={
-              column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"
-            }
+            displayProp={column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"}
             listener={{
-              setFieldData: (
-                name: string,
-                value: any,
-                field: any,
-                rawValue?: any
-              ) => {
+              setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
                 setColumnFilterValue(column, value, name);
               },
-              getFieldData: (field: any) => column.Filtering?.Value,
+              getFieldData: (field: any) => column.Filtering?.Value
             }}
             text={column.HeaderText}
             type={type}
@@ -508,10 +449,7 @@ const Table: React.FC<TableProps> = React.memo(
       );
     };
 
-    const onSortingClick = (
-      e: React.MouseEvent<HTMLSpanElement>,
-      column: TableColumnClass
-    ) => {
+    const onSortingClick = (e: React.MouseEvent<HTMLSpanElement>, column: TableColumnClass) => {
       e.preventDefault();
       table.Columns.forEach((item) => {
         item.IsSorted = false;
@@ -525,42 +463,31 @@ const Table: React.FC<TableProps> = React.memo(
 
       column.IsSorted = true;
       column.SortDirection = direction;
-      if (listener?.onSortingChanged)
-        listener?.onSortingChanged(column, direction);
+      if (listener?.onSortingChanged) listener?.onSortingChanged(column, direction);
       return true;
     };
 
-    const onFilteringClick = (
-      e: React.MouseEvent<HTMLSpanElement>,
-      column: TableColumnClass
-    ) => {
+    const onFilteringClick = (e: React.MouseEvent<HTMLSpanElement>, column: TableColumnClass) => {
       e.preventDefault();
 
-      if (
-        !selectedColumnToFilter ||
-        column.PropertyName != selectedColumnToFilter.PropertyName
-      )
+      if (!selectedColumnToFilter || column.PropertyName != selectedColumnToFilter.PropertyName)
         setSelectedColumnToFilter(column);
-      else if (column.PropertyName == selectedColumnToFilter.PropertyName)
-        setSelectedColumnToFilter({});
+      else if (column.PropertyName == selectedColumnToFilter.PropertyName) setSelectedColumnToFilter({});
       return true;
     };
 
     const hierarchycalDisplayEnabled = () => {
-      return (
-        hierarchicalDisplay == true && !isNullOrEmpty(hierarchyPropertyName)
-      );
+      return hierarchicalDisplay == true && !isNullOrEmpty(hierarchyPropertyName);
     };
 
     const onItemCheckedChange = (e: any, row: any, rowIndex: number) => {
       var checked = e.target.checked;
-      if (listener?.setCheckedItems)
-        listener?.setCheckedItems(row, rowIndex, checked);
+      if (listener?.setCheckedItems) listener?.setCheckedItems(row, rowIndex, checked);
     };
 
     const formatColumnValue = (column: TableColumnClass, value: any) => {
       return formatDataToString(value, column.DecimalPlaces);
-    }
+    };
     const renderColumnData = () => {
       if (!columnData) return <></>;
       var keys = Object.keys(columnData);
@@ -587,10 +514,7 @@ const Table: React.FC<TableProps> = React.memo(
       );
     };
 
-    const renderRows = (
-      rowsToRender?: Array<any>,
-      additionalClassName?: string
-    ): React.ReactNode => {
+    const renderRows = (rowsToRender?: Array<any>, additionalClassName?: string): React.ReactNode => {
       if (!data) return <></>;
 
       var childrenRows: Array<any> | undefined = undefined;
@@ -599,27 +523,21 @@ const Table: React.FC<TableProps> = React.memo(
       });
       if (!rowsToRender && hierarchyPropertyName) {
         rowsToRender = data.filter((item, i) => {
-          return (
-            getObjectValue(item, hierarchyPropertyName) == hierarchyParentValue
-          );
+          return getObjectValue(item, hierarchyPropertyName) == hierarchyParentValue;
         });
       } else if (!rowsToRender) rowsToRender = data;
       return rowsToRender?.map((row, index) => {
-        if (listener?.canRenderRow && !listener?.canRenderRow(row, index))
-          return <></>;
+        if (listener?.canRenderRow && !listener?.canRenderRow(row, index)) return <></>;
         if (hierarchycalDisplayEnabled()) {
           if (!row.viewOrderStr) row.viewOrderStr = padLeft(row.id, 4, "0");
-          childrenRows = data.filter(
-            (item) => getObjectValue(item, hierarchyPropertyName) == row.id
-          );
+          childrenRows = data.filter((item) => getObjectValue(item, hierarchyPropertyName) == row.id);
           childrenRows.forEach((item) => {
             item.viewOrderStr = row.viewOrderStr + padLeft(item.id, 4, "0");
           });
         } else {
           childrenRows = undefined;
         }
-        var selectedRowData: any =
-          selectedRow > -1 ? data[selectedRow] : undefined;
+        var selectedRowData: any = selectedRow > -1 ? data[selectedRow] : undefined;
         var isSelected =
           selectedRow === row.viewOrderIndex ||
           (selectedRowData &&
@@ -629,11 +547,9 @@ const Table: React.FC<TableProps> = React.memo(
         listener?.getItemPropertyValue;
 
         var isChecked = false;
-        if (listener && listener.isChecked)
-          isChecked = listener.isChecked(row, index);
+        if (listener && listener.isChecked) isChecked = listener.isChecked(row, index);
         var rowProps: { className?: string } = {};
-        if (listener && listener.getRowProps)
-          rowProps = listener?.getRowProps(row, index);
+        if (listener && listener.getRowProps) rowProps = listener?.getRowProps(row, index);
         var { className, key: ignoredRowKey, ...otherProps } = rowProps as any;
         void ignoredRowKey;
         return (
@@ -642,11 +558,9 @@ const Table: React.FC<TableProps> = React.memo(
               key={`${row.viewOrderIndex}${refreshKey}${index}`}
               className={`oph-table-body-row ${className} ${
                 selectedRow === row.viewOrderIndex ? "selected" : ""
-              } ${isChecked? "checked": ""}${
+              } ${isChecked ? "checked" : ""}${
                 applyRowValidation && row.isValid === false ? "inValid" : ""
-              } ${row.hasUnsavedChanges === true ? "has-dirty-data" : ""} ${
-                additionalClassName ?? ""
-              }`}
+              } ${row.hasUnsavedChanges === true ? "has-dirty-data" : ""} ${additionalClassName ?? ""}`}
               {...otherProps}
             >
               {checkboxes == true && (
@@ -657,10 +571,7 @@ const Table: React.FC<TableProps> = React.memo(
                   }}
                 >
                   {row.isNewRow != true && (
-                    <CheckboxInput
-                      key={`${index}${isChecked}`}
-                      defaultChecked={isChecked}
-                    ></CheckboxInput>
+                    <CheckboxInput key={`${index}${isChecked}`} defaultChecked={isChecked}></CheckboxInput>
                   )}
                 </td>
               )}
@@ -668,29 +579,20 @@ const Table: React.FC<TableProps> = React.memo(
                 <td
                   className={`px-4 py-2 empty-column`}
                   onClick={(e) => {
-                    if (selectedRow != row.viewOrderIndex)
-                      onCellClick(e, row, undefined, row.viewOrderIndex, -1);
+                    if (selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1);
                   }}
                 >
-                  {listener &&
-                    listener.renderEmptyCell &&
-                    listener.renderEmptyCell(row, true, index)}
+                  {listener && listener.renderEmptyCell && listener.renderEmptyCell(row, true, index)}
                 </td>
               )}
               {hierarchycalDisplayEnabled() && (
                 <td
                   onClick={(e) => {
-                    if (selectedRow != row.viewOrderIndex)
-                      onCellClick(e, row, undefined, row.viewOrderIndex, -1);
+                    if (selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1);
                     else {
                       var parentID = getObjectValue(row, hierarchyPropertyName);
                       if (parentID) {
-                        var result = findInArray(
-                          data,
-                          parentID,
-                          "id",
-                          undefined
-                        );
+                        var result = findInArray(data, parentID, "id", undefined);
                         onSelectedRowChange(result.index);
                       } else onSelectedRowChange(-1);
                     }
@@ -705,33 +607,21 @@ const Table: React.FC<TableProps> = React.memo(
                   )}
                 </td>
               )}
-              {table.Columns.filter((column) => isColumnVisible(column)).map(
-                (column, columnIndex) => {
-                  return renderCell(
-                    row,
-                    column,
-                    row.viewOrderIndex,
-                    columnIndex
-                  );
-                }
-              )}
+              {table.Columns.filter((column) => isColumnVisible(column)).map((column, columnIndex) => {
+                return renderCell(row, column, row.viewOrderIndex, columnIndex);
+              })}
               {emptyColumnToEnd == true && (
                 <td
                   className={`px-4 py-2 empty-column`}
                   onClick={(e) => {
-                    if (selectedRow != row.viewOrderIndex)
-                      onCellClick(e, row, undefined, row.viewOrderIndex, -1);
+                    if (selectedRow != row.viewOrderIndex) onCellClick(e, row, undefined, row.viewOrderIndex, -1);
                   }}
                 >
-                  {listener &&
-                    listener.renderEmptyCell &&
-                    listener.renderEmptyCell(row, false, index)}
+                  {listener && listener.renderEmptyCell && listener.renderEmptyCell(row, false, index)}
                 </td>
               )}
             </tr>
-            {childrenRows &&
-              childrenRows.length > 0 &&
-              renderRows(childrenRows, isSelected ? "" : "hidden")}
+            {childrenRows && childrenRows.length > 0 && renderRows(childrenRows, isSelected ? "" : "hidden")}
           </>
         );
       });
@@ -739,24 +629,23 @@ const Table: React.FC<TableProps> = React.memo(
 
     const canEditCell = (row: any, column: TableColumnClass) => {
       return (
-        (column.AllowEditing == true &&
-          (!row.isNewRow || column.AllowEditingOnNewRow !== false)) ||
+        (column.AllowEditing == true && (!row.isNewRow || column.AllowEditingOnNewRow !== false)) ||
         (row.isNewRow == true && column.AllowEditingOnNewRow !== false)
       );
     };
     const onSelectedRowChange = (index: number) => {
-      if(selectedRow != index){
-        setSelectedRow(index)
-        if(listener?.onSelectedRowChange) listener?.onSelectedRowChange(index);
+      if (selectedRow != index) {
+        setSelectedRow(index);
+        if (listener?.onSelectedRowChange) listener?.onSelectedRowChange(index);
       }
-    }
+    };
     const onSelectedCellChange = (rowIndex: number, columnIndex: number) => {
-      if(rowIndex != selectedRow || columnIndex != selectedColumn){
+      if (rowIndex != selectedRow || columnIndex != selectedColumn) {
         setSelectedCell([rowIndex, columnIndex]);
         setSelectedColumn(columnIndex);
         onSelectedRowChange(rowIndex);
       }
-    }
+    };
 
     const onCellClick = async (
       e: React.MouseEvent<HTMLTableCellElement> | undefined,
@@ -765,14 +654,13 @@ const Table: React.FC<TableProps> = React.memo(
       rowIndex: number,
       columnIndex: number
     ) => {
-      if(listener?.canClickCell){
+      if (listener?.canClickCell) {
         var canClick = await listener?.canClickCell(e, row, column, rowIndex, columnIndex);
-        if(canClick === false){
+        if (canClick === false) {
           return;
         }
       }
-      if (listener?.onCellClick && column)
-        listener?.onCellClick(e, row, column, rowIndex, columnIndex);
+      if (listener?.onCellClick && column) listener?.onCellClick(e, row, column, rowIndex, columnIndex);
 
       onSelectedCellChange(rowIndex, columnIndex);
 
@@ -784,25 +672,15 @@ const Table: React.FC<TableProps> = React.memo(
 
       setTimeout(() => {
         var fieldName = column?.Filtering?.Name ?? column?.PropertyName;
-        var elems = document.body.querySelectorAll(
-          `#${fieldName}${rowIndex} input`
-        );
-        if (!elems || elems.length == 0)
-          elems = document.body.querySelectorAll(
-            `#${fieldName}${rowIndex} select`
-          );
-        if (!elems || elems.length == 0)
-          elems = document.body.querySelectorAll(
-            `#${fieldName}${rowIndex} textarea`
-          );
+        var elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} input`);
+        if (!elems || elems.length == 0) elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} select`);
+        if (!elems || elems.length == 0) elems = document.body.querySelectorAll(`#${fieldName}${rowIndex} textarea`);
         if (!elems || elems.length == 0) return;
 
         var elemToFocus = elems[0];
         if (elemToFocus) {
           (elemToFocus as any).focus();
-          elemToFocus.dispatchEvent(
-            new Event("focus", { bubbles: false, cancelable: false })
-          );
+          elemToFocus.dispatchEvent(new Event("focus", { bubbles: false, cancelable: false }));
         }
       }, 150);
       return true;
@@ -819,50 +697,25 @@ const Table: React.FC<TableProps> = React.memo(
       rawValue?: any
     ) => {
       if (listener && listener.onCellValueChanging) {
-        listener.onCellValueChanging(
-          row,
-          name,
-          value,
-          i18n,
-          rowIndex,
-          columnIndex,
-          field,
-          rawValue
-        );
+        listener.onCellValueChanging(row, name, value, i18n, rowIndex, columnIndex, field, rawValue);
       } else {
         setObjectValue(row, name, value);
       }
     };
-    const renderCellValue = (
-      row: any,
-      column: TableColumnClass,
-      value: any,
-      rowIndex: number,
-      columnIndex: number
-    ) => {
-      if (listener && listener.renderCellValue)
-        value = listener.renderCellValue(row, column, value);
+    const renderCellValue = (row: any, column: TableColumnClass, value: any, rowIndex: number, columnIndex: number) => {
+      if (listener && listener.renderCellValue) value = listener.renderCellValue(row, column, value);
 
-      if (
-        selectedCell &&
-        selectedCell[0] == rowIndex &&
-        selectedCell[1] == columnIndex &&
-        column == editingCell
-      ) {
+      if (selectedCell && selectedCell[0] == rowIndex && selectedCell[1] == columnIndex && column == editingCell) {
         var fieldName =
-          column.Filtering?.ValueName ??
-          column.CellValueProp ??
-          column.Filtering?.Name ??
-          column.PropertyName;
+          column.Filtering?.ValueName ?? column.CellValueProp ?? column.Filtering?.Name ?? column.PropertyName;
         var multipleSelection = false;
-        if (column.InputProps?.multipleSelection != undefined)
-          multipleSelection = column.InputProps?.multipleSelection;
+        if (column.InputProps?.multipleSelection != undefined) multipleSelection = column.InputProps?.multipleSelection;
         else if (column.Filtering?.MultipleSelection != undefined)
           multipleSelection = column.Filtering?.MultipleSelection;
         if (column.Filtering?.RemoteDataSource) {
           column.Filtering.RemoteDataSource.ExtraFilters = {
             ...column.Filtering.RemoteDataSource.ExtraFilters,
-            ...row,
+            ...row
           };
         }
         var type = column.Filtering?.Type ?? column.Type;
@@ -877,57 +730,40 @@ const Table: React.FC<TableProps> = React.memo(
             switchbox={column.Type == "checkbox"}
             labelVisible={false}
             valueName={column.Filtering?.ValueName}
-            valueProp={
-              column.CellValueProp ??
-              column.Filtering?.RemoteDataSource?.ValueProp ??
-              "id"
-            }
-            displayProp={
-              column.CellDisplayProp ??
-              column.Filtering?.RemoteDataSource?.DisplayProp ??
-              "name"
-            }
+            valueProp={column.CellValueProp ?? column.Filtering?.RemoteDataSource?.ValueProp ?? "id"}
+            displayProp={column.CellDisplayProp ?? column.Filtering?.RemoteDataSource?.DisplayProp ?? "name"}
             listener={{
-              onChangeRequest: (
-                name: string,
-                value: any,
-                isValid: boolean,
-                field: any
-              ) => {
-                if (column.OnBeforeSetData)
-                  column.OnBeforeSetData(row, name, value, field, isValid);
+              onChangeRequest: (name: string, value: any, isValid: boolean, field: any) => {
+                if (column.OnBeforeSetData) column.OnBeforeSetData(row, name, value, field, isValid);
               },
               setFieldData: (name: string, value: any, field: any, rawValue?: any) => {
                 if (rawValue && Array.isArray(rawValue) && rawValue.length > 0 && multipleSelection !== true) {
                   rawValue = rawValue[0];
                 }
                 cellValueChanging(row, fieldName, value, column.I18n, rowIndex, columnIndex, field, rawValue);
-                if (column.Filtering && column.Filtering.Name && column.Filtering.ValueName && column.Filtering.ValueName != column.Filtering.Name) {
+                if (
+                  column.Filtering &&
+                  column.Filtering.Name &&
+                  column.Filtering.ValueName &&
+                  column.Filtering.ValueName != column.Filtering.Name
+                ) {
                   var refValue = rawValue;
-                  if(typeof refValue == "object" && Object.hasOwn(refValue, column.Filtering?.Name)){
+                  if (typeof refValue == "object" && Object.hasOwn(refValue, column.Filtering?.Name)) {
                     refValue = refValue[column.Filtering?.Name];
                   }
                   cellValueChanging(row, column.Filtering?.Name, refValue, column.I18n, rowIndex, columnIndex, field);
                 }
-                if (column.OnAfterSetData)
-                  column.OnAfterSetData(row, value, field, rawValue);
+                if (column.OnAfterSetData) column.OnAfterSetData(row, value, field, rawValue);
               },
               getFieldData: (field: any) => {
                 var value: any;
-                if (listener?.getItemPropertyValue){
-                  value = listener.getItemPropertyValue(
-                    row,
-                    column.PropertyName,
-                    column.I18n
-                  );
-                }
-                else
-                  value = getObjectValue(row, column.Filtering?.Name);
+                if (listener?.getItemPropertyValue) {
+                  value = listener.getItemPropertyValue(row, column.PropertyName, column.I18n);
+                } else value = getObjectValue(row, column.Filtering?.Name);
 
-                if(column.OnAfterGetData)
-                  value = column.OnAfterGetData(row, field, value);
+                if (column.OnAfterGetData) value = column.OnAfterGetData(row, field, value);
                 return formatColumnValue(column, value);
-              },
+              }
             }}
             text={column.HeaderText}
             type={type}
@@ -947,68 +783,42 @@ const Table: React.FC<TableProps> = React.memo(
       ) {
         return (
           <>
-            <RawHTML html={value} />{" "}
-            <PencilIcon
-              width={12}
-              className="absolute right-3 top-3"
-              height={12}
-            />
+            <RawHTML html={value} /> <PencilIcon width={12} className="absolute right-3 top-3" height={12} />
           </>
         );
       }
       return value;
     };
-    const onMouseOverCell = (
-      row: any,
-      column: TableColumnClass,
-      rowIndex: number,
-      columnIndex: number
-    ) => {
+    const onMouseOverCell = (row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => {
       setHoveredCell([rowIndex, columnIndex]);
     };
-    const onMouseOutCell = (
-      row: any,
-      column: TableColumnClass,
-      rowIndex: number,
-      columnIndex: number
-    ) => {
+    const onMouseOutCell = (row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => {
       setHoveredCell([-1, -1]);
     };
-    
-    const renderCell = (
-      row: any,
-      column: TableColumnClass,
-      rowIndex: number,
-      columnIndex: number
-    ) => {
+
+    const renderCell = (row: any, column: TableColumnClass, rowIndex: number, columnIndex: number) => {
       var value: any = "";
       if (listener?.getItemPropertyValue)
-        value = listener?.getItemPropertyValue(
-          row,
-          column.PropertyName,
-          column.I18n,
-          column.Type
-        );
+        value = listener?.getItemPropertyValue(row, column.PropertyName, column.I18n, column.Type);
       else value = getObjectValue(row, column.PropertyName);
 
       if (typeof value == "string") {
         var options: ISanitizeOptions;
-        if(listener?.getSanitizeOptions)
-          options = listener?.getSanitizeOptions();
-        else{
-          options = { 
-              parser: {
-                decodeEntities: false 
-              }, 
-              textFilter: function(text: string) {
-                return text.replace(/&amp;/g, "&");
-            } 
+        if (listener?.getSanitizeOptions) options = listener?.getSanitizeOptions();
+        else {
+          options = {
+            parser: {
+              decodeEntities: false
+            },
+            textFilter: function (text: string) {
+              return text.replace(/&amp;/g, "&");
+            }
           };
         }
-        
-        options.textFilter = function(text: string) {
+
+        options.textFilter = function (text: string) {
           return text.replace(/&amp;/g, "&");
-        }
+        };
         value = removeHtml(value);
         value = sanitizeHtml(value, options);
       }
@@ -1024,71 +834,40 @@ const Table: React.FC<TableProps> = React.memo(
         }
       } else if (column.Type == "enum") {
         if (!column.DataSource && column.Filtering?.EnumSelectionType)
-          column.DataSource = enumToArray(
-            column.Filtering.EnumSelectionType,
-            (key) => appClient?.Translate(key)
-          );
+          column.DataSource = enumToArray(column.Filtering.EnumSelectionType, (key) => appClient?.Translate(key));
         if (Array.isArray(column.DataSource)) {
-          var tmpValue = column.DataSource.find(
-            (item) => item.value == value
-          )?.text;
+          var tmpValue = column.DataSource.find((item) => item.value == value)?.text;
           if (tmpValue) value = tmpValue;
         }
       } else if (column.Type == "image") {
         if (value) {
-          if (value.indexOf("size") > -1)
-            value = value.replace("{size}", "Size1");
-          value = (
-            <Image
-              src={value}
-              size={100}
-              className="w-full max-w-25"
-              unoptimized={true}
-            />
-          );
+          if (value.indexOf("size") > -1) value = value.replace("{size}", "Size1");
+          value = <Image src={value} size={100} className="w-full max-w-25" unoptimized={true} />;
         }
       } else if (column.Type == "checkbox") {
         value = (
-          <Checkbox
-            readOnly={true}
-            defaultChecked={convertToBool(value)}
-            switchbox={true}
-            onText=""
-            offText=""
-          />
+          <Checkbox readOnly={true} defaultChecked={convertToBool(value)} switchbox={true} onText="" offText="" />
         );
       }
       var predefinedClassName = column.Type ? column.Type : "";
       predefinedClassName =
-        predefinedClassName +
-        " " +
-        (selectedCell[0] == rowIndex && selectedCell[1] == columnIndex
-          ? "selected"
-          : "");
+        predefinedClassName + " " + (selectedCell[0] == rowIndex && selectedCell[1] == columnIndex ? "selected" : "");
       if (column.TextFormatter) value = column.TextFormatter(value, row, column);
 
       var unwrappedValue: string | undefined = undefined;
-      if (
-        column.MaxTextLength &&
-        column.MaxTextLength > 0 &&
-        value &&
-        value.length > column.MaxTextLength
-      ) {
+      if (column.MaxTextLength && column.MaxTextLength > 0 && value && value.length > column.MaxTextLength) {
         unwrappedValue = value;
         value = value.toString().substring(0, column.MaxTextLength);
       }
 
       var cellProps: { className?: string } = {};
-      if (listener && listener.getCellProps)
-        cellProps = listener?.getCellProps(row, column, rowIndex, columnIndex);
+      if (listener && listener.getCellProps) cellProps = listener?.getCellProps(row, column, rowIndex, columnIndex);
       var { className, key: ignoredCellKey, ...otherProps } = cellProps as any;
       void ignoredCellKey;
       return (
         <td
           key={`${rowIndex}${columnIndex}`}
-          onMouseOver={() =>
-            onMouseOverCell(row, column, rowIndex, columnIndex)
-          }
+          onMouseOver={() => onMouseOverCell(row, column, rowIndex, columnIndex)}
           onMouseOut={() => onMouseOutCell(row, column, rowIndex, columnIndex)}
           className={`oph-table-body-cell ${className} ${predefinedClassName} col-${columnIndex} ${
             column.Freeze ? "sticky-cell" : ""
@@ -1109,12 +888,9 @@ const Table: React.FC<TableProps> = React.memo(
         if (table && scrollbar) {
           if (table.clientWidth > containerRef.current.clientWidth) {
             topScrollRef.current.style.display = "block";
-            scrollbar.setAttribute(
-              "style",
-              "width:" + table.clientWidth + "px"
-            );
+            scrollbar.setAttribute("style", "width:" + table.clientWidth + "px");
             topScrollRef.current.scrollTo({
-              left: containerRef.current.scrollLeft,
+              left: containerRef.current.scrollLeft
             });
           } else topScrollRef.current.style.display = "none";
         }
@@ -1127,7 +903,7 @@ const Table: React.FC<TableProps> = React.memo(
         if (table && scrollbar) {
           if (table.clientWidth > containerRef.current.clientWidth) {
             containerRef.current.scrollTo({
-              left: topScrollRef.current.scrollLeft,
+              left: topScrollRef.current.scrollLeft
             });
           }
         }
@@ -1135,37 +911,51 @@ const Table: React.FC<TableProps> = React.memo(
     };
 
     try {
+      const filterColumn = selectedColumnToFilter?.PropertyName
+        ? table.Columns.find((c) => c.PropertyName === selectedColumnToFilter.PropertyName)
+        : undefined;
+      const filterColumnIndex = filterColumn ? table.Columns.indexOf(filterColumn) : -1;
+
       return (
-        <div id={id} className={`oph-table-container-root ${className}`}>
-          <div
-            className="oph-table-scroller"
-            ref={topScrollRef}
-            onScroll={() => onTopScroll()}
-          >
-            <div className="oph-table-scroller-bar"></div>
+        <>
+          <div id={id} ref={tableRootRef} className={`oph-table-container-root ${className}`}>
+            <div className="oph-table-scroller" ref={topScrollRef} onScroll={() => onTopScroll()}>
+              <div className="oph-table-scroller-bar"></div>
+            </div>
+            <div
+              className={`oph-table-container ${isHeaderSticky ? "sticky-header" : ""}`}
+              ref={containerRef}
+              onScroll={() => onTableScroll()}
+            >
+              <table className={`oph-table`} border={1}>
+                <thead className={`oph-table-header  ${isHeaderSticky ? "sticky-header" : ""}`}>
+                  {renderColumns()}
+                </thead>
+                <tbody className="oph-table-body">
+                  {renderRows()}
+                  {renderColumnData()}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div
-            className={`oph-table-container ${
-              isHeaderSticky ? "sticky-header" : ""
-            }`}
-            ref={containerRef}
-            onScroll={() => onTableScroll()}
-          >
-            <table className={`oph-table`} border={1}>
-              <thead
-                className={`oph-table-header  ${
-                  isHeaderSticky ? "sticky-header" : ""
-                }`}
+          {selectedColumnToFilter?.PropertyName &&
+            filterModalPosition &&
+            filterColumn &&
+            createPortal(
+              <div
+                className="oph-table-filter-portal"
+                style={{
+                  position: "fixed",
+                  top: filterModalPosition.top,
+                  left: filterModalPosition.left,
+                  zIndex: 9999
+                }}
               >
-                {renderColumns()}
-              </thead>
-              <tbody className="oph-table-body">
-                {renderRows()}
-                {renderColumnData()}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                {showFilterModal(selectedColumnToFilter, filterColumnIndex)}
+              </div>,
+              tableRootRef.current ?? document.body
+            )}
+        </>
       );
     } catch (error) {
       console.error(error);
@@ -1207,7 +997,13 @@ var tableProps: {
   columnData?: any;
   isHeaderSticky?: boolean;
   listener?: {
-    canClickCell?: (e: any | undefined, row: any, column: TableColumnClass | undefined, rowIndex: number, columnIndex: number) => Promise<boolean>;
+    canClickCell?: (
+      e: any | undefined,
+      row: any,
+      column: TableColumnClass | undefined,
+      rowIndex: number,
+      columnIndex: number
+    ) => Promise<boolean>;
     onCellClick?: Function;
     // onRowClick?: Function;
     renderCellValue?: Function;
