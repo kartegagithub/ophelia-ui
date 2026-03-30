@@ -189,21 +189,43 @@ const Table: React.FC<TableProps> = React.memo(
       recalculateHeight();
     }, [selectedColumnToFilter, editingCell]);
 
+    const updateFilterModalPosition = () => {
+      if (!filterThRef.current) return;
+      const rect = filterThRef.current.getBoundingClientRect();
+      const dropdownWidth = 225;
+      let left = rect.left + 12;
+      if (left + dropdownWidth > window.innerWidth - 40) {
+        left = window.innerWidth - dropdownWidth - 40;
+      }
+      const root = tableRootRef.current;
+      if (root) {
+        const rootRect = root.getBoundingClientRect();
+        setFilterModalPosition({
+          top: rect.bottom + 50 - rootRect.top,
+          left: left - rootRect.left
+        });
+      } else {
+        setFilterModalPosition({ top: rect.bottom + 50, left });
+      }
+    };
+
     useLayoutEffect(() => {
       if (!selectedColumnToFilter?.PropertyName) {
         setFilterModalPosition(null);
         return;
       }
-      if (filterThRef.current) {
-        const rect = filterThRef.current.getBoundingClientRect();
-        const dropdownWidth = 225;
-        let left = rect.left + 12;
-        if (left + dropdownWidth > window.innerWidth - 40) {
-          left = window.innerWidth - dropdownWidth - 40;
-        }
-        setFilterModalPosition({ top: rect.bottom + 4, left });
-      }
-    }, [selectedColumnToFilter]);
+      updateFilterModalPosition();
+    }, [selectedColumnToFilter?.PropertyName]);
+
+    useEffect(() => {
+      if (!selectedColumnToFilter?.PropertyName) return;
+      window.addEventListener("scroll", updateFilterModalPosition, true);
+      window.addEventListener("resize", updateFilterModalPosition);
+      return () => {
+        window.removeEventListener("scroll", updateFilterModalPosition, true);
+        window.removeEventListener("resize", updateFilterModalPosition);
+      };
+    }, [selectedColumnToFilter?.PropertyName]);
 
     useEffect(() => {
       onTableScroll();
@@ -945,10 +967,10 @@ const Table: React.FC<TableProps> = React.memo(
               <div
                 className="oph-table-filter-portal"
                 style={{
-                  position: "fixed",
+                  position: tableRootRef.current ? "absolute" : "fixed",
                   top: filterModalPosition.top,
                   left: filterModalPosition.left,
-                  zIndex: 9999
+                  zIndex: 10
                 }}
               >
                 {showFilterModal(selectedColumnToFilter, filterColumnIndex)}
