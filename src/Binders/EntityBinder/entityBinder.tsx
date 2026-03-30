@@ -63,7 +63,7 @@ export default class EntityBinder<P> extends React.Component<
   AfterSaveAction: "BackToList" | "PreviousPage" | "RefreshData" = "RefreshData"
   RefreshDataOnLoad: boolean = false;
   PreviousStateData: any;
-
+  LanguageSelectionType: "dropdown" | "buttons" = "dropdown";
   get uniqueKeyName(): string {
     return this.Options.UniqueKeyName ?? "id";
   }
@@ -171,7 +171,7 @@ export default class EntityBinder<P> extends React.Component<
   }
   useI18NLanguageSelection(){
     this.UseI18n = true; 
-    var props = {id: "selectedLanguageID", labelVisible: false, text: this.props.AppClient?.Translate("SelectedLanguageID"), name: "selectedLanguageID", value: this.state.languageID, type: "selectbox", switchbox: true, options: this.Languages, displayProp: "name", valueProp: "id"}
+    var props = {id: "selectedLanguageID", labelVisible: false, text: this.props.AppClient?.Translate("SelectedLanguageID"), name: "selectedLanguageID", value: this.state.languageID, type: "selectbox", switchbox: this.LanguageSelectionType === "buttons" || this.Languages?.length > 3, options: this.Languages, displayProp: "name", valueProp: "id"}
     return <InputField key={this.Entity + "-field-" + props.name} {...props} listener={this}/>
   }
   getAllowedFileExtensions(name: string){
