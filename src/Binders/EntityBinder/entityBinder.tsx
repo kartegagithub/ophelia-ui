@@ -169,9 +169,9 @@ export default class EntityBinder<P> extends React.Component<
   async ImageUploadHandler(fileName: string, size: number, buffer: ArrayBuffer, base64: string | undefined){
     return undefined
   }
-  useI18NLanguageSelection(){
+  useI18NLanguageSelection(initialProps: any = { }){
     this.UseI18n = true; 
-    var props = {id: "selectedLanguageID", labelVisible: false, text: this.props.AppClient?.Translate("SelectedLanguageID"), name: "selectedLanguageID", value: this.state.languageID, type: "selectbox", switchbox: this.LanguageSelectionType === "buttons" || this.Languages?.length > 3, options: this.Languages, displayProp: "name", valueProp: "id"}
+    var props = {...{id: "selectedLanguageID", labelVisible: false, text: this.props.AppClient?.Translate("SelectedLanguageID"), name: "selectedLanguageID", value: this.state.languageID, type: "selectbox", switchbox: this.LanguageSelectionType === "buttons" || this.Languages?.length <= 3, options: this.Languages, displayProp: "name", valueProp: "id"}, ...initialProps};
     return <InputField key={this.Entity + "-field-" + props.name} {...props} listener={this}/>
   }
   getAllowedFileExtensions(name: string){
