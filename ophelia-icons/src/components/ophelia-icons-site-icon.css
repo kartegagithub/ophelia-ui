@@ -268,3 +268,9 @@
 .pe-icon-twitter::before { content: "\EAF5"; }
 .pe-icon-whatsapp::before { content: "\EAF6"; }
 .pe-icon-analytics::before { content: "\EAF7"; }
+.pe-icon-effect::before { content: "\EAF8"; }
+.pe-icon-rocket::before { content: "\EAF9"; }
+.pe-icon-credit-card::before { content: "\EAFA"; }
+.pe-icon-effect3star::before { content: "\EAFB"; }
+.pe-icon-master-card::before { content: "\EAFC"; }
+.pe-icon-trending-up::before { content: "\EAFD"; }
