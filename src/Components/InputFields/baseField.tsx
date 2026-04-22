@@ -13,6 +13,7 @@ import { FileData } from "../../Models";
 export default class BaseField<P> extends React.Component<
   P & {
     key?: any;
+    rerenderKey?: any;
     id: string;
     name: string;
     lowValueName?: string;
@@ -139,7 +140,9 @@ export default class BaseField<P> extends React.Component<
               : ""
           } ${this.state.hasValidationError ? "error" : ""}`}
         >
-          {this.renderInput()}
+          <React.Fragment key={`${this.props.languageKey}_${this.props.name}_${this.state.rerenderCount}`}>
+            {this.renderInput()}
+          </React.Fragment>
           {this.props.labelVisible != false && this.props.text && (
             <label
               htmlFor={this.props.name}
@@ -458,6 +461,7 @@ export default class BaseField<P> extends React.Component<
   GetProps() {
     var otherProps = (({
       key,
+      rerenderKey,
       rules,
       required,
       text,

@@ -8,7 +8,6 @@ export { default as DropdownFilterboxField } from "./dropdownFilterboxField";
 export { default as EmailField } from "./emailField";
 export { default as EnumSelectBoxField } from "./enumSelectBoxField";
 export { default as FileField } from "./fileField";
-export { default as FilterBoxField } from "./filterBoxField";
 export { default as ImageField } from "./imageField";
 export { default as InputField } from "./inputField";
 export { default as LabelField } from "./labelField";
