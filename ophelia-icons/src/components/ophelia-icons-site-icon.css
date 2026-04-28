@@ -274,6 +274,7 @@
 .pe-icon-effect3star::before { content: "\EAFB"; }
 .pe-icon-master-card::before { content: "\EAFC"; }
 .pe-icon-trending-up::before { content: "\EAFD"; }
+.pe-icon-tag::before { content: "\EAFE"; }
 .pe-icon-call-end::before { content: "\EB00"; }
 .pe-icon-video-off::before { content: "\EB01"; }
 .pe-icon-screen-share::before { content: "\EB02"; }

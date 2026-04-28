@@ -251,6 +251,7 @@ export { default as CreditCardIcon } from "./CreditCardIcon";
 export { default as Effect3starIcon } from "./Effect3starIcon";
 export { default as MasterCardIcon } from "./MasterCardIcon";
 export { default as TrendingUpIcon } from "./TrendingUpIcon";
+export { default as TagIcon } from "./TagIcon";
 export { default as CallEndIcon } from "./CallEndIcon";
 export { default as VideoOffIcon } from "./VideoOffIcon";
 export { default as ScreenShareIcon } from "./ScreenShareIcon";
