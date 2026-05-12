@@ -6,12 +6,23 @@ import * as Icons from "../../components";
 
 const allIcons = Object.entries(Icons).filter(([, value]) => typeof value === "function");
 
+/** Kartega Kg* SVGs are fill silhouettes; outlined/linear uses root fill=none and looks washed out. */
+function effectivePreviewVariant(
+  iconName: string,
+  v: "filled" | "outlined" | "duotone" | "linear"
+): "filled" | "outlined" | "duotone" | "linear" {
+  if (iconName.startsWith("Kg") && (v === "outlined" || v === "linear")) return "filled";
+  return v;
+}
+
 export default function IconsPreviewPage() {
   const [query, setQuery] = useState("");
   const [size, setSize] = useState<number>(32);
   const [color, setColor] = useState<string>("#262626");
   const [secondaryColor, setSecondaryColor] = useState<string>("#F62829");
-  const [variant, setVariant] = useState<"filled" | "outlined" | "duotone" | "linear">("outlined");
+  // Default filled: stroke-style Ophelia icons still read color via currentColor; Kartega (Kg*)
+  // glyphs are fill-based silhouettes and look faint/wrong under outlined/linear (fill none + stroke).
+  const [variant, setVariant] = useState<"filled" | "outlined" | "duotone" | "linear">("filled");
   const [strokeWidth, setStrokeWidth] = useState<number>(1.5);
   const [rotate, setRotate] = useState<number>(0);
   const [mirrored, setMirrored] = useState<boolean>(false);
@@ -38,13 +49,14 @@ export default function IconsPreviewPage() {
   const copyToClipboard = async (iconName: string) => {
     // className sadece iconClassName doluysa eklenir (kullanıcının yazdığı gelir, text-[color] otomatik eklenmez)
     const classLine = iconClassName.trim() ? `className="${iconClassName.trim()}"` : undefined;
+    const iconVariant = effectivePreviewVariant(iconName, variant);
 
     const lines: string[] = [
       `<${iconName}`,
       `  size={${size}}`,
       `  color="${color}"`,
-      `  variant="${variant}"`,
-      (variant === 'outlined' || variant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
+      `  variant="${iconVariant}"`,
+      (iconVariant === 'outlined' || iconVariant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
       rotate !== 0 ? `  rotate={${rotate}}` : undefined,
       mirrored ? `  mirrored={${mirrored}}` : undefined,
       flipped ? `  flipped={${flipped}}` : undefined,
@@ -285,8 +297,10 @@ export default function IconsPreviewPage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {filtered.map(([name, Comp]) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {filtered.map(([name, Comp]) => {
+            const effectiveVariant = effectivePreviewVariant(name, variant);
+            return (
             <div
               key={name}
               className="group border border-gray-200 rounded-lg p-4 flex flex-col items-center gap-3 bg-white hover:shadow-lg transition-all duration-200 relative"
@@ -298,7 +312,7 @@ export default function IconsPreviewPage() {
                   size={size} 
                   color={undefined}
                   secondaryColor={variant === 'duotone' ? secondaryColor : undefined}
-                  variant={variant}
+                  variant={effectiveVariant}
                   strokeWidth={strokeWidth}
                   rotate={rotate}
                   mirrored={mirrored}
@@ -335,12 +349,13 @@ export default function IconsPreviewPage() {
                   <pre className="whitespace-pre-wrap">
 {(() => {
   const classLine = iconClassName.trim() ? `  className="${iconClassName.trim()}"` : undefined;
+  const iconVariant = effectivePreviewVariant(name, variant);
   const lines = [
     `<${name}`,
     `  size={${size}}`,
     `  color="${color}"`,
-    `  variant="${variant}"`,
-    (variant === 'outlined' || variant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
+    `  variant="${iconVariant}"`,
+    (iconVariant === 'outlined' || iconVariant === 'linear') && strokeWidth !== 1.5 ? `  strokeWidth={${strokeWidth}}` : undefined,
     rotate !== 0 ? `  rotate={${rotate}}` : undefined,
     mirrored ? `  mirrored={${mirrored}}` : undefined,
     flipped ? `  flipped={${flipped}}` : undefined,
@@ -359,7 +374,8 @@ export default function IconsPreviewPage() {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {filtered.length === 0 && (

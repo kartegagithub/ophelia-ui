@@ -88,6 +88,10 @@ temp/
 *.swo
 *~
 
+# Local SVG audit output (npm run audit:svgs)
+svg-audit-report.json
+svg-audit-report.md
+
 # OS generated files
 .DS_Store
 .DS_Store?

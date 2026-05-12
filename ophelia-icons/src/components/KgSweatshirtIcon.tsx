@@ -1,0 +1,161 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const KgSweatshirtIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className,
+  style,
+  ...rest
+}) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 1024 1024"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={combinedClassName}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...restProps}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-KgSweatshirtIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-KgSweatshirtIcon)` : undefined}>
+        <path d="M520.003368 929.684211l-259.584-0.026948c-4.149895 0-8.421053 0.269474-12.422736-0.997052l-0.794948-0.269474c-17.165474-5.362526-26.812632-19.146105-26.88-36.554105l-0.053895-54.056421c-1.549474-1.886316-4.338526-2.479158-6.413473-3.664843-27.971368-15.912421-41.418105-86.635789-45.581474-118.366315l-2.56-19.914106c-0.471579-4.675368-0.282947-10.509474-1.603368-14.955789l-0.323369-1.172211c-1.104842-5.672421-0.848842-12.045474-0.91621-17.81221l-1.158737-43.52c-0.148211-7.329684 0.458105-14.524632 0.673684-21.827369l1.064421-31.016421 8.111158-68.958315c7.612632-54.258526 20.439579-109.285053 40.515368-160.336843 24.077474-61.224421 45.204211-88.117895 109.837474-101.146947-37.376-85.827368 31.717053-134.359579 110.255158-140.314947 8.892632-0.673684 18.068211-0.269474 27.001263-0.296421L507.930947 94.315789l33.118316 0.134737c13.002105 0.134737 26.314105-0.538947 39.27579 0.377263 47.669895 3.314526 110.699789 14.645895 126.073263 67.166316 0.714105 2.452211 0.943158 5.12 1.724631 7.504842l0.269474 0.794948c5.672421 17.866105-5.470316 45.729684-13.487158 61.143579 16.842105 7.814737 35.907368 10.563368 52.884211 18.526315 24.144842 11.317895 40.434526 33.886316 49.286737 58.610527l31.191578 86.433684 4.608 16.545684c1.010526 5.335579 2.869895 10.671158 4.096 15.993263l8.084211 36.513685c2.964211 13.985684 5.861053 28.416 7.841684 42.563368l8.232421 72.313263c4.554105 62.989474-2.479158 219.930947-48.464842 253.655579-9.162105 6.709895-9.593263 1.387789-9.593263 13.702737v34.533053c-0.013474 6.265263 1.104842 15.494737-1.024 21.355789-10.320842 28.456421-28.833684 27.486316-56.185263 27.486316H520.003368zM495.966316 129.886316l-40.488421 0.040421c-33.953684 0.053895-69.699368 1.859368-95.299369 27.54021-41.849263 41.997474 9.067789 99.610947 53.221053 110.874948 9.943579 2.533053 19.819789 4.715789 30.086737 4.931368l79.939368 0.040421c45.541053 0.094316 89.546105-3.799579 124.01179-38.305684 23.525053-23.552 42.361263-52.911158 14.282105-80.64-11.156211-11.021474-25.923368-17.030737-41.081263-20.156632l-17.946948-2.829473c-5.349053-0.916211-11.183158-0.943158-16.599579-1.13179l-90.138947-0.363789z m174.255158 130.910316c-37.995789 33.562947-71.100632 44.153263-119.821474 46.012631l0.444632 0.538948c9.431579 11.587368 38.669474 63.636211 39.504842 72.582736 1.131789 12.072421 0.161684 25.020632 0.175158 37.187369l0.040421 37.914947c0 5.605053 1.185684 14.874947-0.848842 19.994948-6.238316 15.791158-24.212211 15.629474-31.797895 1.832421l-0.390737-0.673685c-2.586947-4.810105-1.253053-15.683368-1.253053-21.153684l0.067369-47.023158c0-8.016842 2.519579-21.517474-1.994106-28.469894l-32.053894-53.382737c-3.637895-5.834105-7.181474-12.314947-11.398737-17.717895l-27.459369 0.673684c2.021053 2.708211 4.109474 7.060211 5.699369 10.105263l12.193684 22.501053c3.907368 6.871579 8.488421 13.743158 10.85979 21.315368l0.390736 0.943158c2.991158 7.760842 2.115368 110.08 0.512 113.178948a10.644211 10.644211 0 0 1-2.101894 2.667789l-0.700632 0.727579c-8.825263 9.027368-20.156632 8.259368-27.486316-2.290526l-0.458105-0.660211c-4.338526-6.305684-2.088421-15.939368-2.074947-23.161263l-0.026948-51.186526c-0.013474-8.515368 2.371368-24.064-1.832421-31.501474l-36.513684-64.431158c-35.139368-2.452211-63.838316-11.749053-90.058105-35.22021-6.467368-5.793684-6.063158-9.189053-13.756632-6.642527l-14.497684 5.079579c-26.529684 8.677053-40.474947 8.596211-57.276632 32.458106-24.252632 34.438737-42.132211 100.298105-50.970947 141.258105l-12.422737 73.027368c-1.293474 9.391158-3.260632 18.728421-3.84 28.213895l-2.45221 29.264842 0.363789 96.943158c1.562947 27.755789 14.416842 117.396211 33.145263 130.96421l58.125474 0.188632-13.891368-361.795368c-0.309895-18.283789 18.324211-23.080421 27.594105-13.217685 6.844632 7.275789 6.117053 18.755368 7.073684 27.971369l6.170947 83.725474 0.431158 36.149894c0.107789 4.513684 0.875789 9.027368 1.212632 13.541053l2.694737 75.115789 0.862316 64.983579c0.875789 18.229895 0.026947 39.262316 1.967157 56.239158l79.508211-5.658947 41.970526-0.242526c4.203789-0.094316 8.353684-0.808421 12.570948-0.889264h83.482947l107.627789 3.961264 9.256422 1.104842c13.635368 0.983579 27.176421 0.336842 40.825263 1.751579 0.202105-17.758316 2.277053-35.381895 3.408842-53.086316 1.455158-22.703158 2.128842-44.826947 3.018105-67.503158l3.233684-78.026105V535.04c0-11.681684-0.296421-23.471158 0.970106-35.112421l4.176842-43.034947c0.794947-6.965895 1.131789-15.804632 3.664842-22.339369 4.594526-11.816421 22.177684-16.357053 28.725894-3.907368l0.444632 0.848842c3.422316 6.494316 2.371368 13.042526 1.603368 20.048842l-3.691789 32.444632c-0.471579 4.217263-1.374316 8.286316-1.536 12.544l-0.309895 94.073263c-0.067368 6.898526-1.320421 13.554526-1.414737 20.453052l-0.377263 36.931369-7.868631 127.555368c-0.835368 8.933053-1.765053 18.270316-1.455158 27.257263 6.925474 0 62.073263 0.754526 63.690105-0.040421 2.088421-1.010526 3.260632-4.244211 4.392421-6.063158 23.471158-38.170947 27.297684-102.103579 28.793263-147.806315l-0.336842-74.752c-2.613895-53.140211-17.434947-125.453474-32.606316-175.21179L772.042105 337.381053c-20.587789-51.873684-23.04-52.453053-75.398737-68.742737-8.650105-2.694737-17.569684-5.888-26.408421-7.814737zM438.029474 814.012632l-113.785263 4.810105 0.202105 24.643368c0.134737 10.105263 0.997053 40.892632 3.233684 50.566737l254.490947 0.013474 107.439158 0.013473 4.837053-75.15621c-5.861053-0.983579-12.166737-0.565895-18.122105-0.592842l-38.885053-0.175158c-5.914947-0.229053-11.776-1.347368-17.677474-1.792l-42.576842-2.15579-139.15621-0.175157z m-182.581895 24.306526c-0.080842 5.200842-0.161684 54.123789 0.646737 55.70021l37.133473 0.013474-3.354947-55.646316-34.425263-0.067368z m472.589474 0l-2.182737 31.272421c-0.444632 8.043789-1.347368 16.276211-1.522527 24.266105l42.199579 0.188632 1.751579-55.727158h-40.245894z" />
+      </g>
+    </svg>
+  );
+};
+
+export default KgSweatshirtIcon;

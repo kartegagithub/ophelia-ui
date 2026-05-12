@@ -18,6 +18,8 @@ try {
 const SVG_DIR = "src/icons";
 const DIST_DIR = "src/components";
 const FONT_NAME = "ophelia-icons-site-icon";
+/** Sadece React TSX üret (font/CSS/preview ve fixSVGs atlanır — hızlı iterasyon) */
+const COMPONENTS_ONLY = process.argv.includes("--components-only");
 
 /* ----------------------------- 🧩 1. SVG Fixleme ----------------------------- */
 function toPascalCase(name) {
@@ -421,6 +423,20 @@ const ${compName}: React.FC<IconProps> = ({
   
   const w = width ?? size;
   const h = height ?? size;
+
+  /** strokeWidth prop ≈ ekranda px kalınlığı (varsayılan ikon ~24px); viewBox büyük gliflerde user-space stroke ince kalmasın diye ölçeklenir */
+  const parseIconDim = (v: IconSize): number => {
+    if (typeof v === "number" && !Number.isNaN(v)) return v;
+    const n = parseFloat(String(v));
+    return Number.isFinite(n) ? n : 24;
+  };
+  const rw = parseIconDim(w as IconSize);
+  const rh = parseIconDim(h as IconSize);
+  const renderDim = Math.max(Math.min(rw, rh), 0.001);
+  const vbMaxDim = (() => {
+    const p = "${viewBox}".trim().split(/[\\s,]+/).map(Number);
+    return Math.max(p[2] ?? 24, p[3] ?? 24, 1);
+  })();
   
   // Transform hesaplama
   const transforms = [];
@@ -458,6 +474,14 @@ const ${compName}: React.FC<IconProps> = ({
   
   const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
   const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+
+  const baseStrokeNum =
+    typeof strokeWidth === "number"
+      ? strokeWidth
+      : parseFloat(String(strokeWidth));
+  const baseStroke = Number.isFinite(baseStrokeNum) ? baseStrokeNum : 1.5;
+  const scaledStrokeWidth =
+    isOutlined || isLinear ? (baseStroke * vbMaxDim) / renderDim : strokeWidth;
   
   return (
     <svg
@@ -466,7 +490,7 @@ const ${compName}: React.FC<IconProps> = ({
       viewBox="${viewBox}"
       fill={fillValue}
       stroke={strokeValue}
-      strokeWidth={strokeWidth}
+      strokeWidth={scaledStrokeWidth}
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
       xmlns="http://www.w3.org/2000/svg"
@@ -650,10 +674,14 @@ function generatePreviewHTML() {
 /* --------------------------- 🚀 6. Build Çalıştır ----------------------------- */
 (async () => {
   console.log("🔧 Starting Ophelia Icons Font build...\n");
-  fixSVGs();
-  await generateFont();
-  generateCSS();
-  generatePreviewHTML();
+  if (COMPONENTS_ONLY) {
+    console.log("⚡ --components-only: fixSVGs, font, CSS ve preview atlanıyor.\n");
+  } else {
+    fixSVGs();
+    await generateFont();
+    generateCSS();
+    generatePreviewHTML();
+  }
   generateReactComponents();
   console.log("\n✅ All done! Font, CSS, and Preview ready in dist folder.");
 })();

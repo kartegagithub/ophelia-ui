@@ -1,0 +1,161 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const KgWifiIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className,
+  style,
+  ...rest
+}) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 1024 1024"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={combinedClassName}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...restProps}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-KgWifiIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-KgWifiIcon)` : undefined}>
+        <path d="M136.541298 972.800341c-28.193945 0-52.291918-10.035133-72.362184-30.037133A98.644676 98.644676 0 0 1 34.14198 870.401024v-204.798635c0-28.125679 10.035133-52.291918 30.037134-72.362184 20.070266-20.002 44.168239-30.037133 72.362184-30.037133H648.537884v-204.798635h102.399318v204.798635H853.336519c28.125679 0 52.291918 10.035133 72.362184 30.037133 20.002 20.070266 30.037133 44.236505 30.037133 72.362184v204.798635c0 28.125679-10.035133 52.291918-30.037133 72.362184-20.070266 20.002-44.236505 30.037133-72.362184 30.037133H136.541298m0-102.399317H853.336519v-204.798635H136.541298v204.798635M238.940615 819.201365c14.472437 0 26.623823-4.915167 36.454157-14.745501a49.56127 49.56127 0 0 0 14.745502-36.454157 49.56127 49.56127 0 0 0-14.745502-36.454157A49.56127 49.56127 0 0 0 238.940615 716.802048a49.56127 49.56127 0 0 0-36.454157 14.745502 49.56127 49.56127 0 0 0-14.745502 36.454157c0 14.540703 4.915167 26.623823 14.745502 36.454157A49.56127 49.56127 0 0 0 238.940615 819.201365m179.198805 0c14.540703 0 26.623823-4.915167 36.454157-14.745501a49.56127 49.56127 0 0 0 14.745502-36.454157 49.56127 49.56127 0 0 0-14.745502-36.454157 49.56127 49.56127 0 0 0-36.454157-14.745502 49.56127 49.56127 0 0 0-36.454157 14.745502 49.56127 49.56127 0 0 0-14.745501 36.454157c0 14.540703 4.915167 26.623823 14.745501 36.454157a49.56127 49.56127 0 0 0 36.454157 14.745501m179.198806 0c14.540703 0 26.623823-4.915167 36.454157-14.745501A49.56127 49.56127 0 0 0 648.537884 768.001707a49.56127 49.56127 0 0 0-14.745501-36.454157 49.56127 49.56127 0 0 0-36.454157-14.745502 49.56127 49.56127 0 0 0-36.454157 14.745502 49.56127 49.56127 0 0 0-14.745502 36.454157c0 14.540703 4.915167 26.623823 14.745502 36.454157A49.56127 49.56127 0 0 0 597.338226 819.201365m12.834048-499.230805L535.898635 245.765188c22.186519-20.479863 46.967154-36.727222 74.273639-48.605542 27.306485-11.946587 57.138819-17.954014 89.565269-17.954014 32.42645 0 62.258785 5.93916 89.633536 17.954014 27.306485 11.946587 52.018853 28.125679 74.205372 48.605542l-74.273638 74.205372a137.624683 137.624683 0 0 0-40.277065-28.125679c-14.9503-6.826621-31.402457-10.239932-49.288205-10.239932-17.885747 0-34.337904 3.413311-49.288205 10.239932-14.9503 6.826621-28.330478 16.179092-40.277064 28.125679M482.104861 192.03968l-71.679522-71.679522A415.331631 415.331631 0 0 1 541.086867 32.091946 396.626689 396.626689 0 0 1 699.737543 0.006827c56.319625 0 109.225938 10.649529 158.718942 32.016853a415.331631 415.331631 0 0 1 130.593263 88.268211l-71.679522 71.679523a307.06142 307.06142 0 0 0-97.962014-65.876895A302.55585 302.55585 0 0 0 699.737543 102.406144c-42.666382 0-82.602116 7.918881-119.670669 23.688375a307.06142 307.06142 0 0 0-97.893747 65.945161M136.541298 870.401024v-204.798635 204.798635" />
+      </g>
+    </svg>
+  );
+};
+
+export default KgWifiIcon;

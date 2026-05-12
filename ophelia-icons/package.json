@@ -22,6 +22,9 @@
   "scripts": {
     "build": "rimraf dist && npm run build:icons && npm run build:esm && npm run build:cjs && tsc --build --clean",
     "build:icons": "node build-icons.js",
+    "build:icons:components": "node build-icons.js --components-only",
+    "audit:svgs": "node scripts/audit-svgs.js",
+    "audit:kg-svgs": "node scripts/audit-svgs.js --kg-only",
     "dev": "next dev",
     "preview": "next dev",
     "prepublishOnly": "npm run build",

@@ -1,0 +1,161 @@
+"use client";
+import React from "react";
+
+export type IconSize = number | string;
+
+export type IconVariant = 'filled' | 'outlined' | 'duotone' | 'linear';
+
+export interface IconProps extends React.SVGAttributes<SVGElement> {
+  // Boyut
+  size?: IconSize;
+  width?: IconSize;
+  height?: IconSize;
+  
+  // Renk ve stil
+  color?: string;
+  secondaryColor?: string; // duotone için
+  variant?: IconVariant;
+  
+  // Stroke ayarları
+  strokeWidth?: number | string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  
+  // Transformasyon
+  rotate?: number;
+  mirrored?: boolean; // yatay çevirme
+  flipped?: boolean; // dikey çevirme
+  
+  // Animasyon
+  spin?: boolean;
+  pulse?: boolean;
+  bounce?: boolean;
+  
+  // Erişilebilirlik
+  title?: string;
+  description?: string;
+  
+  // Görünürlük
+  visible?: boolean;
+  opacity?: number;
+}
+
+const KgBabyCarriageIcon: React.FC<IconProps> = ({
+  // Boyut
+  size = 24,
+  width,
+  height,
+  
+  // Renk ve stil
+  color,
+  secondaryColor,
+  variant = 'filled',
+  
+  // Stroke ayarları
+  strokeWidth = 1.5,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  
+  // Transformasyon
+  rotate = 0,
+  mirrored = false,
+  flipped = false,
+  
+  // Animasyon
+  spin = false,
+  pulse = false,
+  bounce = false,
+  
+  // Erişilebilirlik
+  title,
+  description,
+  
+  // Görünürlük
+  visible = true,
+  opacity,
+  
+  className,
+  style,
+  ...rest
+}) => {
+  // rest içindeki className'i çıkar (eğer varsa override eder)
+  const restClassName = 'className' in rest ? (rest as any).className : undefined;
+  const restProps = { ...rest } as any;
+  delete restProps.className;
+  const finalClassName = restClassName || className;
+  
+  const w = width ?? size;
+  const h = height ?? size;
+  
+  // Transform hesaplama
+  const transforms = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (mirrored) transforms.push('scaleX(-1)');
+  if (flipped) transforms.push('scaleY(-1)');
+  
+  // Animasyon sınıfları
+  const animationClasses = [];
+  if (spin) animationClasses.push('animate-spin');
+  if (pulse) animationClasses.push('animate-pulse');
+  if (bounce) animationClasses.push('animate-bounce');
+  
+  // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
+  // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
+  const colorClasses = [];
+  if (color) {
+    colorClasses.push(`text-[${color}]`);
+  }
+  
+  // className'i birleştir (boş string'leri filtrele)
+  const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
+  
+  const styles: React.CSSProperties = {
+    // color artık className ile yönetiliyor, inline style'dan kaldırıldı
+    opacity: visible ? opacity : 0,
+    transform: transforms.length ? transforms.join(' ') : undefined,
+    ...style,
+  };
+
+  // Variant'a göre fill/stroke ayarları
+  const isOutlined = variant === 'outlined';
+  const isDuotone = variant === 'duotone';
+  const isLinear = variant === 'linear';
+  
+  const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
+  const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+  
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 1024 1024"
+      fill={fillValue}
+      stroke={strokeValue}
+      strokeWidth={strokeWidth}
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      xmlns="http://www.w3.org/2000/svg"
+      className={combinedClassName}
+      style={styles}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : "presentation"}
+      {...restProps}
+    >
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {isDuotone && secondaryColor && (
+        <defs>
+          <linearGradient id="duotone-KgBabyCarriageIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={color || 'currentColor'} />
+            <stop offset="100%" stopColor={secondaryColor} />
+          </linearGradient>
+        </defs>
+      )}
+      <g fill={isDuotone ? `url(#duotone-KgBabyCarriageIcon)` : undefined}>
+        <path d="M512 384H0.2C5.4 235.8 82.6 105.8 198 28.2c26.6-17.8 61.6-8.6 79.8 17.6L512 384z m256-64c0-70.6 57.4-128 128-128h64c35.4 0 64 28.6 64 64s-28.6 64-64 64h-64v128c0 50.4-11.6 100.4-34 147s-55.6 89-97.2 124.6-91 64-145.4 83.2S506.8 832 448 832s-117-10-171.4-29.2-103.8-47.6-145.4-83.2-74.6-78-97.2-124.6S0 498.4 0 448h768v-128zM160 832a96 96 0 1 1 0 192 96 96 0 1 1 0-192z m480 96a96 96 0 1 1 192 0 96 96 0 1 1-192 0z" />
+      </g>
+    </svg>
+  );
+};
+
+export default KgBabyCarriageIcon;
