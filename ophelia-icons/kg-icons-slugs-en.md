@@ -1,7 +1,7 @@
 # KG ikonları – Unicode ve İngilizce slug
 
 
-Toplam: **256**
+Toplam: **251**
 
 
 | Unicode | Slug (İngilizce dosya adı) | Dosya |
@@ -154,11 +154,6 @@ Toplam: **256**
 | uEB94 | `info-fill` | `uEB94-kg-info-fill.svg` |
 | uEB95 | `instagram` | `uEB95-kg-instagram.svg` |
 | uEB96 | `job` | `uEB96-kg-job.svg` |
-| uEB97 | `kartega` | `uEB97-kg-kartega.svg` |
-| uEB98 | `kartega-logo-color` | `uEB98-kg-kartega-logo-color.svg` |
-| uEB99 | `kartega-logo-white` | `uEB99-kg-kartega-logo-white.svg` |
-| uEB9A | `kartega-translate-logo` | `uEB9A-kg-kartega-translate-logo.svg` |
-| uEB9B | `kartega-symbol` | `uEB9B-kg-kartega-symbol.svg` |
 | uEB9C | `late_attendance` | `uEB9C-kg-late_attendance.svg` |
 | uEB9D | `light_rain` | `uEB9D-kg-light_rain.svg` |
 | uEB9E | `like_fill` | `uEB9E-kg-like_fill.svg` |

@@ -26,7 +26,6 @@ const SLUG_MAP = {
   guvenlik_gorevlisi: "security-guard",
   idari_isler: "administrative-affairs",
   ik: "hr",
-  kartega_icon: "kartega-symbol",
   odemelerim: "my-payments",
   organizasyon: "organizational-structure",
   profil: "profile",
