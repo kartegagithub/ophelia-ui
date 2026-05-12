@@ -10,31 +10,31 @@ export interface IconProps extends React.SVGAttributes<SVGElement> {
   size?: IconSize;
   width?: IconSize;
   height?: IconSize;
-  
+
   // Renk ve stil
   color?: string;
   secondaryColor?: string; // duotone için
   variant?: IconVariant;
-  
+
   // Stroke ayarları
   strokeWidth?: number | string;
   strokeLinecap?: 'butt' | 'round' | 'square';
   strokeLinejoin?: 'miter' | 'round' | 'bevel';
-  
+
   // Transformasyon
   rotate?: number;
   mirrored?: boolean; // yatay çevirme
   flipped?: boolean; // dikey çevirme
-  
+
   // Animasyon
   spin?: boolean;
   pulse?: boolean;
   bounce?: boolean;
-  
+
   // Erişilebilirlik
   title?: string;
   description?: string;
-  
+
   // Görünürlük
   visible?: boolean;
   opacity?: number;
@@ -45,35 +45,35 @@ const KgCertificationsIcon: React.FC<IconProps> = ({
   size = 24,
   width,
   height,
-  
+
   // Renk ve stil
   color,
   secondaryColor,
   variant = 'filled',
-  
+
   // Stroke ayarları
   strokeWidth = 1.5,
   strokeLinecap = 'round',
   strokeLinejoin = 'round',
-  
+
   // Transformasyon
   rotate = 0,
   mirrored = false,
   flipped = false,
-  
+
   // Animasyon
   spin = false,
   pulse = false,
   bounce = false,
-  
+
   // Erişilebilirlik
   title,
   description,
-  
+
   // Görünürlük
   visible = true,
   opacity,
-  
+
   className,
   style,
   ...rest
@@ -83,7 +83,7 @@ const KgCertificationsIcon: React.FC<IconProps> = ({
   const restProps = { ...rest } as any;
   delete restProps.className;
   const finalClassName = restClassName || className;
-  
+
   const w = width ?? size;
   const h = height ?? size;
 
@@ -100,29 +100,29 @@ const KgCertificationsIcon: React.FC<IconProps> = ({
     const p = "0 0 1072 1024".trim().split(/[\s,]+/).map(Number);
     return Math.max(p[2] ?? 24, p[3] ?? 24, 1);
   })();
-  
+
   // Transform hesaplama
   const transforms = [];
   if (rotate) transforms.push(`rotate(${rotate}deg)`);
   if (mirrored) transforms.push('scaleX(-1)');
   if (flipped) transforms.push('scaleY(-1)');
-  
+
   // Animasyon sınıfları
   const animationClasses = [];
   if (spin) animationClasses.push('animate-spin');
   if (pulse) animationClasses.push('animate-pulse');
   if (bounce) animationClasses.push('animate-bounce');
-  
+
   // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
   // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
   const colorClasses = [];
   if (color) {
     colorClasses.push(`text-[${color}]`);
   }
-  
+
   // className'i birleştir (boş string'leri filtrele)
   const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
-  
+
   const styles: React.CSSProperties = {
     // color artık className ile yönetiliyor, inline style'dan kaldırıldı
     opacity: visible ? opacity : 0,
@@ -134,7 +134,7 @@ const KgCertificationsIcon: React.FC<IconProps> = ({
   const isOutlined = variant === 'outlined';
   const isDuotone = variant === 'duotone';
   const isLinear = variant === 'linear';
-  
+
   const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
   const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
 
@@ -145,7 +145,7 @@ const KgCertificationsIcon: React.FC<IconProps> = ({
   const baseStroke = Number.isFinite(baseStrokeNum) ? baseStrokeNum : 1.5;
   const scaledStrokeWidth =
     isOutlined || isLinear ? (baseStroke * vbMaxDim) / renderDim : strokeWidth;
-  
+
   return (
     <svg
       width={w}

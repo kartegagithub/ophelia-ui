@@ -1,9 +1,9 @@
 /**
- * 🔤 Ophelia Icons Font Builder
- * 1️⃣ SVG'leri temizler (stroke → fill)
- * 2️⃣ Font & CSS üretir
- * 3️⃣ Otomatik HTML önizleme (preview.html) oluşturur
- */
+* 🔤 Ophelia Icons Font Builder
+* 1️⃣ SVG'leri temizler (stroke → fill)
+* 2️⃣ Font & CSS üretir
+* 3️⃣ Otomatik HTML önizleme (preview.html) oluşturur
+*/
 
 const webfont = require("webfont").default;
 const fs = require("fs");
@@ -20,6 +20,19 @@ const DIST_DIR = "src/components";
 const FONT_NAME = "ophelia-icons-site-icon";
 /** Sadece React TSX üret (font/CSS/preview ve fixSVGs atlanır — hızlı iterasyon) */
 const COMPONENTS_ONLY = process.argv.includes("--components-only");
+
+/** Windows: NTFS often keeps stale casing; TS1261 when index imports differ from directory entry only by case. */
+function ensureFsFilenameCaseWin32(expectedPath) {
+  if (process.platform !== "win32") return;
+  const dir = path.dirname(expectedPath);
+  const base = path.basename(expectedPath);
+  const actual = fs.readdirSync(dir).find((f) => f.toLowerCase() === base.toLowerCase());
+  if (actual && actual !== base) {
+    const tmp = path.join(dir, `.tmp-rename-${process.pid}-${Date.now()}${path.extname(base)}`);
+    fs.renameSync(path.join(dir, actual), tmp);
+    fs.renameSync(tmp, expectedPath);
+  }
+}
 
 /* ----------------------------- 🧩 1. SVG Fixleme ----------------------------- */
 function toPascalCase(name) {
@@ -320,9 +333,8 @@ function generateReactComponents() {
     parts.shift(); // unicode kısmını at
     const kebab = parts.join("-");
     if (!kebab) return;
-    let compName = toPascalCase(kebab) + "Icon";
-    // Windows/macOS case-insensitive FS + TS1261: "human-resources" slug must become HumanResources, not Humanresources
-    if (compName === "KgHumanresourcesIcon") compName = "KgHumanResourcesIcon";
+    const compName = toPascalCase(kebab) + "Icon";
+
 
     const svg = fs.readFileSync(path.join(SVG_DIR, file), "utf8");
     const vbMatch = svg.match(/viewBox="([^"]+)"/i);
@@ -349,31 +361,31 @@ export interface IconProps extends React.SVGAttributes<SVGElement> {
   size?: IconSize;
   width?: IconSize;
   height?: IconSize;
-  
+
   // Renk ve stil
   color?: string;
   secondaryColor?: string; // duotone için
   variant?: IconVariant;
-  
+
   // Stroke ayarları
   strokeWidth?: number | string;
   strokeLinecap?: 'butt' | 'round' | 'square';
   strokeLinejoin?: 'miter' | 'round' | 'bevel';
-  
+
   // Transformasyon
   rotate?: number;
   mirrored?: boolean; // yatay çevirme
   flipped?: boolean; // dikey çevirme
-  
+
   // Animasyon
   spin?: boolean;
   pulse?: boolean;
   bounce?: boolean;
-  
+
   // Erişilebilirlik
   title?: string;
   description?: string;
-  
+
   // Görünürlük
   visible?: boolean;
   opacity?: number;
@@ -384,35 +396,35 @@ const ${compName}: React.FC<IconProps> = ({
   size = 24,
   width,
   height,
-  
+
   // Renk ve stil
   color,
   secondaryColor,
   variant = 'filled',
-  
+
   // Stroke ayarları
   strokeWidth = 1.5,
   strokeLinecap = 'round',
   strokeLinejoin = 'round',
-  
+
   // Transformasyon
   rotate = 0,
   mirrored = false,
   flipped = false,
-  
+
   // Animasyon
   spin = false,
   pulse = false,
   bounce = false,
-  
+
   // Erişilebilirlik
   title,
   description,
-  
+
   // Görünürlük
   visible = true,
   opacity,
-  
+
   className,
   style,
   ...rest
@@ -422,7 +434,7 @@ const ${compName}: React.FC<IconProps> = ({
   const restProps = { ...rest } as any;
   delete restProps.className;
   const finalClassName = restClassName || className;
-  
+
   const w = width ?? size;
   const h = height ?? size;
 
@@ -439,29 +451,29 @@ const ${compName}: React.FC<IconProps> = ({
     const p = "${viewBox}".trim().split(/[\\s,]+/).map(Number);
     return Math.max(p[2] ?? 24, p[3] ?? 24, 1);
   })();
-  
+
   // Transform hesaplama
   const transforms = [];
   if (rotate) transforms.push(\`rotate(\${rotate}deg)\`);
   if (mirrored) transforms.push('scaleX(-1)');
   if (flipped) transforms.push('scaleY(-1)');
-  
+
   // Animasyon sınıfları
   const animationClasses = [];
   if (spin) animationClasses.push('animate-spin');
   if (pulse) animationClasses.push('animate-pulse');
   if (bounce) animationClasses.push('animate-bounce');
-  
+
   // Renk sınıfları: color prop'u varsa her zaman Tailwind formatında ekle
   // Böylece hover sınıfları çalışır (inline style yerine className kullanıyoruz)
   const colorClasses = [];
   if (color) {
     colorClasses.push(\`text-[\${color}]\`);
   }
-  
+
   // className'i birleştir (boş string'leri filtrele)
   const combinedClassName = [...animationClasses, ...colorClasses, finalClassName].filter(Boolean).join(" ") || undefined;
-  
+
   const styles: React.CSSProperties = {
     // color artık className ile yönetiliyor, inline style'dan kaldırıldı
     opacity: visible ? opacity : 0,
@@ -473,7 +485,7 @@ const ${compName}: React.FC<IconProps> = ({
   const isOutlined = variant === 'outlined';
   const isDuotone = variant === 'duotone';
   const isLinear = variant === 'linear';
-  
+
   const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
   const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
 
@@ -484,7 +496,7 @@ const ${compName}: React.FC<IconProps> = ({
   const baseStroke = Number.isFinite(baseStrokeNum) ? baseStrokeNum : 1.5;
   const scaledStrokeWidth =
     isOutlined || isLinear ? (baseStroke * vbMaxDim) / renderDim : strokeWidth;
-  
+
   return (
     <svg
       width={w}
@@ -524,6 +536,7 @@ export default ${compName};
 
     const compFile = path.join(OUT_DIR, `${compName}.tsx`);
     fs.writeFileSync(compFile, tsx, "utf8");
+    ensureFsFilenameCaseWin32(compFile);
     exports.push(`export { default as ${compName} } from "./${compName}";`);
   });
 
@@ -687,3 +700,4 @@ function generatePreviewHTML() {
   generateReactComponents();
   console.log("\n✅ All done! Font, CSS, and Preview ready in dist folder.");
 })();
+ 
