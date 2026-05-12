@@ -347,7 +347,6 @@
 .pe-icon-kg-clock-filling1::before { content: "\EB44"; }
 .pe-icon-kg-close::before { content: "\EB45"; }
 .pe-icon-kg-cloud::before { content: "\EB46"; }
-.pe-icon-kg-cloudpm-flat-logo::before { content: "\EB47"; }
 .pe-icon-kg-cloudy::before { content: "\EB48"; }
 .pe-icon-kg-contact-information::before { content: "\EB49"; }
 .pe-icon-kg-corner-up-right::before { content: "\EB4A"; }
@@ -525,8 +524,6 @@
 .pe-icon-kg-user-plus-solid::before { content: "\EBF6"; }
 .pe-icon-kg-shift::before { content: "\EBF7"; }
 .pe-icon-kg-view::before { content: "\EBF8"; }
-.pe-icon-kg-vodafone::before { content: "\EBF9"; }
-.pe-icon-kg-vodafone-icon::before { content: "\EBFA"; }
 .pe-icon-kg-volunteer::before { content: "\EBFB"; }
 .pe-icon-kg-waiting::before { content: "\EBFC"; }
 .pe-icon-kg-wifi::before { content: "\EBFD"; }

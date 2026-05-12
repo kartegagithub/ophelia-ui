@@ -1,7 +1,7 @@
 # KG ikonları – Unicode ve İngilizce slug
 
 
-Toplam: **259**
+Toplam: **256**
 
 
 | Unicode | Slug (İngilizce dosya adı) | Dosya |
@@ -75,7 +75,6 @@ Toplam: **259**
 | uEB44 | `clock-filling1` | `uEB44-kg-clock-filling1.svg` |
 | uEB45 | `close` | `uEB45-kg-close.svg` |
 | uEB46 | `cloud` | `uEB46-kg-cloud.svg` |
-| uEB47 | `cloudpm-flat-logo` | `uEB47-kg-cloudpm-flat-logo.svg` |
 | uEB48 | `cloudy` | `uEB48-kg-cloudy.svg` |
 | uEB49 | `contact-information` | `uEB49-kg-contact-information.svg` |
 | uEB4A | `corner-up-right` | `uEB4A-kg-corner-up-right.svg` |
@@ -253,8 +252,6 @@ Toplam: **259**
 | uEBF6 | `user-plus-solid` | `uEBF6-kg-user-plus-solid.svg` |
 | uEBF7 | `shift` | `uEBF7-kg-shift.svg` |
 | uEBF8 | `view` | `uEBF8-kg-view.svg` |
-| uEBF9 | `vodafone` | `uEBF9-kg-vodafone.svg` |
-| uEBFA | `vodafone-icon` | `uEBFA-kg-vodafone-icon.svg` |
 | uEBFB | `volunteer` | `uEBFB-kg-volunteer.svg` |
 | uEBFC | `waiting` | `uEBFC-kg-waiting.svg` |
 | uEBFD | `wifi` | `uEBFD-kg-wifi.svg` |
