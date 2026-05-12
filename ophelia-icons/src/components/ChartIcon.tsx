@@ -86,6 +86,20 @@ const ChartIcon: React.FC<IconProps> = ({
   
   const w = width ?? size;
   const h = height ?? size;
+
+  /** strokeWidth prop ≈ ekranda px kalınlığı (varsayılan ikon ~24px); viewBox büyük gliflerde user-space stroke ince kalmasın diye ölçeklenir */
+  const parseIconDim = (v: IconSize): number => {
+    if (typeof v === "number" && !Number.isNaN(v)) return v;
+    const n = parseFloat(String(v));
+    return Number.isFinite(n) ? n : 24;
+  };
+  const rw = parseIconDim(w as IconSize);
+  const rh = parseIconDim(h as IconSize);
+  const renderDim = Math.max(Math.min(rw, rh), 0.001);
+  const vbMaxDim = (() => {
+    const p = "0 0 40 40".trim().split(/[\s,]+/).map(Number);
+    return Math.max(p[2] ?? 24, p[3] ?? 24, 1);
+  })();
   
   // Transform hesaplama
   const transforms = [];
@@ -123,6 +137,14 @@ const ChartIcon: React.FC<IconProps> = ({
   
   const fillValue = isOutlined || isLinear ? 'none' : 'currentColor';
   const strokeValue = isOutlined || isLinear ? 'currentColor' : 'none';
+
+  const baseStrokeNum =
+    typeof strokeWidth === "number"
+      ? strokeWidth
+      : parseFloat(String(strokeWidth));
+  const baseStroke = Number.isFinite(baseStrokeNum) ? baseStrokeNum : 1.5;
+  const scaledStrokeWidth =
+    isOutlined || isLinear ? (baseStroke * vbMaxDim) / renderDim : strokeWidth;
   
   return (
     <svg
@@ -131,7 +153,7 @@ const ChartIcon: React.FC<IconProps> = ({
       viewBox="0 0 40 40"
       fill={fillValue}
       stroke={strokeValue}
-      strokeWidth={strokeWidth}
+      strokeWidth={scaledStrokeWidth}
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
       xmlns="http://www.w3.org/2000/svg"
