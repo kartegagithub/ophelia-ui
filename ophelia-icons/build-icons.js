@@ -320,7 +320,9 @@ function generateReactComponents() {
     parts.shift(); // unicode kısmını at
     const kebab = parts.join("-");
     if (!kebab) return;
-    const compName = toPascalCase(kebab) + "Icon";
+    let compName = toPascalCase(kebab) + "Icon";
+    // Windows/macOS case-insensitive FS + TS1261: "human-resources" slug must become HumanResources, not Humanresources
+    if (compName === "KgHumanresourcesIcon") compName = "KgHumanResourcesIcon";
 
     const svg = fs.readFileSync(path.join(SVG_DIR, file), "utf8");
     const vbMatch = svg.match(/viewBox="([^"]+)"/i);
