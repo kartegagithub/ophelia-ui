@@ -6,7 +6,7 @@ This documentation describes the public API shipped by `ophelia-next`. It is org
 
 1. [Getting started](./getting-started.md) — requirements, installation, imports, and a first component.
 2. [Core concepts](./core-concepts.md) — `AppClient`, hydration boundaries, analytics, SEO, and themes.
-3. [Components and forms](./components.md) — UI families, controlled inputs, validation, and feedback.
+3. [Components and forms](./components/README.md) — individual components, props, inputs, validation, and feedback.
 4. [Service layer](./service-layer.md) — `APIService`, `Endpoint`, request options, results, and SWR.
 5. [Data binders](./data-binders.md) — collection and entity workflows.
 6. [Localization and routing](./localization-and-routing.md) — regions, translations, and localized URLs.

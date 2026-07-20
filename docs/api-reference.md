@@ -31,7 +31,7 @@ Many components also export props, theme types, model classes, or event types. L
 
 ### Fields
 
-`BaseField`, `InputField`, `InputValidationRule`, `AgreementCheckboxField`, `BoolField`, `ColorField`, `DateField`, `DateRangeField`, `DateTimeField`, `DropdownField`, `DropdownFilterboxField`, `EmailField`, `EnumSelectBoxField`, `FileField`, `ImageField`, `LabelField`, `MonthField`, `NumericField`, `PasswordField`, `PhoneField`, `RadioField`, `RangeField`, `RichTextField`, `TextAreaField`, `TextField`, `TimeField`, `TimeRangeField`, `URLField`, and `WeekField`.
+`BaseField`, `InputField`, `InputValidationRule`, `AgreementCheckboxField`, `BoolField`, `ColorField`, `DateField`, `DateRangeField`, `DateTimeField`, `DropdownField`, `DropdownFilterboxField`, `EmailField`, `EnumSelectBoxField`, `FileField`, `ImageField`, `LabelField`, `MonthField`, `NumericField`, `PasswordField`, `PhoneField`, `RangeField`, `RichTextField`, `TextAreaField`, `TextField`, `TimeField`, `TimeRangeField`, `URLField`, and `WeekField`.
 
 ## Services
 

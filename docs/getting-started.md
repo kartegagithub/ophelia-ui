@@ -73,7 +73,7 @@ Do not share a mutable `AppClient` singleton between server requests. Create req
 ## Next steps
 
 - Configure the application runtime in [Core concepts](./core-concepts.md).
-- Build UI in [Components and forms](./components.md).
+- Build UI in [Components and forms](./components/README.md).
 - Connect an API in [Service layer](./service-layer.md).
 
 ## Troubleshooting

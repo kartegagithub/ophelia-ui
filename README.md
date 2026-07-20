@@ -56,7 +56,7 @@ Ophelia components that use state, effects, browser APIs, or event handlers must
 - [Documentation home](./docs/README.md)
 - [Getting started](./docs/getting-started.md)
 - [AppClient and theming](./docs/core-concepts.md)
-- [Components and forms](./docs/components.md)
+- [Components and forms](./docs/components/README.md)
 - [Service layer](./docs/service-layer.md)
 - [Data binders](./docs/data-binders.md)
 - [Localization and routing](./docs/localization-and-routing.md)
